@@ -38,3 +38,7 @@ missing (e.g. "no plan: offline validation only").
 ## Handoff
 Final message: handoff block, status `done` if there are no CRITICAL/HIGH findings,
 otherwise `changes-requested`.
+
+Format: use the exact handoff format from the dispatch prompt. If none was given:
+`## <role> · <task> · <status>`, then **Did**, **Evidence**, **Changed files**, **Open issues**,
+**Next**; under 150 words, no preamble.

@@ -49,6 +49,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "base": "main",
   "size": "standard",
   "mode": "subagent",
+  "delivery": "normal",
   "stage": "implement",
   "gates": { "spec": "approved", "plan": "approved", "deliver": "pending" },
   "domains": ["go-service", "terraform", "aws"],
@@ -76,6 +77,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 |---|---|
 | `commands.*` | a string, a list of strings (one per stack or module), or `null` |
 | `targets` | live environments approved for **read-only** evidence; empty = offline only |
+| `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `done` |
 | `gates.*` | `pending` `approved` `skipped` |

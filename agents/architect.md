@@ -33,3 +33,7 @@ Stay under ~80 lines.
 
 ## Handoff
 Final message: handoff block, status `done`, listing task count and any callouts.
+
+Format: use the exact handoff format from the dispatch prompt. If none was given:
+`## <role> · <task> · <status>`, then **Did**, **Evidence**, **Changed files**, **Open issues**,
+**Next**; under 150 words, no preamble.

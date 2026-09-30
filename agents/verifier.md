@@ -23,6 +23,11 @@ Verifier. You prove, not assume.
 3. If no test covers a criterion, perform and record a manual check (exact command and
    observed output), or mark it `fail: no evidence`.
 
+## Budget
+Run the full suite **once** and one targeted verbose run of the new tests to map subtests to
+criteria (e.g. `go test ./pkg -run 'TestX' -v`). Don't read source files beyond test names;
+the implementer and reviewers own the code. Aim for ~8 tool calls. Record, don't narrate.
+
 ## Must not
 Edit code or tests, or re-run until green on flaky failures without reporting the flake.
 
@@ -32,3 +37,7 @@ Every criterion has a result, and every `pass` has evidence another person could
 ## Handoff
 Final message: handoff block, status `done` if all checks and criteria pass, otherwise
 `changes-requested` with each failing item.
+
+Format: use the exact handoff format from the dispatch prompt. If none was given:
+`## <role> · <task> · <status>`, then **Did**, **Evidence**, **Changed files**, **Open issues**,
+**Next**; under 150 words, no preamble.

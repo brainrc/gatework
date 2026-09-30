@@ -29,6 +29,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 6. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).
 7. Classify size ([sizing.md](sizing.md)) and say it in one line. The user may override.
+8. Set `delivery`: `local-only` when the user asks for it (`--local`, "don't open a PR", working on
+   someone else's repo without push rights), else `normal`. Record it in state.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
 open questions. At the gate, show the criteria and questions. If the user answers
@@ -49,6 +51,9 @@ draft outward text. Nothing is posted.
 
 **6 · deliver**: show the Deliver gate summary (below). Only after approval: push the
 branch, open the PR, comment on / transition the ticket, and link the PR.
+With `delivery: local-only`, the gate lists **no outward actions**: deliver finalizes the drafts
+(`PR: <PR_URL>` → `PR: none (local-only, branch <branch>)`), leaves the branch unpushed, and
+writes the retro.
 
 **7 · done**: write `retro.md`, print the PR link and the metrics summary.
 

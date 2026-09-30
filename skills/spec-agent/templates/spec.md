@@ -1,6 +1,6 @@
 # Spec: <title>
 
-Ticket: <ref> · Size: <tier> · Status: draft | approved
+Ticket: <ref> · Size: <tier, set by the engine> · Status: draft | approved
 
 ## Problem
 <Who is affected, what is wrong or missing, and why it matters. 2–5 sentences.

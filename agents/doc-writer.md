@@ -26,3 +26,7 @@ Every user-visible change is documented where users will look, and both drafts e
 
 ## Handoff
 Final message: handoff block listing the docs touched and the drafts written.
+
+Format: use the exact handoff format from the dispatch prompt. If none was given:
+`## <role> · <task> · <status>`, then **Did**, **Evidence**, **Changed files**, **Open issues**,
+**Next**; under 150 words, no preamble.

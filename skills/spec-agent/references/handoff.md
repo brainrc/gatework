@@ -42,10 +42,19 @@ agents stay reusable and context stays small:
 
 ```
 Role: <agent>
+Project root: <absolute path>
 Work item: specs/<slug>/
 Task: <task id and title, or stage name>
 Read: <artifact paths relevant to this role>
+Templates: <absolute path of this skill's templates/ dir>
 Project commands: test=`…` lint=`…` validate=`…`
-Domain skills: <e.g. terraform, aws>   Targets: <approved envs/contexts, or "offline only">
-Follow your role instructions. End with a handoff block as your final message.
+Domain skills: <name: absolute SKILL.md path, …>   Targets: <approved envs/contexts, or "offline only">
+Delivery: <normal | local-only>
+Follow your role instructions. End with a handoff block as your final message, under 150 words,
+in exactly this format:
+## <agent> · <task> · <done|blocked|changes-requested>
+**Did:** … **Evidence:** … **Changed files:** … **Findings:** (reviewers) … **Open issues:** … **Next:** …
 ```
+
+Subagents can't resolve paths relative to this skill, so the dispatch always carries absolute
+paths and the literal handoff format. Never assume a role can read `references/`.

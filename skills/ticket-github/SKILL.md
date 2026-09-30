@@ -12,12 +12,21 @@ Requires `gh` authenticated (`gh auth status`). If it isn't, stop and ask the us
 **Refs:** `gh:42` (repo from the current directory's remote) or
 `https://github.com/<owner>/<repo>/issues/42` (add `-R <owner>/<repo>` to every command).
 
+## Local-only delivery
+With `delivery: local-only`, `comment`, `transition`, and `link_pr` are **not run**. Finalize the
+drafts instead. Also set a dead push URL on clones of repos you don't own:
+`git remote set-url --push origin DISABLED-local-only`.
+
 ## fetch (read-only, any stage)
 
 ```bash
 gh issue view 42 --json number,title,body,url,state,labels,comments \
   --jq '{number,title,url,state,labels:[.labels[].name],body,comments:[.comments[]|{author:.author.login,body}]}'
 ```
+
+`comments` is a **list** in `gh` JSON: count with `(.comments | length)`. When triaging many
+issues, request only `number,title,labels,updatedAt` (plus `comments | length`). Bodies and
+comment lists are expensive; fetch them for the chosen issue only.
 
 Write `ticket.md` per the spec-agent state reference: title, source line, the untrusted-content
 notice, then body and comments verbatim inside a `~~~~text` fence. If the issue is closed,

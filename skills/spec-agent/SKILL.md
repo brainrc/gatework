@@ -82,6 +82,9 @@ For each task in `plan.md` order whose status isn't `done`:
 1. `in_progress` → save → dispatch the task's agent.
 2. Check the handoff: evidence shows tests **green** (test-writer: **failing for the right
    reason**), and `git diff --name-only` ⊆ task `files`. Otherwise treat it as a failed attempt.
+   If the recorded red was compile-only, run a **mutation check**: the new tests against the base
+   version of the changed non-test files (e.g. `git stash push <src files>`, run, `git stash pop`).
+   They must fail. If they pass, the tests don't prove the change: failed attempt.
 3. If the task has `review: each`: dispatch the reviewers for this task's diff: `code-reviewer`
    for code, `infra-reviewer` for infra domains, `security-reviewer` if a trigger is touched, in parallel.
 4. CRITICAL/HIGH findings or failed checks → +1 `attempts` and `metrics.retries`, re-dispatch

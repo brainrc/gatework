@@ -16,7 +16,8 @@ Ticket: <ref> · Size: <tier> · PR: <url>
 
 ## Reflections
 Ask the user these three; record answers verbatim (or "skipped"):
-1. Did the result match what you meant when you filed the ticket?
+1. If the user wrote the ticket: did the result match what you meant? Otherwise (someone
+   else's issue): would you ship this as-is, and if not, what's missing?
 2. Where did you have to step in, and why?
 3. One change to a skill, agent, or rule that would have prevented that?
 
