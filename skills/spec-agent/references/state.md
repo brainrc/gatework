@@ -85,6 +85,10 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 Rules:
 - Write `state.json` **after every state change**, before starting the next action,
   so a crash loses at most one step.
+- **Checkpoint commit at every stop** (gate presented, blocked, or run finished): commit
+  `specs/<slug>/` and any ticket-file status change on the feature branch, e.g.
+  `Checkpoint 001-add-shout-flag: spec gate` + `Refs <ticket ref>`. A paused run always
+  leaves a clean tree. (`.runs/` is excluded via `.git/info/exclude`.)
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
@@ -94,7 +98,10 @@ Rules:
 
 On `/work <same ref>` or `/spec-resume`:
 1. Find `specs/*/state.json` whose `ticket.ref` matches (or the only one on the current branch).
-2. Check out `state.branch`. If the tree is dirty, stop and ask.
+2. Check out `state.branch`, then check `git status --porcelain`:
+   - Changes only under `specs/<slug>/` (or the ticket file's status) are the engine's own
+     files from an interrupted stage: make a checkpoint commit and continue.
+   - Any other change: show it and stop. It may be the user's work or a half-finished task.
 3. If `blocked` is set, show the reason and ask how to proceed.
 4. If `stage` is `implement`, re-run the test command first to confirm the last
    `done` task still holds, then continue with the first task not `done`.
