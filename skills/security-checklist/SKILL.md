@@ -7,7 +7,8 @@ description: Security triggers and review checklist for code changes (injection,
 
 ## Triggers
 A change needs security review (and is at least `standard` size in spec-agent) if it touches:
-authentication or authorization · user or external input parsing · database queries ·
+authentication or authorization · untrusted input (requests, uploads, messages, third-party
+data) reaching a sink: query, shell, path, template, deserializer, or auth decision · database queries ·
 shell/process execution · filesystem paths from input · network calls or URL fetching ·
 HTML/template rendering · deserialization · cryptography, tokens, sessions · secrets or
 config loading · dependency manifests or lockfiles · CI/CD workflows · permissions/roles.

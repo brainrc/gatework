@@ -62,7 +62,7 @@ Unlisted stacks: rely on the project's own conventions and `project-commands`.
    reads), ask which target is allowed (`guardrails.md` § Environments; default: offline only).
    State all of it in one line, save state.
 3. **Run the stages** in the size's stage mask. After each stage: update `state.json`,
-   record `metrics.stage_started_at`, and if the stage ends in a gate, make a checkpoint
+   record `metrics.stage_started_at` (from `date -u`, never estimated), and if the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), and
    **stop until the user approves**. Checkpoint-commit on every other stop too (blocked, done).
 4. **On approval** (`approve`, `lgtm`, `/spec-approve`): set the gate `approved`, continue.

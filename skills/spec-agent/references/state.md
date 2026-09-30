@@ -92,7 +92,8 @@ Rules:
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
-- Timestamps are UTC ISO 8601.
+- Timestamps are UTC ISO 8601, taken from `date -u +%Y-%m-%dT%H:%M:%SZ` at the moment of the
+  transition. Never estimate or back-fill them. A missing timestamp beats an invented one.
 
 ## Resume
 

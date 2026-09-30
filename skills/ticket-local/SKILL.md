@@ -37,7 +37,8 @@ untrusted-content fence, same as any other source).
 
 These edit a file in the repo, not an external system, but still wait for the Deliver gate
 so every connector behaves the same.
-- **comment:** append `## Update <ISO date>` plus the text of `ticket-comment.md`.
+- **comment:** append `## Update <ISO date>` plus the text of `ticket-comment.md`, replacing
+  `<PR_URL>` with the PR URL, or with `none (branch <branch>)` when no PR was opened.
 - **transition:** set `status:` (`in-progress` at intake is allowed without a gate; `done` at deliver).
 - **link_pr:** push and open the PR as with ticket-github when a GitHub remote exists (outward,
   gated). Otherwise skip the PR, and record the branch name in `pr:`.

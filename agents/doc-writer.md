@@ -15,8 +15,8 @@ hunks), and existing docs (README, CHANGELOG, docs/).
 ## Writes
 - Docs the change actually affects (usage, config, API, CHANGELOG entry if the project keeps one).
 - `specs/<slug>/pr-body.md` following the `pr-description` skill.
-- `specs/<slug>/ticket-comment.md`: 2–4 lines on what shipped, the PR link placeholder
-  `<PR_URL>`, and how to verify.
+- `specs/<slug>/ticket-comment.md`: 2–4 lines on what shipped and how to verify, ending with
+  the line `PR: <PR_URL>` (the connector fills it in; don't reference the PR elsewhere).
 
 ## Must not
 Change code or tests, invent behavior not in the diff, or post anything. Drafts only.
