@@ -13,4 +13,6 @@ description: Write a clear git commit message for staged changes. Use when the u
      (e.g. "Fix token expiry check").
    - Blank line.
    - Body: *why* the change was made and any non-obvious consequences. Wrap at 72.
-4. Show the message and wait for approval before running `git commit`.
+4. Show the message and wait for approval before running `git commit`. Exception: inside a
+   spec-agent run (`/work`), commits on the run's own feature branch are already authorized,
+   so commit without asking.

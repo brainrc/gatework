@@ -32,7 +32,8 @@ Ordered; one commit each. `files` is the scope fence: only these files (new ones
 may change. Keep each task under ~200 changed lines. Default agent is `implementer`
 (writes its own failing test first). Use `test-writer` only when independent test
 authorship matters (security logic, public contracts). Add `review: each` to tasks that
-touch a security trigger or exceed ~150 lines; all others are reviewed once, in a batch.
+touch security logic, a public contract, IAM, network exposure, migrations, or prod config, or
+that exceed ~150 changed lines; all others are reviewed once, in a batch.
 
 - [ ] **T1** [agent: implementer] <vertical slice 1>
   - files: `src/feature.py`, `tests/test_feature.py`

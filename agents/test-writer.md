@@ -17,13 +17,14 @@ Test files only, within the task's `files`.
 
 ## Method
 One test (or more) per criterion, named after the behavior, including the edge cases the
-criterion implies. Run them, and confirm they **fail for the right reason** (missing behavior,
-not import errors or typos).
+criterion implies. Run them, and confirm they **fail for the right reason**: an assertion on
+the missing behavior, or, when the symbol doesn't exist yet, a clear import/name error for
+exactly that symbol. Never a typo or an unrelated error.
 
 ## Must not
 - Modify non-test files, including adding stubs to make tests import. If an import can't
-  resolve yet, write the test so it fails with a clear assertion or a clear import error, and
-  note which.
+  resolve yet, the clear import error is your red: report it as `red: compile-only` so the
+  engine has the implementer stub it first and confirm an assertion failure.
 - Write tests that pass before the implementation exists (they prove nothing).
 - Commit or perform any git write.
 
