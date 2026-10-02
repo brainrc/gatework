@@ -82,14 +82,22 @@ For each task in `plan.md` order whose status isn't `done`:
 1. `in_progress` → save → dispatch the task's agent.
 2. Check the handoff: evidence shows tests **green** (test-writer: **failing for the right
    reason**), and `git diff --name-only` ⊆ task `files`. Otherwise treat it as a failed attempt.
-   If the recorded red was compile-only, run a **mutation check**: the new tests against the base
-   version of the changed non-test files (e.g. `git stash push <src files>`, run, `git stash pop`).
-   They must fail. If they pass, the tests don't prove the change: failed attempt.
-3. If the task has `review: each`: dispatch the reviewers for this task's diff: `code-reviewer`
-   for code, `infra-reviewer` for infra domains, `security-reviewer` if a trigger is touched, in parallel.
+   Record how the red failed in `tasks[].red`: `assertion` or `compile-only`.
+   - test-writer with a `compile-only` red (the symbol doesn't exist yet, and it may not add
+     stubs): accepted. Tell the implementing task's agent that its first step is the stub, and
+     that its evidence must show the tests failing on assertions against the stub.
+   - implementer with a `compile-only` red: run a **mutation check**: the new tests against the
+     base version of the changed non-test files (e.g. `git stash push <src files>`, run,
+     `git stash pop`). They must fail. If they pass, the tests don't prove the change: failed attempt.
+3. If the task has `review: each`: set its status to `review`, then dispatch the reviewers for
+   this task's diff: `code-reviewer` for code, `infra-reviewer` for infra domains,
+   `security-reviewer` if a trigger is touched, in parallel.
 4. CRITICAL/HIGH findings or failed checks → +1 `attempts` and `metrics.retries`, re-dispatch
    the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
-5. Commit following the commit-message skill, subject + `Refs <ticket ref>`. Store the sha in the task, mark it `done`.
+5. Commit with a message in the commit-message skill's format, subject + `Refs <ticket ref>`.
+   Starting `/work` authorizes commits on the run's own feature branch (rules: git), so don't
+   stop to ask; the skill's ask-first step is for commits outside a run. Store the sha in the
+   task, mark it `done`.
 
 Then **batched review** of `git diff <base>...HEAD`, excluding tasks already reviewed:
 the same reviewer routing as step 3, in parallel. CRITICAL/HIGH → add fix

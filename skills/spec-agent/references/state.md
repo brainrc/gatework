@@ -43,7 +43,8 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 ```json
 {
   "version": 1,
-  "ticket": { "source": "github", "ref": "gh:42", "id": "42", "title": "Add CSV export", "url": "https://github.com/<owner>/<repo>/issues/42" },
+  "ticket": { "source": "github", "ref": "gh:42", "id": "42", "title": "Add CSV export", "url": "https://github.com/<owner>/<repo>/issues/42",
+              "pr": null },
   "slug": "042-csv-export",
   "branch": "042-csv-export",
   "base": "main",
@@ -56,10 +57,12 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "targets": { "aws": { "profile": "dev", "account": "123456789012", "region": "eu-west-1" },
                "terraform": ["infra/envs/dev"], "kube_context": null },
   "commands": { "test": "go test ./...", "lint": "golangci-lint run ./...", "build": "go build ./...",
-                "validate": ["terraform fmt -check -recursive", "terraform validate"], "plan": null },
+                "validate": ["terraform fmt -check -recursive", "terraform validate"], "plan": null,
+                "baseline_failures": [] },
   "tasks": [
     { "id": "T1", "title": "Failing tests for CSV export", "agent": "test-writer",
-      "status": "done", "attempts": 1, "files": ["tests/test_export.py"], "criteria": ["AC1", "AC2"], "commit": "a1b2c3d" }
+      "status": "done", "attempts": 1, "files": ["tests/test_export.py"], "criteria": ["AC1", "AC2"],
+      "review": "batch", "red": "compile-only", "commit": "a1b2c3d" }
   ],
   "blocked": null,
   "metrics": {
@@ -75,7 +78,11 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 
 | Field | Values |
 |---|---|
+| `ticket.pr` | PR URL once `link_pr` ran, else `null` |
 | `commands.*` | a string, a list of strings (one per stack or module), or `null` |
+| `commands.baseline_failures` | test names failing before any change (project-commands § Baseline); never count against a task |
+| `tasks[].review` | `each` (reviewed after the task) or `batch` (default, batched review) |
+| `tasks[].red` | `assertion` or `compile-only`: how the task's new tests first failed |
 | `targets` | live environments approved for **read-only** evidence; empty = offline only |
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |

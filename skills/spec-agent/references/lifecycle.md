@@ -20,11 +20,13 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 ## Stage details
 
 **0 · intake**
-1. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `local:<path>`, or free text
-   (free text becomes a local ticket at `specs/tickets/<slug>.md`).
-2. Fetch it through the connector skill and write `ticket.md` (format in [state.md](state.md)).
-3. Check `git status`. If the working tree is dirty, stop and ask.
-4. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
+1. Check `git status`. If the working tree is dirty, stop and ask. (Check first: the next
+   steps create files, and those are the engine's own.)
+2. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `local:<path>`, or free text
+   (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
+3. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
+4. Fetch the ticket through the connector skill and write `ticket.md` (format in
+   [state.md](state.md)). Files written during intake go into the first checkpoint commit.
 5. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
 6. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).
