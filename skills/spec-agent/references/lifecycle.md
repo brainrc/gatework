@@ -22,7 +22,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 **0 · intake**
 1. Check `git status`. If the working tree is dirty, stop and ask. (Check first: the next
    steps create files, and those are the engine's own.)
-2. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `local:<path>`, or free text
+2. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `jira:<KEY-n>` or a Jira browse
+   URL (ticket-jira), `local:<path>`, or free text
    (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
    A ref that matches a pack connector's `refs` (`references/extensions.md`) uses that connector.
 3. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).

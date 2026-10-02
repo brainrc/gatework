@@ -12,7 +12,7 @@ Load references only when the step needs them:
 [lifecycle](references/lifecycle.md) · [sizing](references/sizing.md) ·
 [state](references/state.md) · [handoff](references/handoff.md) ·
 [guardrails](references/guardrails.md) · [efficiency](references/efficiency.md) ·
-[fallback](references/fallback.md). Templates are in `templates/`.
+[fallback](references/fallback.md) · [campaign](references/campaign.md). Templates are in `templates/`.
 
 ## Roles
 
@@ -29,9 +29,11 @@ Load references only when the step needs them:
 | doc-writer | docs + PR/ticket drafts | [roles/doc-writer.md](roles/doc-writer.md) |
 
 Supporting skills: [ticket-local](../ticket-local/SKILL.md),
-[ticket-github](../ticket-github/SKILL.md), [project-commands](../project-commands/SKILL.md),
+[ticket-github](../ticket-github/SKILL.md), [ticket-jira](../ticket-jira/SKILL.md),
+[project-commands](../project-commands/SKILL.md),
 [security-checklist](../security-checklist/SKILL.md), [pr-description](../pr-description/SKILL.md),
-[commit-message](../commit-message/SKILL.md).
+[commit-message](../commit-message/SKILL.md), [unslop](../unslop/SKILL.md) (prose drafts),
+[runbook](../runbook/SKILL.md) (new alerts and failure modes).
 
 ## Domains
 
@@ -61,7 +63,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 ## Run
 
 1. **Find or create state.** If `specs/*/state.json` matches the ticket ref → resume
-   (`state.md` § Resume). Otherwise run **intake** (`lifecycle.md` § 0).
+   (`state.md` § Resume). Otherwise run **intake** (`lifecycle.md` § 0). With `--campaign`,
+   follow `campaign.md` instead: it runs these same stages per member, in batches.
 2. **Size, mode, domains, targets.** Classify size (`sizing.md`), pick mode (`efficiency.md`),
    detect domains. If any domain needs a live environment for evidence (plan, cluster diff, AWS
    reads), ask which target is allowed (`guardrails.md` § Environments; default: offline only).

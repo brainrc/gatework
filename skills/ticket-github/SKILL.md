@@ -5,7 +5,7 @@ description: Ticket connector for GitHub issues via the gh CLI. Fetch an issue, 
 
 # ticket-github
 
-Implements the ticket connector interface: `fetch`, `comment`, `transition`, `link_pr`.
+Implements the ticket connector interface: `fetch`, `list`, `comment`, `transition`, `link_pr`.
 Requires `gh` authenticated (`gh auth status`). If it isn't, stop and ask the user to run
 `gh auth login`. Never handle tokens yourself.
 
@@ -31,6 +31,15 @@ comment lists are expensive; fetch them for the chosen issue only.
 Write `ticket.md` per the spec-agent state reference: title, source line, the untrusted-content
 notice, then body and comments verbatim inside a `~~~~text` fence. If the issue is closed,
 stop and ask before working on it.
+
+## list (read-only; campaign mode)
+
+```bash
+gh issue list --state open --limit 100 --json number,title,labels,assignees \
+  --search "<query>"     # e.g. 'label:migrate-ingress', 'milestone:"Q4 upgrades"'
+```
+
+For a tracking issue with a task list, read its body and collect the linked `#numbers`.
 
 ## comment (outward: Deliver gate only)
 

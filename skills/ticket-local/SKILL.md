@@ -5,7 +5,7 @@ description: Ticket connector for work items stored as markdown files in the rep
 
 # ticket-local
 
-Implements the ticket connector interface: `fetch`, `comment`, `transition`, `link_pr`.
+Implements the ticket connector interface: `fetch`, `list`, `comment`, `transition`, `link_pr`.
 
 ## File format
 
@@ -32,6 +32,11 @@ unused number under `specs/`.
 
 Read the file and write `ticket.md` per the spec-agent state reference (body inside the
 untrusted-content fence, same as any other source).
+
+## list (campaign mode)
+
+The ticket files in a directory (`local:tickets/`) or matching a glob, with `status: open`.
+Read only the frontmatter until a member is chosen.
 
 ## comment / transition / link_pr (Deliver stage, after the gate)
 
