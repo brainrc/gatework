@@ -19,7 +19,8 @@ PrometheusRule CRDs: extract `.spec` and run promtool on it.
 - Alert on symptoms users feel (error rate, latency, saturation), not every cause. Prefer SLO
   multi-window burn-rate alerts over static thresholds for services with SLOs.
 - Every alert has `for:` (no flapping), `severity` label matching routing, and annotations
-  `summary`, `description` with current value, and `runbook_url`.
+  `summary`, `description` with current value, and `runbook_url`. The runbook exists before
+  the alert ships (the runbook skill); a placeholder URL is a blocker.
 - Paging alerts must be actionable by the on-call person; everything else is a ticket or dashboard.
 - New alerts ship with a `promtool test rules` case covering fire and no-fire.
 

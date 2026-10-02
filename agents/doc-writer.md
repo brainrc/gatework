@@ -18,6 +18,10 @@ hunks), and existing docs (README, CHANGELOG, docs/).
 - `specs/<slug>/ticket-comment.md`: 2–4 lines on what shipped and how to verify, ending with
   the line `PR: <PR_URL>` (the connector fills it in; don't reference the PR elsewhere).
 
+Before finishing, run the unslop skill on every prose draft (change-prose register for
+`pr-body.md`, explanatory for docs). For a new alert or failure mode, write its runbook with
+the runbook skill.
+
 ## Must not
 Change code or tests, invent behavior not in the diff, or post anything. Drafts only.
 
