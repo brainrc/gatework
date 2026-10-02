@@ -33,6 +33,11 @@ pack's `[extensions.ticket]`). Without one, ask for `host` and use the defaults.
 | `blocked_status` | none | status for a blocked stop, if the team uses one |
 | `never_transition_to` | `["Done", "Closed", "Resolved"]` | statuses only a human sets; never apply these |
 
+The three `*_status` keys take a status name, or a table keyed by project key with an optional
+`"*"` fallback, for teams whose projects use different workflows:
+`review_status = { PROJ = "In Review", OPS = "Review AI work", "*" = "In Review" }`.
+A project with no entry and no `"*"` gets no transition.
+
 Match status names case-insensitively against `getTransitionsForJiraIssue`. If no transition
 matches, say so and leave the status alone. Never fail the run over a missing transition.
 
