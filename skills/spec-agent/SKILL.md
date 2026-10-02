@@ -53,6 +53,11 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 
 Unlisted stacks: rely on the project's own conventions and `project-commands`.
 
+**Packs.** If `references/extensions.md` exists (rendered by `aicfg apply` from enabled packs),
+read it once at intake. Its Domains rows extend the table above, its Intake context skills run
+after the ticket is fetched, its Ticket connectors handle the refs they list, and its Deliver
+checks join the Deliver gate. Without it, everything above applies unchanged.
+
 ## Run
 
 1. **Find or create state.** If `specs/*/state.json` matches the ticket ref → resume
@@ -107,7 +112,8 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
 ## Deliver stage
 
 1. Present the Deliver gate with every outward action verbatim (branch, PR title/body
-   path, ticket comment, status change).
+   path, ticket comment, status change), plus any pack Deliver checks, each marked done,
+   not applicable, or not run.
 2. After approval, and only then: push the branch, open the PR from `pr-body.md` using
    the ticket connector's `link_pr`, post `ticket-comment.md`, transition the ticket.
 3. Write `retro.md` from the template: fill metrics from state, ask the three reflection
