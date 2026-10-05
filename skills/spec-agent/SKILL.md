@@ -12,7 +12,8 @@ Load references only when the step needs them:
 [lifecycle](references/lifecycle.md) · [sizing](references/sizing.md) ·
 [state](references/state.md) · [handoff](references/handoff.md) ·
 [guardrails](references/guardrails.md) · [efficiency](references/efficiency.md) ·
-[fallback](references/fallback.md) · [campaign](references/campaign.md). Templates are in `templates/`.
+[fallback](references/fallback.md) · [campaign](references/campaign.md) ·
+[connectors](references/connectors.md). Templates are in `templates/`.
 
 ## Roles
 
