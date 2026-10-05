@@ -26,15 +26,22 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    URL (ticket-jira), `local:<path>`, or free text
    (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
    A ref that matches a pack connector's `refs` (`references/extensions.md`) uses that connector.
-3. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
-4. Fetch the ticket through the connector skill and write `ticket.md` (format in
+3. If the repo has a `VERSION` file, list other open PRs that change `VERSION` or `CHANGELOG.md`
+   (through the connector's system, e.g. `gh pr list` or its MCP equivalent). If any exist,
+   name them and recommend waiting for them to merge before branching, since both will claim
+   the same next version. Can't list PRs → say so in one line and continue.
+4. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
+5. Fetch the ticket through the connector skill and write `ticket.md` (format in
    [state.md](state.md)). Run any pack Intake context skills and append their summaries.
    Files written during intake go into the first checkpoint commit.
-5. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
-6. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
+6. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
+7. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).
-7. Classify size ([sizing.md](sizing.md)) and say it in one line. The user may override.
-8. Set `delivery`: `local-only` when the user asks for it (`--local`, "don't open a PR", working on
+8. Classify size ([sizing.md](sizing.md)) and say it in one line with the mode. The user may
+   override. If the harness can run subagents but the named agents aren't installed (Claude
+   Code without `~/.claude/agents/analyst.md`), say it runs in `fallback` and that
+   `python3 scripts/aicfg.py apply` in ai-config installs them.
+9. Set `delivery`: `local-only` when the user asks for it (`--local`, "don't open a PR", working on
    someone else's repo without push rights), else `normal`. Record it in state.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
@@ -54,7 +61,8 @@ evidence. Any `fail` → back to `implement` with a new fix task (counts as a re
 **5 · document**: update docs the change affects (README, CHANGELOG, API docs) and
 draft outward text. Nothing is posted.
 
-**6 · deliver**: show the Deliver gate summary (below). Only after approval: push the
+**6 · deliver**: re-run the intake `VERSION` check. If such a PR merged meanwhile, merge the
+default branch and renumber this run's version before the gate. Show the Deliver gate summary (below). Only after approval: push the
 branch, open the PR, comment on / transition the ticket, and link the PR.
 With `delivery: local-only`, the gate lists **no outward actions**: deliver finalizes the drafts
 (`PR: <PR_URL>` → `PR: none (local-only, branch <branch>)`), leaves the branch unpushed, and
@@ -74,5 +82,7 @@ Artifacts: specs/<slug>/<files>
 Reply "approve", or say what to change.
 ```
 
-Deliver gate also lists **every outward action verbatim**: branch to push, PR title,
-ticket comment text, and status transition.
+Deliver gate also lists, before `Artifacts:`, a `Changes:` line with the diff stat outside the
+spec folder (`git diff --stat <base>...HEAD -- . ':!specs'`), so the work itself comes first,
+and **every outward action verbatim**: branch to push, PR title, ticket comment text, and
+status transition.
