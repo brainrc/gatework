@@ -9,6 +9,8 @@ The conversion is lossy, and the API still returns success when content is dropp
 - **HTML is stripped.** No `<details>`, `<br>`, or inline HTML.
 - **Long fenced blocks are fine**, but give each a language tag so it renders as code.
 - **Mentions** need the account ID (`lookupJiraAccountId`); `@name` stays plain text.
+- **Task-list checkboxes** (`- [x]`, `- [ ]`) arrive as escaped literal text. Use ✅ / ⬜ in a
+  plain bullet list instead.
 
 After posting, read the returned body (or re-fetch the comment) and check that every table
 and code block survived. If something is missing, edit the comment rather than posting a second one.
