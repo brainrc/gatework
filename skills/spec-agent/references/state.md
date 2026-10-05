@@ -68,6 +68,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "metrics": {
     "started_at": "2026-09-29T21:30:00Z",
     "stage_started_at": { "intake": "…", "spec": "…" },
+    "gates": { "spec": { "presented_at": "…", "approved_at": "…" } },
     "gate_rework": { "spec": 0, "plan": 1, "deliver": 0 },
     "reviews": { "total": 3, "first_pass": 2 },
     "retries": 1,
@@ -101,6 +102,9 @@ Rules:
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
+- `metrics.gates.<gate>`: `presented_at` when the gate message goes out, `approved_at` when the
+  user approves. Wait time is the gap; agent time is the rest. Runs started before these fields
+  existed have none: treat missing as unknown, never as zero.
 - Timestamps are UTC ISO 8601, taken from `date -u +%Y-%m-%dT%H:%M:%SZ` at the moment of the
   transition. Never estimate or back-fill them. A missing timestamp beats an invented one.
 

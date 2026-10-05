@@ -11,6 +11,11 @@ tier any signal reaches, and state it in one line:
 | standard | 3–10 files | maybe an internal module | at least one real design choice |
 | large | many / cross-cutting | new external dep, public API, migration | several open questions |
 
+**Changed lines** temper the Files column only. Roughly 30 changed lines or fewer score at most
+`small` on that column, however many files they touch. New self-contained example or doc files
+(nothing else imports them) count about half. The other columns still apply, so a short diff
+with a real design choice is still `standard`.
+
 **Floors:** at least `standard` for anything touching a security trigger (see the
 [security-checklist](../../security-checklist/SKILL.md) skill), a public API, IAM/RBAC, network
 exposure, shared Terraform modules or charts, prod environment config, GitOps prod paths, or

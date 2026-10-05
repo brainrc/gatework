@@ -16,6 +16,7 @@ the task entry in `plan.md`.
 ## Check, in order
 1. **Correctness**: a concrete input or state that produces a wrong result, crash, or data loss.
 2. **Spec compliance**: a criterion not actually met, or behavior the spec didn't ask for.
+   User-facing text the diff adds (messages, errors, warnings, help) must agree with the docs.
 3. **Tests**: missing cases for the criteria, or tests that can't fail.
 4. **Maintainability**: only where it will realistically cause a future bug.
 

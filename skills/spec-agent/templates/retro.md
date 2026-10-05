@@ -5,8 +5,8 @@ Ticket: <ref> · Size: <tier> · PR: <url>
 ## Metrics
 | Metric | Value |
 |---|---|
-| Duration (intake → deliver) | <h:mm> |
-| Time per stage | spec <m>, plan <m>, implement <m>, verify <m> |
+| Duration (intake → deliver) | <h:mm> total = <h:mm> agent + <h:mm> waiting at gates |
+| Time per stage | spec <m>, plan <m>, implement <m>, verify <m> (agent time, gate waits excluded) |
 | Gate rework (spec / plan / deliver) | <n> / <n> / <n> |
 | Tasks | <n> |
 | Review first-pass rate | <first_pass>/<total> (<%>) |
