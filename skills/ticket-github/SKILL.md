@@ -1,13 +1,22 @@
 ---
 name: ticket-github
-description: Ticket connector for GitHub issues via the gh CLI. Fetch an issue, comment on it, change its state or labels, and open a linked pull request. Use when spec-agent works on a gh:<number> or GitHub issue URL, or when asked to read or update a GitHub issue.
+description: Ticket connector for GitHub issues via the gh CLI or the GitHub MCP server. Fetch an issue, comment on it, change its state or labels, and open a linked pull request. Use when spec-agent works on a gh:<number> or GitHub issue URL, or when asked to read or update a GitHub issue.
 ---
 
 # ticket-github
 
-Implements the ticket connector interface: `fetch`, `list`, `comment`, `transition`, `link_pr`.
-Requires `gh` authenticated (`gh auth status`). If it isn't, stop and ask the user to run
-`gh auth login`. Never handle tokens yourself.
+Implements the ticket connector interface: `fetch`, `list`, `comment`, `transition`, `link_pr`
+([contract](../spec-agent/references/connectors.md)). Uses `gh` when it's authenticated
+(`gh auth status`), otherwise the GitHub MCP server's tools (table below). If neither is
+available, stop and ask the user to run `gh auth login`. Never handle tokens yourself.
+
+| Operation | `gh` | GitHub MCP tool |
+|---|---|---|
+| fetch | `gh issue view` | `issue_read` (method `get`, then `get_comments`) |
+| list | `gh issue list` | `list_issues` or `search_issues` |
+| comment | `gh issue comment` | `add_issue_comment` |
+| transition | `gh issue edit --add-label` | `issue_write` (method `update`, `labels`) |
+| link_pr | `git push` + `gh pr create` | `git push` + `create_pull_request` |
 
 **Refs:** `gh:42` (repo from the current directory's remote) or
 `https://github.com/<owner>/<repo>/issues/42` (add `-R <owner>/<repo>` to every command).
