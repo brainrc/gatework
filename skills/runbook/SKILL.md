@@ -5,8 +5,9 @@ description: Write or refresh an incident-response runbook from a strict 10-sect
 
 # Runbook
 
-A runbook is a how-to guide: task-oriented, no background, no design history. The reader is
-on call and resolving the alert now. Design rationale goes in an ADR, linked from section 9.
+A runbook is a how-to guide (see the doc-types skill): task-oriented, no background, no design
+history. The reader is on call and resolving the alert now. Design rationale goes in an ADR
+(explanation), linked from section 9.
 
 ## Conventions come from the project
 

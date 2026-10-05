@@ -32,7 +32,8 @@ Supporting skills: [ticket-local](../ticket-local/SKILL.md),
 [ticket-github](../ticket-github/SKILL.md), [ticket-jira](../ticket-jira/SKILL.md),
 [project-commands](../project-commands/SKILL.md),
 [security-checklist](../security-checklist/SKILL.md), [pr-description](../pr-description/SKILL.md),
-[commit-message](../commit-message/SKILL.md), [unslop](../unslop/SKILL.md) (prose drafts),
+[commit-message](../commit-message/SKILL.md), [doc-types](../doc-types/SKILL.md) (doc shape),
+[unslop](../unslop/SKILL.md) (prose drafts),
 [runbook](../runbook/SKILL.md) (new alerts and failure modes).
 
 ## Domains
