@@ -84,6 +84,12 @@ Artifacts: specs/<slug>/<files>
 Reply "approve", or say what to change.
 ```
 
+**Ask with buttons when the harness can.** If it has a multiple-choice question tool (Claude
+Code: `AskUserQuestion`), print the gate message without the last line, then ask with it:
+"Approve" first, then "Request changes", plus one option per open choice in the spec (for
+example a design alternative). Any typed answer still counts. Without such a tool, end with
+the `Reply` line.
+
 Deliver gate also lists, before `Artifacts:`, a `Changes:` line with the diff stat outside the
 spec folder (`git diff --stat <base>...HEAD -- . ':!specs'`), so the work itself comes first,
 and **every outward action verbatim**: branch to push, PR title, ticket comment text, and
