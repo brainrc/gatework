@@ -28,12 +28,14 @@ State the choice in one line before editing. Infer it from the artifact if the u
 
 - **Procedural:** runbook steps, remediation commands, alert text, error text, anything read
   under pressure or parsed by a machine. Enforce section F ([clarity](references/clarity.md))
-  at full strength, including the 20-word cap and one instruction per sentence. Flat and literal is correct here.
+  at full strength, including the 20-word cap and one instruction per sentence. Flat and
+  literal is correct here.
 - **Explanatory:** ADRs, RFCs, READMEs, design docs, ticket comments. Apply F's structural
   rules (active voice, sentence caps, no semicolons, no nominalization, no noun stacks) and
   treat word-level rules as direction of travel. These argue a position, so section H
   ([clarity](references/clarity.md)) applies.
-- **Change prose:** PR descriptions and commit bodies. See section I ([change prose](references/change-prose.md)).
+- **Change prose:** PR descriptions and commit bodies. See section I
+  ([change prose](references/change-prose.md)).
 
 Mixed artifacts (an RFC with a rollout procedure, a runbook with a "why" preamble): switch
 register per section, not per document.
@@ -47,8 +49,8 @@ register per section, not per document.
 3. **Pass 1, structure:** sections A to E ([structure](references/structure.md)). Structure is
    the stronger signal and harder to spot.
 4. **Pass 2, clarity:** section F ([clarity](references/clarity.md)).
-5. **Pass 3, vocabulary:** section G ([clarity](references/clarity.md)). Don't swap synonyms mechanically; often the better fix is
-   restructuring so the fancy word isn't needed.
+5. **Pass 3, vocabulary:** section G ([clarity](references/clarity.md)). Don't swap synonyms
+   mechanically; often the better fix is restructuring so the fancy word isn't needed.
 6. **Pass 4, soul (explanatory only):** section H ([clarity](references/clarity.md)).
 7. **Audit:** run the checklist. Answer two questions: "what still reads as AI-generated", and
    "did this rewrite add or drop any fact, number, path, command, or hedge". Fix, then stop.
