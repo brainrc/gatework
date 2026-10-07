@@ -68,7 +68,9 @@ With `delivery: local-only`, the gate lists **no outward actions**: deliver fina
 (`PR: <PR_URL>` → `PR: none (local-only, branch <branch>)`), leaves the branch unpushed, and
 writes the retro.
 
-**7 · done**: write `retro.md`, print the PR link and the metrics summary.
+**7 · done**: write `retro.md`, print the PR link and the metrics summary. Commit the done
+checkpoint, but push it only after CI on the delivered commit finishes: a push while CI runs
+can break steps that list the PR's commits.
 
 ## Gate presentation
 

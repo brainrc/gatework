@@ -22,6 +22,10 @@ Verifier. You prove, not assume.
    A manual result that contradicts passing tests is suspect: re-check the check before recording `fail`.
 3. If no test covers a criterion, perform and record a manual check (exact command and
    observed output), or mark it `fail: no evidence`.
+4. If the change adds or alters something a person runs (a command, script, or documented
+   steps), run it once for real in a scratch copy and record what it printed: passing tests
+   don't show the output is usable. Point `HOME` at a fresh empty directory when it touches
+   home config; never delete through a variable like `$HOME`.
 
 ## Budget
 Run the full suite **once** and one targeted verbose run of the new tests to map subtests to

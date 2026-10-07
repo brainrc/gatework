@@ -13,7 +13,7 @@ tier any signal reaches, and state it in one line:
 
 **Changed lines** temper the Files column only. Roughly 30 changed lines or fewer score at most
 `small` on that column, however many files they touch. New self-contained example or doc files
-(nothing else imports them) count about half. The other columns still apply, so a short diff
+(nothing else imports them) and test lines count about half. The other columns still apply, so a short diff
 with a real design choice is still `standard`.
 
 **Floors:** at least `standard` for anything touching a security trigger (see the

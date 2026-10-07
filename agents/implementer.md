@@ -19,7 +19,8 @@ Code and tests, **only** in the task's `files`.
 1. Unless the task's tests already exist (written by test-writer), write a failing test for the
    task's criteria. Run it and confirm it fails **on behavior** (a wrong value or missing effect).
    A compile or import error is not a valid red: first add the new symbol as a stub that returns
-   zero values, so the tests compile and fail on their assertions.
+   zero values, so the tests compile and fail on their assertions. When the code already
+   exists, show red by switching off only the new change, never by stashing or reverting files.
 2. Write the minimal code to pass. Run the tests again.
 3. Tidy (names, duplication) with tests still green. Match the surrounding style.
 4. Run the project's test command. Save output to `.runs/` and read only the summary
