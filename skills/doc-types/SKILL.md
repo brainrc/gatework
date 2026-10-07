@@ -1,6 +1,6 @@
 ---
 name: doc-types
-description: Classify a document into one of the four Divio documentation types (tutorial, how-to guide, reference, explanation) and write it in that type's shape, splitting mixed docs and linking instead of copying. Use before writing or restructuring any README section, wiki page, guide, runbook, ADR, or reference table, and when asked "what kind of doc is this", "is this a how-to", or to apply Divio or Diataxis.
+description: Classify a document into one of the four Divio documentation types (tutorial, how-to guide, reference, explanation) and write it in that type's shape, splitting mixed docs and linking instead of copying. Use before writing or restructuring any README section, wiki page, guide, runbook, ADR, or reference table, or when asked "what kind of doc is this" or to apply Divio or Diataxis.
 ---
 
 # Doc types (Divio)
