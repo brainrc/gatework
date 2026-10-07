@@ -42,7 +42,8 @@ half-written changes, so each parallel task gets its own git worktree.
    ⊆ `files`, then `git diff --cached --binary > .runs/<task>.patch`. In the main tree,
    `git apply --index` the patch, run the scoped tests, and commit (Implement step 5). A stray
    path or a patch that won't apply is a failed attempt: that task retries alone, the others
-   still land. Then `git worktree remove` and clear `.worktree`.
+   still land. Then `git worktree remove --force` (its changes are landed and saved in the patch)
+   and clear `.worktree`.
 4. **Measure:** set `tasks[].finished_at` when each handoff arrives, and add to
    `metrics.waves`: `count` +1, `max_width`, `task_minutes` (sum of task durations) and
    `wall_minutes` (first start to last finish). The retro reports the difference.
