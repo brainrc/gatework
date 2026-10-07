@@ -81,7 +81,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 
 ## Dispatch
 
-- **subagent mode:** launch the role by name with the dispatch prompt from `handoff.md`.
+- **subagent mode:** launch the role by name with the dispatch prompt from `handoff.md`. In a
+  Claude Code plugin install the roles are named `ai-config:<role>`; use that when `<role>` isn't found.
   Nothing else: no file contents, no conversation history.
 - **inline / fallback:** follow `fallback.md`.
 - After every dispatch, append the returned handoff block to `log.md`, then check it (`handoff.md`
