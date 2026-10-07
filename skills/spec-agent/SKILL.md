@@ -75,7 +75,7 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    record `metrics.stage_started_at` (from `date -u`, never estimated), and if the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), record
    `metrics.gates.<gate>.presented_at`, and **stop until the user approves**. Checkpoint-commit on every other stop too (blocked, done).
-4. **On approval** (`approve`, `lgtm`, `/spec-approve`): set the gate `approved`, record
+4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
    `metrics.gates.<gate>.approved_at`, continue.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.
 
@@ -89,7 +89,9 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 
 ## Implement stage
 
-For each task in `plan.md` order whose status isn't `done`:
+In `subagent` mode, independent tasks run together as **waves** in separate worktrees and land
+in plan order ([efficiency.md](references/efficiency.md#parallel-waves)). Otherwise, and for
+each task in a wave of one, for each task in `plan.md` order whose status isn't `done`:
 1. `in_progress` → save → dispatch the task's agent.
 2. Check the handoff: evidence shows tests **green** (test-writer: **failing for the right
    reason**), and `git diff --name-only` ⊆ task `files`. Otherwise treat it as a failed attempt.

@@ -8,7 +8,7 @@ Ticket: <ref> · Size: <tier> · PR: <url>
 | Duration (intake → deliver) | <h:mm> total = <h:mm> agent + <h:mm> waiting at gates |
 | Time per stage | spec <m>, plan <m>, implement <m>, verify <m> (agent time, gate waits excluded) |
 | Gate rework (spec / plan / deliver) | <n> / <n> / <n> |
-| Tasks | <n> |
+| Tasks | <n> (parallel waves: <count>, widest <max_width>; <task_minutes> task-min in <wall_minutes> wall-min) |
 | Review first-pass rate | <first_pass>/<total> (<%>) |
 | Retries | <n> |
 | Interventions | <n> |

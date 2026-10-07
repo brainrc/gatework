@@ -20,11 +20,33 @@ Record it as `state.mode`.
 - **Batched review.** One code-review pass over the whole branch diff after all tasks, not
   one per task. Exception: tasks marked `review: each`.
 - **Parallel read-only work.** Run `code-reviewer` and `security-reviewer` concurrently when
-  both are needed. Never run writers in parallel.
+  both are needed. Run writers in parallel only in isolated worktrees ([waves](#parallel-waves)).
 - **Re-review only fixes.** After a fix task, reviewers see only the fix diff plus prior findings.
 - **Model tiering.** Agent files set `model:`. Judgment-heavy roles (architect) use the
   strongest tier; routine roles (verifier, doc-writer) use the cheapest. Harnesses without
   per-agent models ignore the field.
+
+## Parallel waves
+
+`subagent` mode only. Implementers sharing one tree would test against each other's
+half-written changes, so each parallel task gets its own git worktree.
+
+1. **Wave:** the `todo` tasks whose `after:` tasks are `done` and whose `files` don't overlap.
+   At most 2 tasks for `standard`, 3 for `large`. A `test-writer` task, or a `review: each`
+   task, runs alone. A wave of one runs in the main tree as usual.
+2. **Dispatch:** for each task, `git worktree add "${TMPDIR:-/tmp}/spec-agent/<slug>/<task>" HEAD`
+   (outside the repo, so test runners never find it). Record `tasks[].wave`, `.worktree`, and
+   `.started_at`; dispatch every task's agent at once with the worktree as its working
+   directory. The main tree must stay clean while the wave runs.
+3. **Land in plan order:** in each worktree, `git add -A`, check `git diff --cached --name-only`
+   ⊆ `files`, then `git diff --cached --binary > .runs/<task>.patch`. In the main tree,
+   `git apply --index` the patch, run the scoped tests, and commit (Implement step 5). A stray
+   path or a patch that won't apply is a failed attempt: that task retries alone, the others
+   still land. Then `git worktree remove --force` (its changes are landed and saved in the patch)
+   and clear `.worktree`.
+4. **Measure:** set `tasks[].finished_at` when each handoff arrives, and add to
+   `metrics.waves`: `count` +1, `max_width`, `task_minutes` (sum of task durations) and
+   `wall_minutes` (first start to last finish). The retro reports the difference.
 
 ## Output discipline
 

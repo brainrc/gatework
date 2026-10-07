@@ -25,6 +25,8 @@ Stay under ~80 lines.
 - The approach names the existing modules and functions it reuses.
 - Tasks are vertical slices in dependency order, each under ~200 changed lines, each with
   `[agent: …]`, `files` (the scope fence), and `criteria`. Every AC is covered by ≥ 1 task.
+  Mark real dependencies with `after:`; keep independent slices in separate files so they can
+  run in parallel.
 - Default agent is `implementer`. Assign `test-writer` + `review: each` only for security
   logic or public contracts; `review: each` also for IAM, network, migrations, and prod config.
 - Infra tasks name their evidence (validate commands, which roots/overlays to plan or render).
