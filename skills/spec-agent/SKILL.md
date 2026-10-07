@@ -89,7 +89,9 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 
 ## Implement stage
 
-For each task in `plan.md` order whose status isn't `done`:
+In `subagent` mode, independent tasks run together as **waves** in separate worktrees and land
+in plan order ([efficiency.md](references/efficiency.md#parallel-waves)). Otherwise, and for
+each task in a wave of one, for each task in `plan.md` order whose status isn't `done`:
 1. `in_progress` → save → dispatch the task's agent.
 2. Check the handoff: evidence shows tests **green** (test-writer: **failing for the right
    reason**), and `git diff --name-only` ⊆ task `files`. Otherwise treat it as a failed attempt.
