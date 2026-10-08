@@ -17,8 +17,8 @@ ask the user to connect one. Never handle API tokens yourself.
 
 ## Config
 
-Project specifics come from the ticket config in `spec-agent/references/extensions.md` (a
-pack's `[extensions.ticket]`). Without one, ask for `host` and use the defaults.
+Project specifics come from the ticket config in the rendered `extensions.md` (spec-agent SKILL.md
+§ Packs; a pack's `[extensions.ticket]`). Without one, ask for `host` and use the defaults.
 
 | Key | Default | Use |
 |---|---|---|
