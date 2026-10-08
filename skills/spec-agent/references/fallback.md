@@ -1,6 +1,6 @@
 # Fallback: role-switch execution
 
-Used when the harness cannot launch named subagents (Codex, Gemini CLI, Cursor, or
+Used when the harness cannot launch named subagents (Codex, Antigravity CLI, Cursor, or
 Claude Code without these agents installed). Same roles, same artifacts, same gates,
 just sequential in one context.
 
