@@ -57,8 +57,9 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 
 Unlisted stacks: rely on the project's own conventions and `project-commands`.
 
-**Packs.** If `references/extensions.md` exists (rendered by `aicfg apply` from enabled packs),
-read it once at intake. Its Domains rows extend the table above, its Intake context skills run
+**Packs.** `aicfg apply` renders enabled packs into `extensions.md` in `$AICFG_HOME` (default
+`~/.config/ai-config/`; older installs: `references/extensions.md`). If it exists, read it once
+at intake. Its Domains rows extend the table above, its Intake context skills run
 after the ticket is fetched, its Ticket connectors handle the refs they list, and its Deliver
 checks join the Deliver gate. Without it, everything above applies unchanged.
 
