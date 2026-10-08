@@ -7,7 +7,8 @@ just sequential in one context.
 For each dispatch:
 
 1. Announce: `▶ Role: <agent> · <task>`.
-2. Read `roles/<agent>.md` (next to this skill's SKILL.md). Its **Must not** and **Tools**
+2. Read `roles/<agent>.md` (next to this skill's SKILL.md; if `roles/` is missing,
+   `../../agents/<agent>.md` from there). Its **Must not** and **Tools**
    lines bind you for the duration of the role, e.g. as `code-reviewer` you do not edit files.
 3. Read only the artifacts the dispatch prompt names ([handoff.md](handoff.md)).
    Don't rely on details you remember from other roles; if it isn't in an artifact, it

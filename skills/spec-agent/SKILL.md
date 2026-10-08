@@ -29,6 +29,9 @@ Load references only when the step needs them:
 | verifier | criteria → `verify.md` evidence | [roles/verifier.md](roles/verifier.md) |
 | doc-writer | docs + PR/ticket drafts | [roles/doc-writer.md](roles/doc-writer.md) |
 
+`roles/` links to the package's `agents/`. If it's missing (some package installs, e.g. Codex,
+drop symlinks), read the same file from `agents/` at the package root: `../../agents/<role>.md`.
+
 Supporting skills: [ticket-local](../ticket-local/SKILL.md),
 [ticket-github](../ticket-github/SKILL.md), [ticket-jira](../ticket-jira/SKILL.md),
 [project-commands](../project-commands/SKILL.md),
