@@ -31,7 +31,7 @@ class DeltaError(Exception):
 
 def parse_delta(text: str) -> list[dict]:
     """[{area, purpose, blocks: [(kind, name, body)]}]; [] for `None`."""
-    lines = text.splitlines()
+    lines = re.sub(r"<!--.*?-->", "", text, flags=re.S).splitlines()  # template guidance
     try:
         start = next(i for i, line in enumerate(lines) if line.strip() == SECTION)
     except StopIteration:

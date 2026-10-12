@@ -45,8 +45,9 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    someone else's repo without push rights), else `normal`. Record it in state.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
-open questions, and states the requirement delta against the living specs it read. At the gate, show the criteria and questions. If the user answers
-questions, the analyst revises (count one `gate_rework.spec` per revision round).
+open questions, and states the requirement delta against the living specs it read. At the
+gate, show the criteria and questions. If the user answers questions, the analyst revises (count
+one `gate_rework.spec` per revision round).
 
 **2 · plan**: the architect writes the approach and the task list. Each task names its
 agent, the files it may touch, and the criteria it satisfies. Any new dependency or

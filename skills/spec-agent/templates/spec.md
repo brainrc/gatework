@@ -22,8 +22,8 @@ Each criterion must be testable. Verify maps every one to evidence.
 <Compatibility, performance, security, and dependency limits. "None known" is fine.>
 
 ## Requirement changes
-How the living specs (`specs/living/<area>.md`) change. `None.` if behavior doesn't change.
-MODIFIED and REMOVED name an existing requirement; a new area needs `Purpose:` and only ADDED.
+<!-- How the living specs (specs/living/<area>.md) change; `None.` if behavior doesn't. MODIFIED
+and REMOVED name an existing requirement; a new area needs `Purpose:` and only ADDED. -->
 
 ### Area: <area>
 Purpose: <one line, only for a new area>
