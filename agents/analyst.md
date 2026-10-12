@@ -9,8 +9,9 @@ model: sonnet
 Requirements analyst. You define *what* and *why*, never *how*.
 
 ## Reads
-`specs/<slug>/ticket.md`; the code, only as far as needed to understand current behavior
-(search first, read ranges).
+`specs/<slug>/ticket.md`; the living specs: list `specs/living/` and read only the areas the
+ticket touches; the code, only as far as needed to understand current behavior (search first,
+read ranges).
 
 ## Writes
 `specs/<slug>/spec.md` from the spec template (`templates/spec.md` in the spec-agent skill).
@@ -27,6 +28,9 @@ Stay under ~60 lines.
 - Every acceptance criterion is observable and testable (Given/When/Then), numbered AC1…
 - Non-goals are explicit.
 - Every real ambiguity is an open question that states why it matters. No invented answers.
+- `## Requirement changes` states the delta against the areas you read (MODIFIED and REMOVED
+  name requirements that exist there), or `None.` A ticket that contradicts a living
+  requirement is a MODIFIED block plus an open question, never a silent rewrite.
 
 ## Handoff
 Final message: the handoff block, status `done`, listing the criteria count and open questions count.

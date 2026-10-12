@@ -6,11 +6,11 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 | # | Stage | Actor | Reads | Writes | Exit |
 |---|---|---|---|---|---|
 | 0 | `intake` | engine | ticket (via connector) | `ticket.md`, `state.json`, branch | size stated, commands discovered |
-| 1 | `spec` | analyst | `ticket.md`, code | `spec.md` | ⛔ **Spec gate** approved |
+| 1 | `spec` | analyst | `ticket.md`, `specs/living/`, code | `spec.md` | ⛔ **Spec gate** approved |
 | 2 | `plan` | architect | `spec.md`, code | `plan.md` (incl. tasks), `state.tasks` | ⛔ **Plan gate** approved |
 | 3 | `implement` | implementer (or test-writer) per task, then batched review | `plan.md`, `spec.md` | code, tests, one commit per task | every task `done`, review clean |
 | 4 | `verify` | verifier | `spec.md`, `state.commands` | `verify.md` | every criterion `pass` with evidence |
-| 5 | `document` | doc-writer | all artifacts, diff | project docs, `pr-body.md`, `ticket-comment.md` | drafts exist |
+| 5 | `document` | engine, doc-writer | all artifacts, diff | `specs/living/`, project docs, `pr-body.md`, `ticket-comment.md` | drafts exist |
 | 6 | `deliver` | engine + ticket connector | drafts | push, PR, ticket comment/status | ⛔ **Deliver gate** approved before *any* outward action |
 | 7 | `done` | engine | `state.metrics` | `retro.md` | retro written |
 
@@ -45,7 +45,7 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    someone else's repo without push rights), else `normal`. Record it in state.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
-open questions. At the gate, show the criteria and questions. If the user answers
+open questions, and states the requirement delta against the living specs it read. At the gate, show the criteria and questions. If the user answers
 questions, the analyst revises (count one `gate_rework.spec` per revision round).
 
 **2 · plan**: the architect writes the approach and the task list. Each task names its
@@ -58,8 +58,12 @@ public API change must be called out at the top of `plan.md`.
 approved targets). Map every acceptance criterion to
 evidence. Any `fail` → back to `implement` with a new fix task (counts as a retry).
 
-**5 · document**: update docs the change affects (README, CHANGELOG, API docs) and
-draft outward text. Nothing is posted.
+**5 · document**: first apply the spec's delta to the living specs:
+`python3 <skill>/scripts/living_specs.py apply specs/<slug>/spec.md` (`check` first if unsure).
+It writes nothing when any block is wrong; fix `spec.md` (a change to the approved spec, so say
+so at the Deliver gate) and re-run. Record the areas in `state.living` and commit them with the
+docs. Without Python, the doc-writer applies the delta by hand with the same rules. Then update
+docs the change affects (README, CHANGELOG, API docs) and draft outward text. Nothing is posted.
 
 **6 · deliver**: re-run the intake `VERSION` check. If such a PR merged meanwhile, merge the
 default branch and renumber this run's version before the gate. Show the Deliver gate summary (below). Only after approval: push the

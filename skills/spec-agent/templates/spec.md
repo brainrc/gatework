@@ -21,6 +21,19 @@ Each criterion must be testable. Verify maps every one to evidence.
 ## Constraints
 <Compatibility, performance, security, and dependency limits. "None known" is fine.>
 
+## Requirement changes
+How the living specs (`specs/living/<area>.md`) change. `None.` if behavior doesn't change.
+MODIFIED and REMOVED name an existing requirement; a new area needs `Purpose:` and only ADDED.
+
+### Area: <area>
+Purpose: <one line, only for a new area>
+#### ADDED: <requirement name>
+<The system SHALL …> (AC1)
+#### MODIFIED: <existing requirement name>
+<the full new text> (AC2)
+#### REMOVED: <existing requirement name>
+Why: <reason>
+
 ## Open questions
 Numbered. Must be empty (or explicitly deferred) before the Spec gate is approved.
 1. <question>, *why it matters*
