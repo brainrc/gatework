@@ -16,7 +16,11 @@ specs/<slug>/
   pr-body.md         PR description draft                     (templates/pr-body.md)
   ticket-comment.md  ticket comment draft
   retro.md           metrics + reflections                    (templates/retro.md)
+specs/living/<area>.md  current behavior per capability area     (templates/living.md)
 ```
+
+`specs/living/` is shared across runs: each run's spec states its delta (`## Requirement
+changes`), and the document stage applies it. Run folders are never moved.
 
 ## Slug
 
@@ -93,6 +97,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `done` |
 | `gates.*` | `pending` `approved` `skipped` |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |
+| `living` | areas the run's delta changed (`["cli"]`), `[]` for `None.`; absent before the document stage |
 | `blocked` | `null` or `{ "reason": "...", "stage": "...", "task": "T2", "since": "<ISO>" }` |
 
 Rules:
