@@ -26,7 +26,7 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    URL (ticket-jira), `local:<path>`, or free text
    (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
    A ref that matches a pack connector's `refs` (`extensions.md`, SKILL.md § Packs) uses that connector.
-3. If the repo has a `VERSION` file, list other open PRs that change `VERSION` or `CHANGELOG.md`
+3. If the repo has a `VERSION` file and no `changelog.d/` (fragments don't conflict), list other open PRs that change `VERSION` or `CHANGELOG.md`
    (through the connector's system, e.g. `gh pr list` or its MCP equivalent). If any exist,
    name them and recommend waiting for them to merge before branching, since both will claim
    the same next version. Can't list PRs → say so in one line and continue.

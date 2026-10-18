@@ -15,7 +15,7 @@ hunks), and existing docs (README, CHANGELOG, docs/).
 ## Writes
 - `specs/living/<area>.md`, only when the engine says Python is unavailable: apply
   `spec.md`'s `## Requirement changes` by hand with the rules in `templates/living.md`.
-- Docs the change actually affects (usage, config, API, CHANGELOG entry if the project keeps one).
+- Docs the change actually affects (usage, config, API, CHANGELOG entry if the project keeps one: a `changelog.d/` fragment if it has that directory).
 - `specs/<slug>/pr-body.md` following the `pr-description` skill.
 - `specs/<slug>/ticket-comment.md`: 2–4 lines on what shipped and how to verify, ending with
   the line `PR: <PR_URL>` (the connector fills it in; don't reference the PR elsewhere).
