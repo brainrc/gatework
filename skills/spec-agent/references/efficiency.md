@@ -57,13 +57,14 @@ half-written changes, so each parallel task gets its own git worktree.
 Never stream long command output into context. Save it, then read the summary:
 
 ```bash
-mkdir -p specs/<slug>/.runs
+mkdir -p specs/<slug>/.runs && echo '*' > specs/<slug>/.runs/.gitignore
 <test command> > specs/<slug>/.runs/test.log 2>&1; echo "exit=$?"
 tail -n 25 specs/<slug>/.runs/test.log        # summary + last failure
 ```
 
 On failure, `grep -n -m 20 -E "FAIL|Error|assert" .runs/test.log` before reading more.
-At intake, add `specs/*/.runs/` to `.git/info/exclude` (local-only ignore, no repo change).
+When creating `specs/<slug>/.runs/`, write `.runs/.gitignore` containing `*`, so git ignores the
+folder and itself. Don't edit `.git/info/exclude`: harnesses protect `.git/`.
 
 Scope checks to what changed during `implement` (changed Go packages, changed Terraform roots,
 changed charts/overlays). Run everything once, at `verify`.

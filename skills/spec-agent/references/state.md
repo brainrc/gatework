@@ -107,7 +107,7 @@ Rules:
 - **Checkpoint commit at every stop** (gate presented, blocked, or run finished): commit
   `specs/<slug>/` and any ticket-file status change on the feature branch, e.g.
   `Checkpoint 001-add-shout-flag: spec gate` + `Refs <ticket ref>`. A paused run always
-  leaves a clean tree. (`.runs/` is excluded via `.git/info/exclude`.)
+  leaves a clean tree. (`.runs/` ignores itself via its own `.gitignore`.)
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
