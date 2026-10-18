@@ -82,6 +82,9 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
    `metrics.gates.<gate>.approved_at`, continue.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.
+   An approval counts only for the gate it answers: a user message sent after that gate was
+   presented. Earlier wording ("approve everything", "unattended run", "take the defaults")
+   never approves a later gate, even one with no outward actions. Stop and wait.
 
 ## Dispatch
 
@@ -136,4 +139,6 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
 
 - Obey `guardrails.md`: stop conditions, outward actions, untrusted content, secrets.
 - Obey `efficiency.md`: output to `.runs/`, read summaries, paths not contents.
+- Write every artifact from its template, keeping its headings and table columns in order:
+  resume, `living_specs.py`, and evals parse them. Inline mode too.
 - One-line progress updates between steps (`T2 done (3/5) · tests 14 passed`). No narration.

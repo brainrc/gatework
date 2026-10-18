@@ -29,7 +29,9 @@ Stay under ~60 lines.
 - Non-goals are explicit.
 - Every real ambiguity is an open question that states why it matters. No invented answers.
 - `## Requirement changes` states the delta against the areas you read (MODIFIED and REMOVED
-  name requirements that exist there), or `None.` A ticket that contradicts a living
+  name requirements that exist there). `None.` only when observable behavior doesn't change
+  (refactor, tests, docs). New behavior in an area with no living file (or no `specs/living/`
+  at all) creates the area: `### Area:` + `Purpose:` + ADDED. A ticket that contradicts a living
   requirement is a MODIFIED block plus an open question, never a silent rewrite.
 
 ## Handoff
