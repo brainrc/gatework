@@ -98,6 +98,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `gates.*` | `pending` `approved` `skipped` |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |
 | `living` | areas the run's delta changed (`["cli"]`), `[]` for `None.`; absent before the document stage |
+| `review_context` | fallback only: `fresh` (review ran in a new session) or `shared`; absent in subagent mode |
 | `blocked` | `null` or `{ "reason": "...", "stage": "...", "task": "T2", "since": "<ISO>" }` |
 
 Rules:
