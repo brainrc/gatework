@@ -7,7 +7,7 @@ to the engine and every role.
 
 | Mode | When | How |
 |---|---|---|
-| **inline** | size `trivial` or `small` | Engine does every step itself in one context. No subagents; spawning costs more than the work. |
+| **inline** | size `trivial` or `small` | Engine does every step itself in one context. No subagents; spawning costs more than the work. Each step still follows its role file and template ([fallback.md](fallback.md) steps 2–4) and records `stage_started_at`. |
 | **subagent** | `standard`/`large` and the harness can launch named subagents (Claude Code, OpenCode) | Each role runs in its own context; the main thread holds only `state.json` + newest handoff. |
 | **fallback** | `standard`/`large`, no subagent tool | Sequential role-switch in one context ([fallback.md](fallback.md)). |
 

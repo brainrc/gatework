@@ -45,7 +45,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    someone else's repo without push rights), else `normal`. Record it in state.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
-open questions, and states the requirement delta against the living specs it read. At the
+open questions, and states the requirement delta against the living specs it read (new behavior with no living
+area creates one). At the
 gate, show the criteria and questions. If the user answers questions, the analyst revises (count
 one `gate_rework.spec` per revision round).
 
@@ -57,7 +58,8 @@ public API change must be called out at the top of `plan.md`.
 
 **4 · verify**: run the full test, lint, build, and validate commands (and plan/diff against
 approved targets). Map every acceptance criterion to
-evidence. Any `fail` → back to `implement` with a new fix task (counts as a retry).
+evidence in `verify.md`, written from `templates/verify.md`: its `## Checks` and
+`## Acceptance criteria` sections, criteria columns `Criterion | Evidence | Result`. Any `fail` → back to `implement` with a new fix task (counts as a retry).
 
 **5 · document**: first apply the spec's delta to the living specs:
 `python3 <skill>/scripts/living_specs.py apply specs/<slug>/spec.md` (`check` first if unsure).
