@@ -48,6 +48,7 @@ Task: <task id and title, or stage name>
 Read: <artifact paths relevant to this role>
 Templates: <absolute path of this skill's templates/ dir>
 Project commands: test=`…` lint=`…` validate=`…`
+Role skills: <name: absolute SKILL.md path, …> (the skills the role file names)
 Domain skills: <name: absolute SKILL.md path, …>   Targets: <approved envs/contexts, or "offline only">
 Delivery: <normal | local-only>
 Worktree: <absolute path> (parallel waves only) Work only here. Start every shell command with
