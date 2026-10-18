@@ -98,7 +98,10 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 ## Implement stage
 
 In `subagent` mode, independent tasks run together as **waves** in separate worktrees and land
-in plan order ([efficiency.md](references/efficiency.md#parallel-waves)). Otherwise, and for
+in plan order ([efficiency.md](references/efficiency.md#parallel-waves)). As each wave handoff
+arrives, set the task's `finished_at`. Once all are in, and before landing or any retry, write
+all four `metrics.waves` fields (`count`, `max_width`, `task_minutes`, `wall_minutes`); never
+leave one `null`. Otherwise, and for
 each task in a wave of one, for each task in `plan.md` order whose status isn't `done`:
 1. `in_progress` → save → dispatch the task's agent.
 2. Check the handoff: evidence shows tests **green** (test-writer: **failing for the right
