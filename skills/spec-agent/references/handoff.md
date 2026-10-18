@@ -50,6 +50,8 @@ Templates: <absolute path of this skill's templates/ dir>
 Project commands: test=`…` lint=`…` validate=`…`
 Domain skills: <name: absolute SKILL.md path, …>   Targets: <approved envs/contexts, or "offline only">
 Delivery: <normal | local-only>
+Worktree: <absolute path> (parallel waves only) Work only here. Start every shell command with
+`cd <path> &&` or use absolute paths, and create files with the file tools, not shell redirects.
 Follow your role instructions. End with a handoff block as your final message, under 150 words,
 in exactly this format:
 ## <agent> · <task> · <done|blocked|changes-requested>

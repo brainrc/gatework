@@ -36,17 +36,21 @@ half-written changes, so each parallel task gets its own git worktree.
    task, runs alone. A wave of one runs in the main tree as usual.
 2. **Dispatch:** for each task, `git worktree add "${TMPDIR:-/tmp}/spec-agent/<slug>/<task>" HEAD`
    (outside the repo, so test runners never find it). Record `tasks[].wave`, `.worktree`, and
-   `.started_at`; dispatch every task's agent at once with the worktree as its working
-   directory. The main tree must stay clean while the wave runs.
+   `.started_at`; dispatch every task's agent at once, with the worktree as `Project root` and
+   the `Worktree:` line ([handoff.md](handoff.md#dispatch-prompt)). Subagent tools may not take
+   a working directory, and the shell's directory can reset between calls. The main tree must stay
+   clean while the wave runs.
 3. **Land in plan order:** in each worktree, `git add -A`, check `git diff --cached --name-only`
    ⊆ `files`, then `git diff --cached --binary > .runs/<task>.patch`. In the main tree,
    `git apply --index` the patch, run the scoped tests, and commit (Implement step 5). A stray
    path or a patch that won't apply is a failed attempt: that task retries alone, the others
-   still land. Then `git worktree remove --force` (its changes are landed and saved in the patch)
+   still land; its retry gets a fresh `started_at` and is not part of the wave. Then
+   `git worktree remove --force` (its changes are landed and saved in the patch)
    and clear `.worktree`.
-4. **Measure:** set `tasks[].finished_at` when each handoff arrives, and add to
-   `metrics.waves`: `count` +1, `max_width`, `task_minutes` (sum of task durations) and
-   `wall_minutes` (first start to last finish). The retro reports the difference.
+4. **Measure:** set `tasks[].finished_at` when each handoff arrives. Once every task's first
+   handoff is in, before any retry, add to `metrics.waves`: `count` +1, `max_width`, `task_minutes` (sum of task durations) and
+   `wall_minutes` (first start to last finish), counting each task's first attempt only, failed
+   or not. Always record all four, even when a task retried. The retro reports the difference.
 
 ## Output discipline
 

@@ -89,8 +89,8 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `tasks[].review` | `each` (reviewed after the task) or `batch` (default, batched review) |
 | `tasks[].red` | `assertion` or `compile-only`: how the task's new tests first failed |
 | `tasks[].after` | task ids that must be `done` first (from the plan's `after:` line) |
-| `tasks[].wave`, `.worktree`, `.started_at`, `.finished_at` | set for parallel waves ([efficiency.md](efficiency.md#parallel-waves)); `worktree` cleared after landing |
-| `metrics.waves` | `{ "count", "max_width", "task_minutes", "wall_minutes" }`, absent when no wave ran |
+| `tasks[].wave`, `.worktree`, `.started_at`, `.finished_at` | set for parallel waves ([efficiency.md](efficiency.md#parallel-waves)); `worktree` cleared after landing; a retry resets `started_at` |
+| `metrics.waves` | `{ "count", "max_width", "task_minutes", "wall_minutes" }` over first attempts only, absent when no wave ran |
 | `targets` | live environments approved for **read-only** evidence; empty = offline only |
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
