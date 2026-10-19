@@ -46,8 +46,9 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 
 **1 · spec**: the analyst turns the ticket into testable acceptance criteria and lists
 open questions, and states the requirement delta against the living specs it read (new behavior with no living
-area creates one). At the
-gate, show the criteria and questions. If the user answers questions, the analyst revises (count
+area creates one). Before the gate, run `python3 <skill>/scripts/living_specs.py check
+specs/<slug>/spec.md` and have the analyst fix any error, so the delta that gets approved is the
+one that applies. At the gate, show the criteria and questions. If the user answers questions, the analyst revises (count
 one `gate_rework.spec` per revision round).
 
 **2 · plan**: the architect writes the approach and the task list. Each task names its

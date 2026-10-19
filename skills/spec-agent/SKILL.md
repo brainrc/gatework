@@ -76,7 +76,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    reads), ask which target is allowed (`guardrails.md` § Environments; default: offline only).
    State all of it in one line, save state.
 3. **Run the stages** in the size's stage mask. After each stage: update `state.json`,
-   record `metrics.stage_started_at` (from `date -u`, never estimated), and if the stage ends in a gate, make a checkpoint
+   record `metrics.stage_started_at` (from `date -u`, never estimated). Before the Spec gate, run
+   `living_specs.py check` on `spec.md` and fix any error first. If the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), record
    `metrics.gates.<gate>.presented_at`, and **stop until the user approves**. Checkpoint-commit on every other stop too (blocked, done).
 4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
