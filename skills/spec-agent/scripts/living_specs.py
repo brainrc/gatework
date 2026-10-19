@@ -61,6 +61,8 @@ def parse_delta(text: str) -> list[dict]:
             block[2].append(line)
         elif areas and line.startswith("Purpose:"):
             areas[-1]["purpose"] = line[len("Purpose:"):].strip()
+        elif not areas:
+            continue  # a note before the first area: analysts write one, it isn't a requirement
         elif line.strip():
             raise DeltaError(f"unexpected text outside a requirement block: `{line.strip()}`")
     if not areas:
