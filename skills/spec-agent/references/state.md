@@ -69,7 +69,9 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
       "review": "batch", "red": "compile-only", "commit": "a1b2c3d" }
   ],
   "watch": { "checked_at": "…", "head_sha": "abc1234",
-             "ci_failures": [{ "check": "test", "sha": "abc1234", "cause": "own", "task": "C1" }] },
+             "ci_failures": [{ "check": "test", "sha": "abc1234", "cause": "own", "task": "C1" }],
+             "review_rounds": 1, "threads": { "total": 2, "fixed": 1, "replied": 1, "flagged": 0 },
+             "thread_log": [{ "key": "9f2c4e1a7b3d5c60", "kind": "ask", "task": "C2", "flagged": false }] },
   "blocked": null,
   "metrics": {
     "started_at": "2026-09-29T21:30:00Z",
@@ -99,6 +101,9 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `watch` `done` |
 | `gates.*` | `pending` `approved` `skipped`; `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested`; `gates.push_sha` = head sha shown at the gate, the only sha pushed |
 | `watch` | absent before `watch`. `checked_at` last check (UTC), `head_sha` PR head last seen, `ci_failures[]` of `{check, sha, cause: own\|external, task}` (`task` = fix task id, `null` for external). See [watch.md](watch.md) |
+| `watch.review_rounds` | passes that acted on new review threads; max 3 |
+| `watch.threads` | `{total, fixed, replied, flagged}` counts; only grow; `fixed` at push, `replied` at post |
+| `watch.thread_log[]` | `{key, kind: ask\|question\|design\|none, task, flagged}` per handled thread. `key` = thread `id`, else first 16 hex of sha256(author + "\n" + body). Never store raw thread text in state.json |
 | `metrics.post_deliver_retries` | fix tasks added after the PR opened |
 | `metrics.gates.push`, `metrics.gate_rework.push` | as other gates; `gate_rework.push` +1 per `changes-requested`; `approved_at` is set before the push |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |
