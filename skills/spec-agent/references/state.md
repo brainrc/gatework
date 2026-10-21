@@ -126,6 +126,7 @@ External tools find the current run through one file: `$AICFG_HOME/active-run` (
   and with every checkpoint commit (each gate, block, and done).
 - Never cleared at done or abandon; the next write replaces it. Concurrent sessions: last write wins.
 - The path must be absolute: the shell's directory may not be the repo. Failure to write only warns; it never stops a run.
+- In an ordered campaign it names the child currently in progress, not the campaign directory.
 - Consumers run `active_run.py read`, or fall back to `<cwd>/specs/` when the file is absent.
 
 ## Resume
@@ -141,3 +142,8 @@ On `/work <same ref>` or `/spec-resume`:
 4. If `stage` is `implement`, re-run the test command first to confirm the last
    `done` task still holds, then continue with the first task not `done`.
 5. Otherwise, continue at `stage`. Never redo an approved gate unless the user asks.
+
+Campaign with `waiting` members (`campaign.json` member status; ordered shape): on
+`/work --campaign <ref>` or `/spec-resume`, read each waiting member's predecessor PR state
+read-only through the connector. Release the next child only if it is merged or the user says
+"merged". Never poll. Rules: `campaign.md § Ordered shape`.
