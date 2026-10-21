@@ -97,10 +97,10 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `watch` `done` |
-| `gates.*` | `pending` `approved` `skipped`; `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested` |
+| `gates.*` | `pending` `approved` `skipped`; `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested`; `gates.push_sha` = head sha shown at the gate, the only sha pushed |
 | `watch` | absent before `watch`. `checked_at` last check (UTC), `head_sha` PR head last seen, `ci_failures[]` of `{check, sha, cause: own\|external, task}` (`task` = fix task id, `null` for external). See [watch.md](watch.md) |
 | `metrics.post_deliver_retries` | fix tasks added after the PR opened |
-| `metrics.gates.push`, `metrics.gate_rework.push` | as other gates; `gate_rework.push` +1 per `changes-requested` |
+| `metrics.gates.push`, `metrics.gate_rework.push` | as other gates; `gate_rework.push` +1 per `changes-requested`; `approved_at` is set before the push |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |
 | `living` | areas the run's delta changed (`["cli"]`), `[]` for `None.`; absent before the document stage |
 | `review_context` | fallback only: `fresh` (review ran in a new session) or `shared`; absent in subagent mode |

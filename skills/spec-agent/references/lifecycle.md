@@ -11,9 +11,9 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 | 3 | `implement` | implementer (or test-writer) per task, then batched review | `plan.md`, `spec.md` | code, tests, one commit per task | every task `done`, review clean |
 | 4 | `verify` | verifier | `spec.md`, `state.commands` | `verify.md` | every criterion `pass` with evidence |
 | 5 | `document` | engine, doc-writer | all artifacts, diff | `specs/living/`, project docs, `pr-body.md`, `ticket-comment.md` | drafts exist |
-| 6 | `deliver` | engine + ticket connector | drafts | push, PR, ticket comment/status | ⛔ **Deliver gate** approved before *any* outward action |
+| 6 | `deliver` | engine + ticket connector | drafts | push, PR, ticket comment/status, `retro.md` | ⛔ **Deliver gate** approved before *any* outward action |
 | 6b | `watch` | engine + ticket connector | `pr_status`, CI logs | `watch` state, C-tasks, ⛔ **Push gate** | `merged`/`closed` reported (later steps or stop); otherwise on resume |
-| 7 | `done` | engine | `state.metrics` | `retro.md` | retro written |
+| 7 | `done` | engine | `state.metrics` | closes the run (After-delivery part: #81) | PR link and metrics printed |
 
 `blocked` is not a stage. It is `state.blocked`, set by any stop condition
 ([guardrails.md](guardrails.md)). The stage is kept so resume knows where to continue.
@@ -81,7 +81,7 @@ writes the retro.
 **6b · watch**: after the PR opens, `/spec-resume` or `/work <ref>` reads `pr_status` and handles
 a red check. Every fix-commit push it makes needs an approved ⛔ **Push gate**. Procedure: [watch.md](watch.md).
 
-**7 · done**: write `retro.md`, print the PR link and the metrics summary. Commit the done
+**7 · done**: `retro.md` was already written at the end of deliver (before `watch`); print the PR link and the metrics summary. Commit the done
 checkpoint, but push it only after CI on the delivered commit finishes: a push while CI runs
 can break steps that list the PR's commits.
 
