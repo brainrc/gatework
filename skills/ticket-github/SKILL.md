@@ -106,8 +106,10 @@ resolve here.
 ## reply_thread (outward: only after an approved Push gate)
 
 ```bash
-gh api graphql -f thread=<id> -f body=<text> -f query='mutation($thread:ID!,$body:String!){addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$thread,body:$body}){comment{id}}}'
+gh api graphql -f thread=<id> -F body=@.runs/reply-<h8>.md -f query='mutation($thread:ID!,$body:String!){addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$thread,body:$body}){comment{id}}}'
 ```
+
+The body comes from the draft file, never shell-interpolated.
 
 ## comment (outward: Deliver gate only)
 
