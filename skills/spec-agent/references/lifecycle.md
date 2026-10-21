@@ -33,7 +33,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 4. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
 5. Fetch the ticket through the connector skill and write `ticket.md` (format in
    [state.md](state.md)). Run any pack Intake context skills and append their summaries.
-   Files written during intake go into the first checkpoint commit.
+   Files written during intake go into the first checkpoint commit. Record the run as active
+   (`python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>`, state.md § Active run pointer).
 6. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
 7. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).

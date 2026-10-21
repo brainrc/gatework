@@ -107,7 +107,8 @@ Rules:
 - **Checkpoint commit at every stop** (gate presented, blocked, or run finished): commit
   `specs/<slug>/` and any ticket-file status change on the feature branch, e.g.
   `Checkpoint 001-add-shout-flag: spec gate` + `Refs <ticket ref>`. A paused run always
-  leaves a clean tree. (`.runs/` ignores itself via its own `.gitignore`.)
+  leaves a clean tree. (`.runs/` ignores itself via its own `.gitignore`.) Run
+  `active_run.py write <project root>/specs/<slug>` with each checkpoint commit.
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
@@ -117,10 +118,21 @@ Rules:
 - Timestamps are UTC ISO 8601, taken from `date -u +%Y-%m-%dT%H:%M:%SZ` at the moment of the
   transition. Never estimate or back-fill them. A missing timestamp beats an invented one.
 
+## Active run pointer
+
+External tools find the current run through one file: `$AICFG_HOME/active-run` (default
+`~/.config/ai-config/active-run`), holding one absolute run-directory path and a newline.
+- Written with `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` at intake, on resume,
+  and with every checkpoint commit (each gate, block, and done).
+- Never cleared at done or abandon; the next write replaces it. Concurrent sessions: last write wins.
+- The path must be absolute: the shell's directory may not be the repo. Failure to write only warns; it never stops a run.
+- Consumers run `active_run.py read`, or fall back to `<cwd>/specs/` when the file is absent.
+
 ## Resume
 
 On `/work <same ref>` or `/spec-resume`:
 1. Find `specs/*/state.json` whose `ticket.ref` matches (or the only one on the current branch).
+   Then run `active_run.py write <project root>/specs/<slug>`.
 2. Check out `state.branch`, then check `git status --porcelain`:
    - Changes only under `specs/<slug>/` (or the ticket file's status) are the engine's own
      files from an interrupted stage: make a checkpoint commit and continue.
