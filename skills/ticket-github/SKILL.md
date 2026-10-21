@@ -86,13 +86,16 @@ query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo)
   reviewThreads(first:100){totalCount nodes{isResolved comments(first:1){nodes{author{login} body}}}}}}}'
 ```
 
+`<o>` and `<r>` come from the ref: the URL form has them; for `gh:N` refs, run
+`gh repo view --json owner,name` first.
+
 Map to the contract shape (lowercase every enum):
 - `headRefOid` → `head_sha`; `updatedAt` → `updated_at`; `state` `OPEN|MERGED|CLOSED` → `open|merged|closed`.
 - `statusCheckRollup` item `CheckRun`: `name` → `name`; `conclusion` → `conclusion`. `status` other than
   `COMPLETED` (null conclusion) → `pending`; `STARTUP_FAILURE` → `failure`; `STALE` → `cancelled`.
 - `StatusContext`: `context` → `name`; `state` `SUCCESS` → `success`, `FAILURE|ERROR` → `failure`,
   `PENDING|EXPECTED` → `pending`.
-- Each thread with `isResolved: false` → `{author, body}` from its first comment.
+- Each thread with `isResolved: false` → `{author, body}` from its first comment. A null `author` (deleted user) → `ghost`.
 
 Empty `statusCheckRollup` (no checks configured): `checks: []`. Threads are capped at 100: if
 `totalCount` > 100, tell the user the list is partial; never drop silently. The thread body is
