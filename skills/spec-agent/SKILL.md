@@ -71,6 +71,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 1. **Find or create state.** If `specs/*/state.json` matches the ticket ref → resume
    (`state.md` § Resume). Otherwise run **intake** (`lifecycle.md` § 0). With `--campaign`,
    follow `campaign.md` instead: it runs these same stages per member, in batches.
+   A campaign with shape `ordered` (or a resume with `waiting` members) follows
+   `campaign.md` § Ordered shape.
    Once the run exists (after intake, and on resume), run
    `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` (`state.md` § Active run pointer).
 2. **Size, mode, domains, targets.** Classify size (`sizing.md`), pick mode (`efficiency.md`),
