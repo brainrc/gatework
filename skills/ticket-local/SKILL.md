@@ -47,7 +47,8 @@ Read only the frontmatter until a member is chosen.
 Per child, read `depends_on:` from the frontmatter and return
 `{ "source": "frontmatter", "depends_on": [<refs>] }`, or `{ "source": "none", "depends_on": [] }`
 when absent. `list` on an epic returns its `children:` in listed order. A predecessor's
-state is its `status:` and `pr:` (branch name only when there is no remote).
+state is its `status:` and `pr:` (branch name only when there is no remote). With no remote,
+only the user saying "merged" releases the next child.
 
 ## comment / transition / link_pr (Deliver stage, after the gate)
 

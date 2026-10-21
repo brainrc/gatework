@@ -39,7 +39,7 @@ Absent `shape` means `playbook`. The `ordered` schema is in § Ordered shape.
    - `--shape` overrides the detection. `--shape ordered` on an epic with no links is allowed:
      the order is the epic's sub-issue order.
    - `playbook` with a template mismatch: stop and list the deviants. They get normal `/work`
-     runs. `ordered` follows § Ordered shape and skips steps 2-4 below.
+     runs. `ordered` follows § Ordered shape and skips § 2 and § 4 below (§ 3 applies).
 3. Build the parameter table (`ref | <param> | ... | notes`) and save `campaign.json`.
 
 ## 2. Hydrate shared context once
@@ -60,7 +60,7 @@ Present the parameter table, the playbook, the size, and the proposed batches. A
 stands in for each member's Spec and Plan gates, because the playbook is the spec and plan.
 A member that needs a different spec or plan is a deviant: take it out of the campaign.
 `--dry-run` stops after presenting this gate. The gate always states the shape, and for
-`ordered` the child order and the dependency source.
+`ordered` the child order and the dependency source (no playbook or parameter table).
 
 ## 4. Batches
 
@@ -104,8 +104,9 @@ Next: <batch k+1 | waiting on review | done>
 
 Playbook runs skip this section.
 
-Use for children that differ or depend on each other. Steps 1-2 above (enumerate, detect) apply.
-There is no playbook, batch, or parameter table.
+Use for children that differ or depend on each other. § 1 (enumerate, detect) and § 3 (the
+Campaign gate) apply; § 2 (hydrate) and § 4 (batches) do not. There is no playbook, batch, or
+parameter table. `campaign.json` is saved after ordering, before the gate.
 
 ```json
 { "ref": "<ref as given>", "shape": "ordered", "dependency_source": "<source>", "started_at": "<ISO>",
@@ -115,7 +116,8 @@ There is no playbook, batch, or parameter table.
 ```
 
 `members` keep epic order; `order` is the 1-based build and merge order. `dependency_source` is
-a `dependencies` result `source` (`api` `body` `frontmatter` `none`).
+a `dependencies` result `source` (`api` `body` `frontmatter` `none`). For a mixed result it is
+`body` if any child used the body fallback, else the single source.
 
 **Order.** Per child, `dependencies` returns `{ "source": "api" | "body" | "frontmatter" | "none",
 "depends_on": ["<ref>", ...] }`. Sort topologically (Kahn); ties and unlinked children keep epic
@@ -133,7 +135,8 @@ actions verbatim in merge order. After approval only `order: 1` is `delivered` w
 `pr: null`.
 
 **Release.** When a waiting child's predecessor PR is merged: merge `main` into its branch,
-re-run its tests, then open its PR. The body says "N of M, after #X" and links the epic. If an
+re-run its tests, then open its PR against the default branch. The body says "N of M, after #X" and links the
+epic (a template: X is filled at release, when the predecessor's PR number is known). If an
 earlier PR changed in review while later PRs are not yet open, merge that change into the later
 branches and re-run their tests first.
 
@@ -144,3 +147,7 @@ unaffected. The Stops above still apply.
 each `waiting` child read its predecessor's PR state read-only through the connector (`gh pr view
 <n> --json state` or MCP `pull_request_read` `get`). Release the next child only if the state is
 merged or the user says "merged". Otherwise report what is waiting and stop.
+
+**Resume.** `/work --campaign <ref>` with an existing `specs/campaign-*/campaign.json` for that
+ref resumes it, without re-running intake. A member `in_progress` resumes first, as that child's
+normal run (`state.md` § Resume). `waiting` members then follow the merge rule above.
