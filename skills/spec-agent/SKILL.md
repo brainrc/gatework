@@ -71,6 +71,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 1. **Find or create state.** If `specs/*/state.json` matches the ticket ref → resume
    (`state.md` § Resume). Otherwise run **intake** (`lifecycle.md` § 0). With `--campaign`,
    follow `campaign.md` instead: it runs these same stages per member, in batches.
+   Once the run exists (after intake, and on resume), run
+   `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` (`state.md` § Active run pointer).
 2. **Size, mode, domains, targets.** Classify size (`sizing.md`), pick mode (`efficiency.md`),
    detect domains. If any domain needs a live environment for evidence (plan, cluster diff, AWS
    reads), ask which target is allowed (`guardrails.md` § Environments; default: offline only).
@@ -79,7 +81,7 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    record `metrics.stage_started_at` (from `date -u`, never estimated). Before the Spec gate, run
    `living_specs.py check` on `spec.md` and fix any error first. If the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), record
-   `metrics.gates.<gate>.presented_at`, and **stop until the user approves**. Checkpoint-commit on every other stop too (blocked, done).
+   `metrics.gates.<gate>.presented_at`, and **stop until the user approves**. Checkpoint-commit on every other stop too (blocked, done). Run `active_run.py write <project root>/specs/<slug>` with every checkpoint commit.
 4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
    `metrics.gates.<gate>.approved_at`, continue.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.
