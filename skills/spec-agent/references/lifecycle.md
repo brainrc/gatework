@@ -79,7 +79,7 @@ With `delivery: local-only`, the gate lists **no outward actions**: deliver fina
 writes the retro.
 
 **6b · watch**: after the PR opens, `/spec-resume` or `/work <ref>` reads `pr_status` and handles
-a red check. Every fix-commit push it makes needs an approved ⛔ **Push gate**. Procedure: [watch.md](watch.md).
+a red check (C-tasks) and new review threads (R-tasks, replies). Every fix-commit push and every thread reply it posts needs an approved ⛔ **Push gate**. Procedure: [watch.md](watch.md).
 
 **7 · done**: `retro.md` was already written at the end of deliver (before `watch`); print the PR link and the metrics summary. Commit the done
 checkpoint, but push it only after CI on the delivered commit finishes: a push while CI runs
