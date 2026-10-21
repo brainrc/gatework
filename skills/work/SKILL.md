@@ -10,6 +10,7 @@ Use the `spec-agent` skill to work on this item end to end:
 $ARGUMENTS
 
 If a spec for this item already exists under `specs/`, resume it instead of starting over.
+A spec at `stage: watch` runs `watch.md` § Resume pass (spec-agent `references/watch.md`).
 If `--local` is given, use `delivery: local-only`: no push, PR, or ticket updates; drafts only.
 If `--campaign` is given, run campaign mode (spec-agent `references/campaign.md`) over the
 epic, query, or list of refs; `--dry-run` stops at the Campaign gate. `--shape playbook|ordered`
