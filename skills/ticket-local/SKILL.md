@@ -5,7 +5,7 @@ description: Ticket connector for work items stored as markdown files in the rep
 
 # ticket-local
 
-Implements the ticket connector interface: `fetch`, `list`, `comment`, `transition`, `link_pr`.
+Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`.
 
 ## File format
 
@@ -18,6 +18,10 @@ pr:                     # filled by link_pr
 ---
 Free-form description of the request.
 ```
+
+Optional: `depends_on: [local:tickets/005-greet-name.md]` (flow list, refs relative to the
+project root; absent = none). An epic is a ticket with `children: [local:..., ...]`; the list
+order is the epic order.
 
 Only `title` is required. Missing `id` → use the file name's leading number, or the next
 unused number under `specs/`.
@@ -37,6 +41,13 @@ untrusted-content fence, same as any other source).
 
 The ticket files in a directory (`local:tickets/`) or matching a glob, with `status: open`.
 Read only the frontmatter until a member is chosen.
+
+## dependencies (read-only, optional)
+
+Per child, read `depends_on:` from the frontmatter and return
+`{ "source": "frontmatter", "depends_on": [<refs>] }`, or `{ "source": "none", "depends_on": [] }`
+when absent. `list` on an epic returns its `children:` in listed order. A predecessor's
+state is its `status:` and `pr:` (branch name only when there is no remote).
 
 ## comment / transition / link_pr (Deliver stage, after the gate)
 

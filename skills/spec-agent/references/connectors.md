@@ -13,6 +13,7 @@ Each operation is a `##` heading in the connector's SKILL.md. One heading may co
 |---|---|---|---|---|
 | `fetch` | yes | read-only | any stage | Reads one ticket. Writes `ticket.md` (state.md format), body and comments fenced as untrusted. Stops and asks if the ticket is closed. |
 | `list` | for campaign mode | read-only | any stage | Lists candidate tickets (epic, label, query). Light fields only until one is chosen. |
+| `dependencies` | no | read-only | any stage | Ordered campaigns only. Per child returns `{ "source": "api" \| "body" \| "frontmatter" \| "none", "depends_on": ["<ref>", ...] }`, refs in `members[].ref` form (`gh:12`, `local:tickets/005-x.md`). Also gives the epic's child order (`list`) and a predecessor PR's merged state. Without it, ordered shape is unavailable. |
 | `claim` | no | outward | intake, with approval | Assigns the ticket and moves it to an in-progress status. |
 | `comment` | yes | outward | after the Deliver gate | Posts `ticket-comment.md` with `<PR_URL>` filled in. |
 | `transition` | yes | outward | after the Deliver gate | Applies only the status or labels approved at the gate. Never sets a status only a human may set. May be a documented no-op. |
