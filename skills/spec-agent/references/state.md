@@ -68,6 +68,8 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
       "status": "done", "attempts": 1, "files": ["tests/test_export.py"], "criteria": ["AC1", "AC2"],
       "review": "batch", "red": "compile-only", "commit": "a1b2c3d" }
   ],
+  "watch": { "checked_at": "…", "head_sha": "abc1234",
+             "ci_failures": [{ "check": "test", "sha": "abc1234", "cause": "own", "task": "C1" }] },
   "blocked": null,
   "metrics": {
     "started_at": "2026-09-29T21:30:00Z",
@@ -94,8 +96,11 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `targets` | live environments approved for **read-only** evidence; empty = offline only |
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
-| `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `done` |
-| `gates.*` | `pending` `approved` `skipped` |
+| `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `watch` `done` |
+| `gates.*` | `pending` `approved` `skipped`; `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested` |
+| `watch` | absent before `watch`. `checked_at` last check (UTC), `head_sha` PR head last seen, `ci_failures[]` of `{check, sha, cause: own\|external, task}` (`task` = fix task id, `null` for external). See [watch.md](watch.md) |
+| `metrics.post_deliver_retries` | fix tasks added after the PR opened |
+| `metrics.gates.push`, `metrics.gate_rework.push` | as other gates; `gate_rework.push` +1 per `changes-requested` |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |
 | `living` | areas the run's delta changed (`["cli"]`), `[]` for `None.`; absent before the document stage |
 | `review_context` | fallback only: `fresh` (review ran in a new session) or `shared`; absent in subagent mode |
@@ -141,7 +146,8 @@ On `/work <same ref>` or `/spec-resume`:
 3. If `blocked` is set, show the reason and ask how to proceed.
 4. If `stage` is `implement`, re-run the test command first to confirm the last
    `done` task still holds, then continue with the first task not `done`.
-5. Otherwise, continue at `stage`. Never redo an approved gate unless the user asks.
+5. If `stage` is `watch`, run the Resume pass in [watch.md](watch.md#resume-pass).
+6. Otherwise, continue at `stage`. Never redo an approved gate unless the user asks.
 
 Campaign (existing `specs/campaign-*/campaign.json` for the ref; ordered shape): a member
 `in_progress` resumes first, as a normal run per the steps above. With `waiting` members: on
