@@ -71,7 +71,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "watch": { "checked_at": "…", "head_sha": "abc1234",
              "ci_failures": [{ "check": "test", "sha": "abc1234", "cause": "own", "task": "C1" }],
              "review_rounds": 1, "threads": { "total": 2, "fixed": 1, "replied": 1, "flagged": 0 },
-             "thread_log": [{ "key": "9f2c4e1a7b3d5c60", "kind": "ask", "task": "R1", "flagged": false }] },
+             "thread_log": [{ "key": "<16-hex key>", "kind": "ask", "task": "R1", "flagged": false }] },
   "blocked": null,
   "metrics": {
     "started_at": "2026-09-29T21:30:00Z",
