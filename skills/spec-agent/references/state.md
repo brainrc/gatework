@@ -104,6 +104,11 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `watch.review_rounds` | passes that acted on new review threads; max 3 |
 | `watch.threads` | `{total, fixed, replied, flagged}` counts; only grow; `fixed` at push, `replied` at post |
 | `watch.thread_log[]` | `{key, kind: ask\|question\|design\|none, task, flagged}` per handled thread. `key` = thread `id`, else first 16 hex of sha256(author + "\n" + body). Never store raw thread text in state.json |
+| `watch.merged_at` | UTC time the PR merged (`pr_status.merged_at`); set by [watch.md](watch.md#merged-or-closed) |
+| `watch.post_merge` | `pass` `regression` `unverified`: result of the post-merge verify; absent until run |
+| `watch.outcome` | `merged` `abandoned` (closed unmerged); absent while the PR is open |
+| `metrics.pr_opened_at` | UTC time the PR opened, from `date -u` at `link_pr`; absent when no PR opened |
+| `metrics.time_to_merge` | minutes, `merged_at` − `pr_opened_at`; unset if either is missing or the result is negative |
 | `metrics.post_deliver_retries` | fix tasks added after the PR opened |
 | `metrics.gates.push`, `metrics.gate_rework.push` | as other gates; `gate_rework.push` +1 per `changes-requested`; `approved_at` is set before the push |
 | `tasks[].status` | `todo` `in_progress` `review` `done` `blocked` |

@@ -2,7 +2,7 @@
 
 After the PR opens, `watch` reads its state and handles a red check. It is pull-based: it runs
 on `/spec-resume` or `/work <ref>`, never in a loop, daemon, or poll. This file covers CI
-failures and review comments. `merged` and `closed` are reported, nothing more (#81).
+failures and review comments, and a merged or closed PR (§ Merged or closed).
 Schema: `state.md`.
 
 ## Enter
@@ -25,12 +25,16 @@ checks are unknown under the fixture and count as not red.
 
 At `stage: watch`, resume first, in order:
 
+Merged or closed preempts all of this: if `pr_status` says `merged` or `closed`, cancel pending
+C/R-tasks and a pending Push gate (note it in `log.md`), push and post nothing, and go to
+§ Merged or closed. Otherwise:
+
 1. A C- or R-task `in_progress` or in `review` continues through SKILL.md's per-task loop.
 2. A `gates.push` of `pending` is re-presented (§ Push gate), including one set when a C- or R-task
    passed review but the run stopped before the gate was shown. A `changes-requested` one stays
    at `watch` until the user re-approves; do not re-push.
-3. Only then the change check: make one `pr_status` read. State `merged` or `closed`: report
-   it and stop. If `updated_at <= watch.checked_at`, `head_sha` is unchanged, and every
+3. Only then the change check: make one `pr_status` read. State `merged` or `closed`: run
+   § Merged or closed and stop. If `updated_at <= watch.checked_at`, `head_sha` is unchanged, and every
    `failure` check on this sha is in `watch.ci_failures`, and every unresolved thread is in
    `watch.thread_log`, then report "no change" and touch nothing else. Otherwise run § CI failure
    for each `failure` check not in `ci_failures` for this sha, and § Review comments.
@@ -118,3 +122,35 @@ and that the thread `id` appears in this PR's latest `pr_status` read. Post repl
 commits (reply-only gate) skip the push; with both, post after the push succeeds. Use connector
 op `reply_thread` (GitHub: `gh api graphql` `addPullRequestReviewThreadReply`) with the thread
 `id`. No `id`: show the draft for the user to post; use no other comment API.
+
+## Merged or closed
+
+Reached from § Resume pass when `pr_status` says `merged` or `closed`. Never opens a PR or
+issue, pushes, or forces anything. Steps are idempotent: a crash re-runs safely.
+
+**Closed unmerged:** set `watch.outcome: abandoned`, append `## After delivery` to `retro.md`
+(outcome abandoned; skip if present), then `stage: done` last. No verify. Report `done (abandoned)`.
+
+**Merged:**
+1. **Sha.** Use `pr_status.merge_commit_sha` if `git cat-file -e <sha>^{commit}` succeeds;
+   else the local tip of `state.base`, and say so in `verify-merged.md`. Needs a clean tree
+   (`state.md` § resume); otherwise stop and ask. Set `watch.merged_at` from `pr_status.merged_at`.
+2. **Verify.** In a detached worktree. Before: `git worktree remove --force .runs/post-merge
+   2>/dev/null; git worktree prune`, then `git worktree add --detach .runs/post-merge <sha>`. Run
+   the verifier (`agents/verifier.md`) there with the project's test command. After, on every
+   path including failure: `git worktree remove --force .runs/post-merge`. Never touch the
+   user's checkout.
+3. **Record.** Write `verify-merged.md` from `templates/verify.md`, headed `Post-merge verify of
+   <sha>` plus the sha source. Set `watch.post_merge`, first match wins:
+   - `regression`: a check or criterion that passed in `verify.md` fails on the merge (name each
+     criterion). Print a suggested follow-up title and body (cause, failing check, sha), also in
+     `## After delivery`. Open nothing.
+   - `unverified`: no sha resolved, a check could not run (offline, no test command), or the
+     worktree failed. Say which; never claim `pass`.
+   - `pass`: every check passed.
+4. **Time.** `metrics.time_to_merge` = `merged_at − pr_opened_at` in minutes. Leave it unset if
+   either is missing or the result is negative.
+5. **Retro.** Set `watch.outcome: merged`. Append `## After delivery` from `templates/retro.md`
+   unless already present; fill CI failures (own / external from `watch.ci_failures`), review
+   rounds, and what reviewers caught that the run's own reviewers missed (or none).
+6. `stage: done` last, then the usual done checkpoint (`lifecycle.md` step 7).
