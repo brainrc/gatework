@@ -81,7 +81,7 @@ Predecessor merge state (read-only; never merge or poll):
 Two read-only calls (`gh pr view --json` has no thread resolution, so threads need GraphQL):
 
 ```bash
-gh pr view <n> --json statusCheckRollup,headRefOid,state,updatedAt
+gh pr view <n> --json statusCheckRollup,headRefOid,state,updatedAt,mergedAt,mergeCommit
 gh api graphql -f owner=<o> -f repo=<r> -F pr=<n> -f query='
 query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$pr){
   reviewThreads(first:100){totalCount nodes{id isResolved comments(first:1){nodes{author{login} body}}}}}}}'
@@ -92,6 +92,8 @@ query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo)
 
 Map to the contract shape (lowercase every enum):
 - `headRefOid` → `head_sha`; `updatedAt` → `updated_at`; `state` `OPEN|MERGED|CLOSED` → `open|merged|closed`.
+- `mergedAt` → `merged_at`; `mergeCommit.oid` → `merge_commit_sha`. Omit each when null. MCP
+  (`pull_request_read` `get`): the equivalent fields, if present.
 - `statusCheckRollup` item `CheckRun`: `name` → `name`; `conclusion` → `conclusion`. `status` other than
   `COMPLETED` (null conclusion) → `pending`; `STARTUP_FAILURE` → `failure`; `STALE` → `cancelled`.
 - `StatusContext`: `context` → `name`; `state` `SUCCESS` → `success`, `FAILURE|ERROR` → `failure`,
