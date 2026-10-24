@@ -15,19 +15,18 @@ hook applies (§ Fixture hook; then `watch` is entered even though no PR exists)
 
 ## Fixture hook
 
-Honored only when the project has no git remote (a sandbox). With a remote, ignore it and say
-so in one line. When `SPEC_PR_STATUS_FIXTURE` names a file, read `pr_status` from it instead of the connector,
-treat the connector as supporting it, and read each check's log from `<stem>.<slug>.log` beside
-it (`red-ci.json` → `red-ci.unit-tests.log`; `<slug>` per § CI failure). Read-only; nothing else changes. Base-branch
-checks are unknown under the fixture and count as not red.
+Honored only when the project has no git remote (a sandbox); with a remote, ignore it and say
+so in one line. `SPEC_PR_STATUS_FIXTURE` names a file: read `pr_status` from it instead of the
+connector, and each check's log from `<stem>.<slug>.log` beside it (`red-ci.json` →
+`red-ci.unit-tests.log`; `<slug>` per § CI failure). Read-only. Base-branch checks count as not red.
 
 ## Resume pass
 
 At `stage: watch`, resume first, in order:
 
-Merged or closed preempts all of this: if `pr_status` says `merged` or `closed`, cancel pending
-C/R-tasks and a pending Push gate (note it in `log.md`), push and post nothing, and go to
-§ Merged or closed. Otherwise:
+Merged or closed preempts all of this: if `pr_status` says `merged` or `closed`, set pending
+C/R-tasks to `status: blocked` and a pending Push gate to `gates.push: skipped`, log "PR
+merged/closed" in `log.md`, push and post nothing, and go to § Merged or closed. Otherwise:
 
 1. A C- or R-task `in_progress` or in `review` continues through SKILL.md's per-task loop.
 2. A `gates.push` of `pending` is re-presented (§ Push gate), including one set when a C- or R-task
@@ -135,10 +134,10 @@ issue, pushes, or forces anything. Steps are idempotent: a crash re-runs safely.
 1. **Sha.** Use `pr_status.merge_commit_sha` if `git cat-file -e <sha>^{commit}` succeeds;
    else the local tip of `state.base`, and say so in `verify-merged.md`. Needs a clean tree
    (`state.md` § resume); otherwise stop and ask. Set `watch.merged_at` from `pr_status.merged_at`.
-2. **Verify.** In a detached worktree. Before: `git worktree remove --force .runs/post-merge
-   2>/dev/null; git worktree prune`, then `git worktree add --detach .runs/post-merge <sha>`. Run
+2. **Verify.** In a detached worktree. Before: `git worktree remove --force specs/<slug>/.runs/post-merge
+   2>/dev/null; git worktree prune`, then `git worktree add --detach specs/<slug>/.runs/post-merge <sha>`. Run
    the verifier (`agents/verifier.md`) there with the project's test command. After, on every
-   path including failure: `git worktree remove --force .runs/post-merge`. Never touch the
+   path including failure: `git worktree remove --force specs/<slug>/.runs/post-merge`. Never touch the
    user's checkout.
 3. **Record.** Write `verify-merged.md` from `templates/verify.md`, headed `Post-merge verify of
    <sha>` plus the sha source. Set `watch.post_merge`, first match wins:
@@ -148,9 +147,8 @@ issue, pushes, or forces anything. Steps are idempotent: a crash re-runs safely.
    - `unverified`: no sha resolved, a check could not run (offline, no test command), or the
      worktree failed. Say which; never claim `pass`.
    - `pass`: every check passed.
-4. **Time.** `metrics.time_to_merge` = `merged_at − pr_opened_at` in minutes. Leave it unset if
-   either is missing or the result is negative.
-5. **Retro.** Set `watch.outcome: merged`. Append `## After delivery` from `templates/retro.md`
+4. **Time and retro.** `metrics.time_to_merge` = `merged_at − pr_opened_at` in minutes (unset if
+   either is missing or the result is negative). Set `watch.outcome: merged`. Append `## After delivery` from `templates/retro.md`
    unless already present; fill CI failures (own / external from `watch.ci_failures`), review
    rounds, and what reviewers caught that the run's own reviewers missed (or none).
-6. `stage: done` last, then the usual done checkpoint (`lifecycle.md` step 7).
+5. `stage: done` last, then the usual done checkpoint (`lifecycle.md` step 7).
