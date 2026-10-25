@@ -25,3 +25,14 @@ Ask the user these three; record answers verbatim (or "skipped"):
 ## Proposed improvements
 <Concrete edits to ai-config skills/agents/rules, derived from the answers and metrics.
 These are suggestions; nothing is changed automatically.>
+
+## After delivery
+<!-- Appended by watch when the PR merges or closes; omit until then. -->
+- Outcome: <merged | abandoned>
+- Merged at: <ISO timestamp> · Time to merge: <m> min
+- Post-merge verify: <pass | regression | unverified> (see `verify-merged.md`)
+- CI failures: <n> own / <n> external
+- Review rounds: <n>
+- Caught by reviewers, missed by the run's own: <list, or none>
+- Follow-up title: <title, or none>
+- Follow-up body: <body, or none>

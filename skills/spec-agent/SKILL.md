@@ -13,7 +13,7 @@ Load references only when the step needs them:
 [state](references/state.md) · [handoff](references/handoff.md) ·
 [guardrails](references/guardrails.md) · [efficiency](references/efficiency.md) ·
 [fallback](references/fallback.md) · [campaign](references/campaign.md) ·
-[connectors](references/connectors.md). Templates are in `templates/`.
+[connectors](references/connectors.md) · [watch](references/watch.md). Templates are in `templates/`.
 
 ## Roles
 
@@ -90,7 +90,9 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.
    An approval counts only for the gate it answers: a user message sent after that gate was
    presented. Earlier wording ("approve everything", "unattended run", "take the defaults")
-   never approves a later gate, even one with no outward actions. Stop and wait.
+   never approves a later gate, even one with no outward actions. Stop and wait. The Push gate
+   (`watch.md` § Push gate) is answered the same way: the same approval words, and the same
+   rule that only a reply sent after it was presented counts.
 
 ## Dispatch
 
@@ -144,8 +146,10 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
    not applicable, or not run.
 2. After approval, and only then: push the branch, open the PR from `pr-body.md` using
    the ticket connector's `link_pr`, post `ticket-comment.md`, transition the ticket.
+   Record `metrics.pr_opened_at` from `date -u` when the PR opens.
 3. Write `retro.md` from the template: fill metrics from state, ask the three reflection
-   questions (answers optional), propose improvements. Set `stage: done`.
+   questions (answers optional), propose improvements. Then enter `watch` per
+   `watch.md` § Enter, or set `stage: done`.
 
 ## Always
 
