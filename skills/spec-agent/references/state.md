@@ -160,7 +160,9 @@ On `/work <same ref>` or `/spec-resume`:
 6. Otherwise, continue at `stage`. Never redo an approved gate unless the user asks.
 
 Campaign (existing `specs/campaign-*/campaign.json` for the ref; ordered shape): a member
-`in_progress` resumes first, as a normal run per the steps above. With `waiting` members: on
-`/work --campaign <ref>` or `/spec-resume`, read each waiting member's predecessor PR state
-read-only through the connector. Release the next child only if it is merged or the user says
-"merged". Never poll. Rules: `campaign.md § Ordered shape`.
+`in_progress` resumes first, as a normal run per the steps above; `verified` members (built,
+waiting for the stack Deliver gate) are skipped, and the next `todo` member starts. With `waiting`
+or stacked members: on `/work --campaign <ref>` or `/spec-resume`, read each one's predecessor PR
+state read-only through the connector. Only if it is merged or the user says "merged": merge
+`main` into the child's branch, re-run its tests, then open its PR (`waiting`) or retarget it to
+`main` (stacked). Never poll. Rules: `campaign.md § Ordered shape`.

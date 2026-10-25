@@ -25,7 +25,7 @@ specs/campaign-<slug>/
 ```
 
 `members[].status`: `todo` `in_progress` `delivered` `blocked` `deviant` (needs a normal run),
-and in `ordered` shape `waiting`. Each member also gets its own `specs/<slug>/` as in a normal run.
+and in `ordered` shape `verified` and `waiting`. Each member also gets its own `specs/<slug>/` as in a normal run.
 Absent `shape` means `playbook`. The `ordered` schema is in § Ordered shape.
 
 ## 1. Enumerate and check the template
@@ -110,14 +110,23 @@ parameter table. `campaign.json` is saved after ordering, before the gate.
 
 ```json
 { "ref": "<ref as given>", "shape": "ordered", "dependency_source": "<source>", "started_at": "<ISO>",
+  "delivery": "sequential",
   "members": [ { "ref": "<ref>", "order": 1, "depends_on": [], "status": "delivered",
                  "slug": "<slug>", "branch": "<slug>",
-                 "pr": "<PR URL, or branch name with no remote>" } ] }
+                 "pr": "<PR URL, or branch name with no remote>", "base": "main", "merged": false } ] }
 ```
 
 `members` keep epic order; `order` is the 1-based build and merge order. `dependency_source` is
 a `dependencies` result `source` (`api` `body` `frontmatter` `none`). For a mixed result it is
-`body` if any child used the body fallback, else the single source.
+`body` if any child used the body fallback, else the single source. `delivery` is `sequential`
+(absent means this) or `stacked`, set at the Deliver gate. `base` (the PR's base branch) and
+`merged` are recorded only for `stacked`. Status `verified`: built and verified, waiting for the
+stack Deliver gate.
+
+**State home.** `specs/campaign-<slug>/` lives on the child branch in progress, so it moves down
+the stack with the branches. A child's commits change only its own member entry and the
+campaign-level `gates`. `main` is merged into a branch before its PR opens or is retargeted, so
+each PR's diff shows only that child's entry.
 
 **Order.** Per child, `dependencies` returns `{ "source": "api" | "body" | "frontmatter" | "none",
 "depends_on": ["<ref>", ...] }`. Sort topologically (Kahn); ties and unlinked children keep epic
@@ -127,27 +136,33 @@ which lists the offending links. The gate states the shape, the order, and the s
 **Build.** Each child is a normal run: own `specs/<slug>/`, its own Spec and Plan gates
 presented (the Campaign gate does not stand in for them), implement, verify. Child N's branch
 starts from child N-1's branch (child 1 from the default branch). The active-run pointer names
-the child in progress.
+the child in progress. A verified child is `verified` until the Deliver gate.
 
 **Deliver gate ⛔.** One gate after every child is verified, listing every child's outward
-actions verbatim in merge order. After approval only `order: 1` is `delivered` with `pr` set
-(with no remote or local-only: its branch name is recorded as `pr`); the rest are `waiting` with
-`pr: null`.
+actions verbatim in merge order. It asks for the delivery, recorded as `delivery`:
+- `sequential` (default): after approval only `order: 1` is `delivered` with `pr` set (with no
+  remote or local-only: its branch name is recorded as `pr`); the rest are `waiting`, `pr: null`.
+- `stacked`: every PR opens at approval, child 1 against the default branch, child N against
+  child N-1's branch; all are `delivered` with `base` set. Each later body says "N of M, stacked
+  on #X. Retarget to `main` before merging." and links the epic. Not with local-only.
 
-**Release.** When a waiting child's predecessor PR is merged: merge `main` into its branch,
-re-run its tests, then open its PR against the default branch. The body says "N of M, after #X" and links the
-epic (a template: X is filled at release, when the predecessor's PR number is known). If an
-earlier PR changed in review while later PRs are not yet open, merge that change into the later
-branches and re-run their tests first.
+**Retarget rule (both deliveries).** A child PR merges only with base `main`. When its
+predecessor has merged: merge `main` into its branch, re-run its tests, then open its PR
+(`sequential`; body "N of M, after #X", linking the epic; X is filled in then) or retarget its
+base to `main` (`stacked`; `gh pr edit <n> --base main` or MCP `update_pull_request`). GitHub
+retargets only when the old base branch is deleted, so never rely on it. If an earlier PR changed
+in review, merge that change into the later branches and re-run their tests first.
 
 **Failure.** A child that fails or is blocked pauses every later child; earlier ones are
 unaffected. The Stops above still apply.
 
 **Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
-each `waiting` child read its predecessor's PR state read-only through the connector (`gh pr view
-<n> --json state` or MCP `pull_request_read` `get`). Release the next child only if the state is
-merged or the user says "merged". Otherwise report what is waiting and stop.
+each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
+read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
+Release or retarget the next child only if the state is merged or the user says "merged" (set the
+predecessor's `merged: true`). Otherwise report what is waiting and stop.
 
 **Resume.** `/work --campaign <ref>` with an existing `specs/campaign-*/campaign.json` for that
 ref resumes it, without re-running intake. A member `in_progress` resumes first, as that child's
-normal run (`state.md` § Resume). `waiting` members then follow the merge rule above.
+normal run (`state.md` § Resume); `verified` members are skipped. `waiting` and stacked members
+then follow the merge rule above.
