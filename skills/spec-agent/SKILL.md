@@ -146,6 +146,7 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
    not applicable, or not run.
 2. After approval, and only then: push the branch, open the PR from `pr-body.md` using
    the ticket connector's `link_pr`, post `ticket-comment.md`, transition the ticket.
+   Record `metrics.pr_opened_at` from `date -u` when the PR opens.
 3. Write `retro.md` from the template: fill metrics from state, ask the three reflection
    questions (answers optional), propose improvements. Then enter `watch` per
    `watch.md` § Enter, or set `stage: done`.
