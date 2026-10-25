@@ -4,10 +4,11 @@
 Usage:
   worktree_fence.py check <worktree> --main <project root> --files <glob> ... [--allow <prefix> ...]
 
-Every changed path in the worktree (tracked or untracked, from `git -C <worktree> status`) must
-match one of the task's `--files` globs, and the main tree must have no changes outside the
-`--allow` prefixes (the engine passes `specs/<slug>/` for its own state). Prints `STRAY <path>`
-for a worktree path outside the fence, `MAIN <path>` for a main-tree change, else `OK`.
+Every changed path in the worktree (tracked or untracked, from `git -C <worktree> status`; a
+rename counts both paths) must match one of the task's `--files` globs (`fnmatch`, so `*` also
+matches across `/`), and the main tree must have no changes outside the `--allow` prefixes (the
+engine passes `specs/<slug>/` for its own state). Prints `STRAY <path>` for a worktree path
+outside the fence, `MAIN <path>` for a main-tree change, else `OK`.
 Exit 0 clean, 1 on any problem, 2 if git fails. Stdlib only, Python 3.11+.
 """
 from __future__ import annotations
@@ -30,7 +31,9 @@ def changed(tree: str) -> list[str]:
         entry = entries[i]
         if entry:
             paths.append(entry[3:])
-            if entry[0] in "RC":  # a rename's source path follows; the new path is what changed
+            if entry[0] in "RC":  # the source path follows; a rename also deletes it, a copy doesn't
+                if entry[0] == "R" and i + 1 < len(entries):
+                    paths.append(entries[i + 1])
                 i += 1
         i += 1
     return paths
