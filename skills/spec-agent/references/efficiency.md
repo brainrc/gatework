@@ -32,7 +32,8 @@ Record it as `state.mode`.
 half-written changes, so each parallel task gets its own git worktree.
 
 1. **Wave:** the `todo` tasks whose `after:` tasks are `done` and whose `files` don't overlap.
-   At most 2 tasks for `standard`, 3 for `large`. A `test-writer` task, or a `review: each`
+   At most 2 tasks for `standard`, 3 for `large`. A task that links to or imports a file another
+   task creates waits for that task (`after:`). A `test-writer` task, or a `review: each`
    task, runs alone. A wave of one runs in the main tree as usual.
 2. **Dispatch:** for each task, `git worktree add "${TMPDIR:-/tmp}/spec-agent/<slug>/<task>" HEAD`
    (outside the repo, so test runners never find it). Record `tasks[].wave`, `.worktree`, and
@@ -40,8 +41,12 @@ half-written changes, so each parallel task gets its own git worktree.
    the `Worktree:` line ([handoff.md](handoff.md#dispatch-prompt)). Subagent tools may not take
    a working directory, and the shell's directory can reset between calls. The main tree must stay
    clean while the wave runs.
-3. **Land in plan order:** in each worktree, `git add -A`, check `git diff --cached --name-only`
-   ⊆ `files`, then `git diff --cached --binary > .runs/<task>.patch`. In the main tree,
+3. **Land in plan order:** first run `python3 <skill>/scripts/worktree_fence.py check <worktree>
+   --main <project root> --files <task files> --allow specs/<slug>/`: `STRAY` is a path outside
+   `files`, `MAIN` a write to the main tree (show those paths; never overwrite or revert them
+   unasked). Any hit is a failed attempt. Run every git command on a worktree as
+   `git -C <worktree>`, never relying on the shell's directory: `git -C <worktree> add -A`, then
+   `git -C <worktree> diff --cached --binary > .runs/<task>.patch`. In the main tree,
    `git apply --index` the patch, run the scoped tests, and commit (Implement step 5). A stray
    path or a patch that won't apply is a failed attempt: that task retries alone, the others
    still land; its retry gets a fresh `started_at` and is not part of the wave. Then

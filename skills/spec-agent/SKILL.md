@@ -155,6 +155,9 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
 
 - Obey `guardrails.md`: stop conditions, outward actions, untrusted content, secrets.
 - Obey `efficiency.md`: output to `.runs/`, read summaries, paths not contents.
+- After a gate is approved, edit its artifact yourself only for wording or path fixes that change
+  no criterion's or task's meaning. Log each in `log.md` as a spec change after approval and list
+  it at the Deliver gate. Anything else goes back through the owning role and its gate.
 - Write every artifact from its template, keeping its headings and table columns in order:
   resume, `living_specs.py`, and evals parse them. Inline mode too.
 - One-line progress updates between steps (`T2 done (3/5) · tests 14 passed`). No narration.
