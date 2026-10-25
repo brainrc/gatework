@@ -124,9 +124,12 @@ a `dependencies` result `source` (`api` `body` `frontmatter` `none`). For a mixe
 stack Deliver gate.
 
 **State home.** `specs/campaign-<slug>/` lives on the child branch in progress, so it moves down
-the stack with the branches. A child's commits change only its own member entry and the
-campaign-level `gates`. `main` is merged into a branch before its PR opens or is retargeted, so
-each PR's diff shows only that child's entry.
+the stack with the branches. While building, a child's commits change only its own member entry
+and the campaign-level `gates`. From the Deliver gate on, the last child's branch (the stack tip)
+is the home: Deliver-gate writes (every member's `status`, `pr`, `base`) and `merged` flags are
+committed there, and resume reads `campaign.json` from it. `main` is merged into a branch before
+its PR opens or is retargeted, so earlier PRs show only their own entry; the tip's PR also
+carries the campaign-level writes.
 
 **Order.** Per child, `dependencies` returns `{ "source": "api" | "body" | "frontmatter" | "none",
 "depends_on": ["<ref>", ...] }`. Sort topologically (Kahn); ties and unlinked children keep epic
@@ -159,10 +162,11 @@ unaffected. The Stops above still apply.
 **Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
 read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
-Release or retarget the next child only if the state is merged or the user says "merged" (set the
-predecessor's `merged: true`). Otherwise report what is waiting and stop.
+Release or retarget the next child only if the state is merged or the user says "merged" (for
+`stacked`, set the predecessor's `merged: true`). Otherwise report what is waiting and stop.
 
 **Resume.** `/work --campaign <ref>` with an existing `specs/campaign-*/campaign.json` for that
 ref resumes it, without re-running intake. A member `in_progress` resumes first, as that child's
-normal run (`state.md` § Resume); `verified` members are skipped. `waiting` and stacked members
-then follow the merge rule above.
+normal run (`state.md` § Resume); `verified` members are skipped, and when every member is
+`verified` resume presents the stack Deliver gate. `waiting` and stacked members then follow the
+merge rule above.

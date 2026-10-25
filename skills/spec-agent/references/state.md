@@ -161,7 +161,9 @@ On `/work <same ref>` or `/spec-resume`:
 
 Campaign (existing `specs/campaign-*/campaign.json` for the ref; ordered shape): a member
 `in_progress` resumes first, as a normal run per the steps above; `verified` members (built,
-waiting for the stack Deliver gate) are skipped, and the next `todo` member starts. With `waiting`
+waiting for the stack Deliver gate) are skipped, and the next `todo` member starts; with none
+left, present the stack Deliver gate. Read `campaign.json` from the stack tip once delivered
+(`campaign.md` § State home). With `waiting`
 or stacked members: on `/work --campaign <ref>` or `/spec-resume`, read each one's predecessor PR
 state read-only through the connector. Only if it is merged or the user says "merged": merge
 `main` into the child's branch, re-run its tests, then open its PR (`waiting`) or retarget it to
