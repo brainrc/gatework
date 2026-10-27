@@ -159,6 +159,15 @@ in review, merge that change into the later branches and re-run their tests firs
 **Failure.** A child that fails or is blocked pauses every later child; earlier ones are
 unaffected. The Stops above still apply.
 
+**Auto (`--auto`, SKILL.md § Auto mode).** Ordered shape only (a playbook campaign with `--auto`
+is refused at intake). `campaign.json` gets `auto: true` from the flag, and each child's
+`state.json` inherits it. The Campaign gate and every child's Spec and Plan gates are
+auto-approved and logged. The stack Deliver gate is auto-approved with `delivery: stacked`:
+every child's draft PR opens, child 1 on the default branch and each later one on its
+predecessor's branch, with the "N of M, stacked on #X" line. A child's hard stop sets it
+`blocked` and pauses the later children. A stack with a blocked child opens no PRs. Merging and
+retargeting stay manual (Retarget rule).
+
 **Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
 read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
