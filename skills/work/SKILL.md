@@ -1,7 +1,7 @@
 ---
 name: work
 description: Take a work item from ticket to reviewed PR with spec-agent (gh:<n>, jira:<KEY-n>, issue URL, local:<path>, free text, or --campaign <epic>)
-argument-hint: <gh:42 | jira:PROJ-7 | issue URL | local:path.md | free text | --campaign <epic|query>> [--local] [--batch-size N] [--dry-run] [--shape playbook|ordered]
+argument-hint: <gh:42 | jira:PROJ-7 | issue URL | local:path.md | free text | --campaign <epic|query>> [--local] [--batch-size N] [--dry-run] [--shape playbook|ordered] [--auto]
 disable-model-invocation: true
 ---
 
@@ -18,6 +18,8 @@ overrides the detected shape. `--campaign <ref>` on an existing ordered campaign
 (`campaign.md` § Ordered shape).
 Stop at every gate for my approval. Never push, open PRs, or update the ticket before the
 Deliver gate is approved.
+If `--auto` is given, run without gate stops instead (spec-agent SKILL.md § Auto mode): hard stops
+still stop, and delivery is a draft PR only. Without the flag, no wording of mine means `--auto`.
 
 If `$ARGUMENTS` appears literally above, this tool didn't fill it in: use what the user typed
 with this skill instead.
