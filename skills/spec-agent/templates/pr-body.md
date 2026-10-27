@@ -15,6 +15,13 @@
 <commands a reviewer can run>
 ```
 
+## Decisions made without you
+<!-- `auto` runs only (SKILL.md § Auto mode); delete this section otherwise. -->
+- Gates auto-approved: <Spec, Plan, Deliver>; see `specs/<slug>/log.md`
+- <open question → the default taken, and why>
+- <security trigger touched without a CRITICAL/HIGH finding, if any>
+- Ticket comment not posted: `specs/<slug>/ticket-comment.md`
+
 ## Follow-ups
 - <MEDIUM/LOW review findings not addressed, or "none">
 

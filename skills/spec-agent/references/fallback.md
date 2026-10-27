@@ -31,6 +31,7 @@ In one session the reviewer has already seen the implementer's reasoning, so lim
 - Judge the code as written. If you remember why a line was written, ignore it; the reason
   isn't in the diff, so a reviewer can't rely on it.
 - The verifier re-runs every command it cites; it never copies an implementer's evidence.
+- An `auto` run doesn't stop here: it records `review_context: shared` and continues.
 - Size standard or large: before batched review, checkpoint-commit, stop, and tell the user
   that `/spec-resume` in a **new session** gives an independent review. If the user says to
   continue here, record `review_context: shared` in `state.json` and in `retro.md`.

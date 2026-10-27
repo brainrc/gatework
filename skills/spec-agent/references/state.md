@@ -96,6 +96,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `tasks[].wave`, `.worktree`, `.started_at`, `.finished_at` | set for parallel waves ([efficiency.md](efficiency.md#parallel-waves)); `worktree` cleared after landing; a retry resets `started_at` |
 | `metrics.waves` | `{ "count", "max_width", "task_minutes", "wall_minutes" }` over first attempts only, absent when no wave ran |
 | `targets` | live environments approved for **read-only** evidence; empty = offline only |
+| `auto` | `true` only for a run started with `--auto` (SKILL.md § Auto mode), set from the flag, never from reply text; `false` or absent otherwise. Resume sets it `false` unless `--auto` is given again |
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `watch` `done` |
