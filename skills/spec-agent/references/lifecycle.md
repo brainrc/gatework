@@ -42,7 +42,7 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 8. Classify size ([sizing.md](sizing.md)) and say it in one line with the mode. The user may
    override. If the harness can run subagents but the named agents aren't installed (Claude
    Code without `~/.claude/agents/analyst.md`), say it runs in `fallback` and that
-   `python3 scripts/aicfg.py apply` in ai-config installs them.
+   `python3 scripts/brainrc.py apply` in brainrc installs them.
 9. Set `delivery`: `local-only` when the user asks for it (`--local`, "don't open a PR", working on
    someone else's repo without push rights), else `normal`. Record it in state.
 
