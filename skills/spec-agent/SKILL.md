@@ -60,7 +60,7 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 
 Unlisted stacks: rely on the project's own conventions and `project-commands`.
 
-**Packs.** `aicfg apply` renders enabled packs into `extensions.md` in the brainrc home (`$BRAINRC_HOME`, default
+**Packs.** `brainrc apply` renders enabled packs into `extensions.md` in the brainrc home (`$BRAINRC_HOME`, default
 `~/.config/brainrc/`; before `brainrc migrate`: `~/.config/ai-config/`). If it exists, read it once
 at intake. Its Domains rows extend the table above, its Intake context skills run
 after the ticket is fetched, its Ticket connectors handle the refs they list, and its Deliver

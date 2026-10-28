@@ -23,7 +23,7 @@ Ask the user these three; record answers verbatim (or "skipped"):
 3. One change to a skill, agent, or rule that would have prevented that?
 
 ## Proposed improvements
-<Concrete edits to ai-config skills/agents/rules, derived from the answers and metrics.
+<Concrete edits to brainrc skills/agents/rules, derived from the answers and metrics.
 These are suggestions; nothing is changed automatically.>
 
 ## After delivery

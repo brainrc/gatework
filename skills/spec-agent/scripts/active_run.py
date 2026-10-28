@@ -26,7 +26,7 @@ def _expand(value: str) -> Path:
 
 
 def pointer_file() -> Path:
-    """Same resolution as aicfg_home() in brainrc/config.py (skills ship without the package):
+    """Same resolution as settings_home() in brainrc/config.py (skills ship without the package):
     BRAINRC_HOME, AICFG_HOME, absolute $XDG_CONFIG_HOME/brainrc, ~/.config/brainrc, or the legacy
     ~/.config/ai-config when the new home is absent and the legacy dir exists. Silent."""
     if os.environ.get("BRAINRC_HOME"):
