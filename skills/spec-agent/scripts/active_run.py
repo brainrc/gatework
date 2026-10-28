@@ -5,8 +5,9 @@ Usage:
   active_run.py write <run-dir>
   active_run.py read
 
-The pointer is one line (path + newline) in `$AICFG_HOME/active-run` (default
-`~/.config/ai-config/active-run`), outside any repo. `write` creates the directory if needed and
+The pointer is one line (path + newline) in `active-run` under the brainrc home
+(`$BRAINRC_HOME`, else `$AICFG_HOME`, `$XDG_CONFIG_HOME/brainrc`, `~/.config/brainrc`, or the legacy
+`~/.config/ai-config`), outside any repo. `write` creates the directory if needed and
 warns on stderr but exits 0 if it cannot write. `read` prints the pointer's run if it names an
 existing directory, else the newest `<cwd>/specs/*/` by state.json mtime; with neither it prints
 nothing to stdout, notes it on stderr, and exits 1. Stdlib only, Python 3.11+.
@@ -20,13 +21,22 @@ import tempfile
 from pathlib import Path
 
 
+def _expand(value: str) -> Path:
+    return Path(os.path.expandvars(os.path.expanduser(value)))
+
+
 def pointer_file() -> Path:
-    """Same resolution as aicfg_home() in aicfg/config.py (skills ship without the package)."""
+    """Same resolution as aicfg_home() in brainrc/config.py (skills ship without the package):
+    BRAINRC_HOME, AICFG_HOME, absolute $XDG_CONFIG_HOME/brainrc, ~/.config/brainrc, or the legacy
+    ~/.config/ai-config when the new home is absent and the legacy dir exists. Silent."""
+    if os.environ.get("BRAINRC_HOME"):
+        return _expand(os.environ["BRAINRC_HOME"]) / "active-run"
     if os.environ.get("AICFG_HOME"):
-        home = Path(os.path.expandvars(os.path.expanduser(os.environ["AICFG_HOME"])))
-    else:
-        home = Path.home() / ".config" / "ai-config"
-    return home / "active-run"
+        return _expand(os.environ["AICFG_HOME"]) / "active-run"
+    xdg = os.environ.get("XDG_CONFIG_HOME", "")
+    home = Path(xdg) / "brainrc" if xdg and os.path.isabs(xdg) else Path.home() / ".config" / "brainrc"
+    legacy = Path.home() / ".config" / "ai-config"
+    return (legacy if not home.exists() and legacy.exists() else home) / "active-run"
 
 
 def write(run_dir: str) -> int:
