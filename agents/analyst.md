@@ -32,7 +32,9 @@ Stay under ~60 lines.
   name requirements that exist there). `None.` only when observable behavior doesn't change
   (refactor, tests, docs). New behavior in an area with no living file (or no `specs/living/`
   at all) creates the area: `### Area:` + `Purpose:` + ADDED. A ticket that contradicts a living
-  requirement is a MODIFIED block plus an open question, never a silent rewrite.
+  requirement is a MODIFIED block plus an open question, never a silent rewrite. A MODIFIED
+  block holds the requirement's full new text (apply replaces it with exactly that), never a
+  summary of the edit.
 
 ## Handoff
 Final message: the handoff block, status `done`, listing the criteria count and open questions count.
