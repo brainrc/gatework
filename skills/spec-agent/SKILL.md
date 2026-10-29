@@ -159,7 +159,8 @@ Only for a run started with `--auto`: set `auto: true` at intake from the flag i
 from reply wording, and refuse `--auto` together with any live target (offline only).
 - **Gates don't stop.** Write each gate message to `log.md` as `## engine · <Gate> gate ·
   auto-approved` (the § Gate presentation summary below it), set the gate `approved`, and record
-  `presented_at` and `approved_at` from `date -u` at that moment. Then continue.
+  `presented_at` and `approved_at` from `date -u` at that moment. Then continue. Never
+  auto-approve a Spec gate while `living_specs.py check` exits non-zero.
 - **Open questions** take the analyst's stated default. List each under `## Decisions made
   without you` in `pr-body.md`, with security triggers that had no CRITICAL/HIGH finding.
 - **Hard stops** still stop: every guardrails.md stop condition plus its Auto mode rows (size

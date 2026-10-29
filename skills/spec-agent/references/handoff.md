@@ -61,5 +61,9 @@ in exactly this format:
 **Did:** … **Evidence:** … **Changed files:** … **Findings:** (reviewers) … **Open issues:** … **Next:** …
 ```
 
+When a task must follow a rule the spec or plan states (a precedence, which record wins, a
+name), quote that rule word for word in the dispatch, or name the section to read. Never
+paraphrase it.
+
 Subagents can't resolve paths relative to this skill, so the dispatch always carries absolute
 paths and the literal handoff format. Never assume a role can read `references/`.
