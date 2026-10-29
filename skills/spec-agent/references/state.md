@@ -137,7 +137,7 @@ Rules:
 ## Active run pointer
 
 External tools find the current run through one file: `active-run` in the brainrc home
-(`$BRAINRC_HOME`, default `~/.config/brainrc/`; before `brainrc migrate`: `~/.config/ai-config/`),
+(`$BRAINRC_HOME`, default `~/.config/brainrc/`),
 holding one absolute run-directory path and a newline.
 - Written with `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` at intake, on resume,
   and with every checkpoint commit (each gate, block, and done).
