@@ -134,7 +134,7 @@ issue, pushes, or forces anything. Steps are idempotent: a crash re-runs safely.
 1. **Sha.** Use `pr_status.merge_commit_sha` if `git cat-file -e <sha>^{commit}` succeeds;
    else the local tip of `state.base`, and say so in `verify-merged.md`. Needs a clean tree
    (`state.md` § resume); otherwise stop and ask. Set `watch.merged_at` from `pr_status.merged_at`.
-2. **Verify.** In a detached worktree. Before: `git worktree remove --force specs/<slug>/.runs/post-merge
+2. **Verify.** In a detached worktree, run from `state.worktree` (`git -C <state.worktree> …`). Before: `git worktree remove --force specs/<slug>/.runs/post-merge
    2>/dev/null; git worktree prune`, then `git worktree add --detach specs/<slug>/.runs/post-merge <sha>`. Run
    the verifier (`agents/verifier.md`) there with the project's test command. After, on every
    path including failure: `git worktree remove --force specs/<slug>/.runs/post-merge`. Never touch the

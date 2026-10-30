@@ -51,7 +51,7 @@ Project commands: test=`…` lint=`…` validate=`…`
 Role skills: <name: absolute SKILL.md path, …> (the skills the role file names)
 Domain skills: <name: absolute SKILL.md path, …>   Targets: <approved envs/contexts, or "offline only">
 Delivery: <normal | local-only>
-Worktree: <absolute path> (parallel waves only) Work only here. Start every shell command with
+Worktree: <absolute path> (every dispatch: subagent cwd is the main checkout; for a parallel wave, the task worktree) Work only here. Start every shell command with
 `cd <path> &&` or use absolute paths, and create files with the file tools, not shell redirects.
 Before landing, the engine checks every changed path with `worktree_fence.py`; a write outside
 this worktree or your files is a failed attempt.
