@@ -75,7 +75,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    `campaign.md` § Ordered shape. `--campaign <ref>` with an existing `specs/campaign-*/campaign.json`
    for that ref resumes it (`campaign.md` § Ordered shape, Resume).
    Once the run exists (after intake, and on resume), run
-   `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` (`state.md` § Active run pointer).
+   `python3 <skill>/scripts/active_run.py write <worktree>/specs/<slug>` (`state.md` § Active run pointer).
+   Every stage runs in `state.worktree`, never in the main checkout.
 2. **Size, mode, domains, targets.** Classify size (`sizing.md`), pick mode (`efficiency.md`),
    detect domains. If any domain needs a live environment for evidence (plan, cluster diff, AWS
    reads), ask which target is allowed (`guardrails.md` § Environments; default: offline only).
@@ -84,7 +85,7 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    record `metrics.stage_started_at` (from `date -u`, never estimated). Before the Spec gate, run
    `living_specs.py check` on `spec.md` and fix any error first. If the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), record
-   `metrics.gates.<gate>.presented_at`, and **stop until the user approves** (an `auto` run: § Auto mode). Checkpoint-commit on every other stop too (blocked, done). Run `active_run.py write <project root>/specs/<slug>` with every checkpoint commit.
+   `metrics.gates.<gate>.presented_at`, and **stop until the user approves** (an `auto` run: § Auto mode). Checkpoint-commit on every other stop too (blocked, done). Run `active_run.py write <worktree>/specs/<slug>` with every checkpoint commit.
 4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
    `metrics.gates.<gate>.approved_at`, continue.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.

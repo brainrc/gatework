@@ -8,13 +8,15 @@ Usage:
 The pointer is one line (path + newline) in `active-run` under the brainrc home
 (`$BRAINRC_HOME`, else absolute `$XDG_CONFIG_HOME/brainrc`, else `~/.config/brainrc`), outside any repo. `write` creates the directory if needed and
 warns on stderr but exits 0 if it cannot write. `read` prints the pointer's run if it names an
-existing directory, else the newest `<cwd>/specs/*/` by state.json mtime; with neither it prints
+existing directory, else the newest run by state.json mtime among `<cwd>/specs/*/` and the `specs/*/`
+of every branch worktree in `git worktree list`, skipping detached ones (cwd only if git fails); with neither it prints
 nothing to stdout, notes it on stderr, and exits 1. Stdlib only, Python 3.11+.
 """
 from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -52,6 +54,28 @@ def write(run_dir: str) -> int:
     return 0
 
 
+def _roots() -> list[Path]:
+    """cwd plus every branch worktree from `git worktree list --porcelain`, deduped by resolved
+    path. Detached worktrees (task and verify checkouts) are skipped: their committed state.json
+    carries a checkout mtime. Any git failure (missing, not a repo, timeout) leaves cwd only."""
+    roots = [Path.cwd().resolve()]
+    try:
+        out = subprocess.run(["git", "worktree", "list", "--porcelain"], capture_output=True,
+                             text=True, timeout=10, check=True).stdout
+    except (OSError, subprocess.SubprocessError):
+        return roots
+    for entry in out.split("\n\n"):  # one blank-line-separated block per worktree
+        lines = entry.splitlines()
+        if "detached" in lines:
+            continue
+        for line in lines:
+            if line.startswith("worktree "):
+                path = Path(line[len("worktree "):]).resolve()
+                if path not in roots:
+                    roots.append(path)
+    return roots
+
+
 def read() -> int:
     try:
         line = pointer_file().read_text().strip()
@@ -61,15 +85,17 @@ def read() -> int:
         print(line)
         return 0
     states = []
-    for p in Path("specs").glob("*/state.json"):
-        try:
-            states.append((p.stat().st_mtime, p))
-        except OSError:  # vanished or broken symlink
-            continue
+    for root in _roots():
+        for p in (root / "specs").glob("*/state.json"):
+            try:
+                states.append((p.stat().st_mtime, p))
+            except OSError:  # vanished or broken symlink
+                continue
     if states:
         print(max(states, key=lambda s: s[0])[1].parent.resolve())
         return 0
-    print("no active run: no pointer and no specs/*/state.json in the current directory", file=sys.stderr)
+    print("no active run: no pointer and no specs/*/state.json in the current directory or its worktrees",
+          file=sys.stderr)
     return 1
 
 

@@ -9,5 +9,14 @@ Using the `spec-agent` skill, resume the run for $ARGUMENTS (default: the spec o
 current branch) following the Resume rules in its state reference. Start by showing a
 one-line status, then continue.
 
+Find the run through `state.worktree` and continue in that worktree, never in the main
+checkout. If the directory is missing, recreate it with
+`python3 <skill>/scripts/run_worktree.py open <slug> --branch <branch>` (no `--base`), using
+`state.branch`. If the pointer's directory is gone and no state is readable, find the branch
+(branches are named `<slug>`, so use the pointer path's `<slug>`; matching the ticket ref
+against local branches is best effort, local only: with no unique match, stop and ask), read
+`git show <branch>:specs/<slug>/state.json`, and open with that branch. If that exits 1
+(the branch is gone), stop and say so.
+
 If `$ARGUMENTS` appears literally above, this tool didn't fill it in: use what the user typed
 with this skill instead.
