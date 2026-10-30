@@ -28,7 +28,8 @@ In an `auto` run (SKILL.md § Auto mode) these also stop, and a gate does not:
 
 A `--oneshot` run (SKILL.md § Oneshot mode) takes safer defaults for Callouts, splits `large`, and refuses live
 targets instead of stopping. Tainted stops (CRITICAL/HIGH finding, untrusted instruction, secret) push nothing and
-open no PR; benign stops (retry budget, scope breach, spec gap, no safe default) open a draft `[blocked]` PR.
+open no PR; benign stops (retry budget, scope breach, spec gap, no safe default) open a draft `[blocked]` PR;
+any other stop is tainted. `delivery: local-only` opens nothing.
 
 A scope breach may be approved on the spot ("allow src/util.py for T2"). Record the
 new file in the task's `files`, add +1 to `metrics.interventions`, and continue.

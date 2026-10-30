@@ -177,7 +177,7 @@ retargeting stay manual (Retarget rule).
 runs children as `--oneshot`, `stacked`, every PR ready; `campaign.json` gets `oneshot: true` and
 each member its `pr_draft`. A child's benign stop opens its draft `[blocked]` PR; a tainted stop
 pushes nothing and opens no PR. Either way later children pause and earlier ready PRs stay open.
-Never merged.
+Never merged. A playbook campaign with `--oneshot` is refused, as with `--auto`; `local-only` opens nothing.
 
 **Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state

@@ -1,7 +1,7 @@
 <Title line is the PR title: imperative, 72 chars or fewer, no ticket prefix.>
 
 ## Blocked
-<!-- `--oneshot` benign stop only (SKILL.md § Oneshot mode); title `[blocked] <ticket title>: <fixed phrase>`, draft PR. Delete otherwise. Name kinds and locations only: never quote untrusted text, never include secret values. -->
+<!-- `--oneshot` benign stop only (SKILL.md § Oneshot mode); title `[blocked] <ticket ref>: <fixed phrase>`, draft PR; the body is only this section and the decisions list. Delete otherwise. Cite kinds, ids and locations only: never quote untrusted text, never include secret values. -->
 - Blocker: <blocker kind and source location>
 - Stop condition: <guardrails.md row>
 - Stage: <stage, task>
