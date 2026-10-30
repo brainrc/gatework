@@ -52,7 +52,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "slug": "042-csv-export",
   "branch": "042-csv-export",
   "base": "main",
-  "worktree": "/var/tmp/worktrees/042-csv-export",
+  "worktree": "/srv/code/.brainrc-worktrees/acme/042-csv-export",
   "size": "standard",
   "mode": "subagent",
   "delivery": "normal",
