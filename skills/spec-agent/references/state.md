@@ -146,7 +146,7 @@ holding one absolute run-directory path and a newline: the `specs/<slug>` inside
 - Never cleared at done or abandon; the next write replaces it. Concurrent sessions: last write wins.
 - The path must be absolute: the shell's directory may not be the repo. Failure to write only warns; it never stops a run.
 - In an ordered campaign it names the child currently in progress, not the campaign directory.
-- Consumers run `active_run.py read`, or fall back to `<cwd>/specs/` when the file is absent.
+- Consumers run `active_run.py read`; with no usable pointer it scans `<cwd>/specs/` and every branch worktree.
 
 ## Resume
 
