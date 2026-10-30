@@ -34,7 +34,7 @@ half-written changes, so each parallel task gets its own git worktree.
 1. **Wave:** the `todo` tasks whose `after:` tasks are `done` and whose `files` don't overlap.
    At most 2 tasks for `standard`, 3 for `large`. A task that links to or imports a file another
    task creates waits for that task (`after:`). A `test-writer` task, or a `review: each`
-   task, runs alone. A wave of one runs in the main tree as usual.
+   task, runs alone. A wave of one runs in the run worktree (`state.worktree`).
 2. **Dispatch:** for each task, `git -C <state.worktree> worktree add "${TMPDIR:-/tmp}/spec-agent/<slug>/<task>" HEAD`
    (nested in the run worktree, outside the repo, so test runners never find it). Record `tasks[].wave`, `.worktree`, and
    `.started_at`; dispatch every task's agent at once, with the task worktree as `Project root` and

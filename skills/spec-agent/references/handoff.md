@@ -51,9 +51,9 @@ Project commands: test=`…` lint=`…` validate=`…`
 Role skills: <name: absolute SKILL.md path, …> (the skills the role file names)
 Domain skills: <name: absolute SKILL.md path, …>   Targets: <approved envs/contexts, or "offline only">
 Delivery: <normal | local-only>
-Worktree: <absolute path> (every dispatch: subagent cwd is the main checkout; for a parallel wave, the task worktree) Work only here. Start every shell command with
+Worktree: <absolute path> (the task worktree in a wave, else `state.worktree`; harnesses whose subagents take no working directory rely on this `Project root` plus `Worktree:` dispatch) Work only here. Start every shell command with
 `cd <path> &&` or use absolute paths, and create files with the file tools, not shell redirects.
-Before landing, the engine checks every changed path with `worktree_fence.py`; a write outside
+Waves only: before landing, the engine checks every changed path with `worktree_fence.py`; a write outside
 this worktree or your files is a failed attempt.
 Follow your role instructions. End with a handoff block as your final message, under 150 words,
 in exactly this format:

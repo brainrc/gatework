@@ -31,7 +31,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    (through the connector's system, e.g. `gh pr list` or its MCP equivalent). If any exist,
    name them and recommend waiting for them to merge before branching, since both will claim
    the same next version. Can't list PRs → say so in one line and continue.
-4. Run `python3 <skill>/scripts/run_worktree.py open <slug> --branch <slug> --base <default branch>`
+4. Run `python3 <skill>/scripts/run_worktree.py open <slug> --branch <slug> --base <base>`
+   (`<base>` is the default branch, or for an ordered-campaign child N the previous child's branch)
    and record its absolute path as `state.worktree`. From here on, `Project root` and every git
    command use `state.worktree`. Exit 1 (the main checkout is on the branch): stop, report its
    stderr, never switch the user's checkout. The engine installs and copies nothing; a

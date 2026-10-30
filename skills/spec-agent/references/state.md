@@ -153,6 +153,9 @@ holding one absolute run-directory path and a newline: the `specs/<slug>` inside
 On `/work <same ref>` or `/spec-resume`:
 1. Find the run through `state.worktree`: `specs/*/state.json` whose `ticket.ref` matches, read
    from each known worktree (or the active run pointer), never the main checkout's copy.
+   If the worktree dir is deleted, its state is unreachable from the pointer: find the branch (the
+   pointer path's `<slug>`, or `ticket.ref` matched against `git branch --list`/`git for-each-ref`),
+   read `git show <branch>:specs/<slug>/state.json`, then continue at step 2.
 2. Run `python3 <skill>/scripts/run_worktree.py open <slug> --branch <branch>` (no `--base`): it
    reuses the worktree or recreates it from `state.branch` when missing. A run with no `worktree`
    gets one here; record the path as `state.worktree`. Exit 1 (the main checkout is on the

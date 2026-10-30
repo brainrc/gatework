@@ -138,7 +138,9 @@ which lists the offending links. The gate states the shape, the order, and the s
 
 **Build.** Each child is a normal run: own `specs/<slug>/`, its own Spec and Plan gates
 presented (the Campaign gate does not stand in for them), implement, verify. Child N's branch
-starts from child N-1's branch (child 1 from the default branch). The active-run pointer names
+starts from child N-1's branch (child 1 from the default branch). Each child gets its own
+worktree via `run_worktree.py open` with that `--base`. Writes to `specs/campaign-<slug>/` happen
+in the worktree of the child branch in progress, and from the Deliver gate on, in the stack tip's. The active-run pointer names
 the child in progress. A verified child is `verified` until the Deliver gate.
 
 **Deliver gate ⛔.** One gate after every child is verified, listing every child's outward

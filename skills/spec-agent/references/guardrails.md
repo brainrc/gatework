@@ -14,7 +14,7 @@ what happened and what decision is needed. Never guess past a stop.
 | Tests or build can't run (missing tool, broken env) | command exit + output |
 | New dependency or public API change not approved in the plan | diff / manifest change |
 | Any outward or destructive action outside the Deliver stage | always |
-| Working tree dirty at intake, or at resume outside `specs/<slug>/` | `git status --porcelain` |
+| Run worktree has changes outside `specs/<slug>/` at resume | `git -C <state.worktree> status --porcelain` |
 
 In an `auto` run (SKILL.md § Auto mode) these also stop, and a gate does not:
 
