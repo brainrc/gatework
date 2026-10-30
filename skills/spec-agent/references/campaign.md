@@ -172,6 +172,13 @@ predecessor's branch, with the "N of M, stacked on #X" line. A child's hard stop
 `blocked` and pauses the later children. A stack with a blocked child opens no PRs. Merging and
 retargeting stay manual (Retarget rule).
 
+**Oneshot (`--oneshot`, SKILL.md § Oneshot mode).** Overrides the Auto paragraph's draft PRs and
+"a stack with a blocked child opens no PRs". A `large` ticket or `--campaign --oneshot` (ordered)
+runs children as `--oneshot`, `stacked`, every PR ready; `campaign.json` gets `oneshot: true` and
+each member its `pr_draft`. A child's benign stop opens its draft `[blocked]` PR; a tainted stop
+pushes nothing and opens no PR. Either way later children pause and earlier ready PRs stay open.
+Never merged.
+
 **Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
 read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
