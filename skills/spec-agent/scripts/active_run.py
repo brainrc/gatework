@@ -9,7 +9,7 @@ The pointer is one line (path + newline) in `active-run` under the brainrc home
 (`$BRAINRC_HOME`, else absolute `$XDG_CONFIG_HOME/brainrc`, else `~/.config/brainrc`), outside any repo. `write` creates the directory if needed and
 warns on stderr but exits 0 if it cannot write. `read` prints the pointer's run if it names an
 existing directory, else the newest run by state.json mtime among `<cwd>/specs/*/` and the `specs/*/`
-of every worktree in `git worktree list` (cwd only if git fails); with neither it prints
+of every branch worktree in `git worktree list`, skipping detached ones (cwd only if git fails); with neither it prints
 nothing to stdout, notes it on stderr, and exits 1. Stdlib only, Python 3.11+.
 """
 from __future__ import annotations
@@ -55,19 +55,24 @@ def write(run_dir: str) -> int:
 
 
 def _roots() -> list[Path]:
-    """cwd plus every worktree from `git worktree list --porcelain`, deduped by resolved path.
-    Any git failure (missing, not a repo, timeout) leaves cwd only."""
+    """cwd plus every branch worktree from `git worktree list --porcelain`, deduped by resolved
+    path. Detached worktrees (task and verify checkouts) are skipped: their committed state.json
+    carries a checkout mtime. Any git failure (missing, not a repo, timeout) leaves cwd only."""
     roots = [Path.cwd().resolve()]
     try:
         out = subprocess.run(["git", "worktree", "list", "--porcelain"], capture_output=True,
                              text=True, timeout=10, check=True).stdout
     except (OSError, subprocess.SubprocessError):
         return roots
-    for line in out.splitlines():
-        if line.startswith("worktree "):
-            path = Path(line[len("worktree "):]).resolve()
-            if path not in roots:
-                roots.append(path)
+    for entry in out.split("\n\n"):  # one blank-line-separated block per worktree
+        lines = entry.splitlines()
+        if "detached" in lines:
+            continue
+        for line in lines:
+            if line.startswith("worktree "):
+                path = Path(line[len("worktree "):]).resolve()
+                if path not in roots:
+                    roots.append(path)
     return roots
 
 
