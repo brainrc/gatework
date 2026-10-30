@@ -21,8 +21,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 ## Stage details
 
 **0 · intake**
-1. Check `git status`. If the working tree is dirty, stop and ask. (Check first: the next
-   steps create files, and those are the engine's own.)
+1. A dirty main checkout is left alone: the run works in its own worktree (step 4) and never
+   changes the main checkout's branch, index, or files.
 2. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `jira:<KEY-n>` or a Jira browse
    URL (ticket-jira), `local:<path>`, or free text
    (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
@@ -31,11 +31,15 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    (through the connector's system, e.g. `gh pr list` or its MCP equivalent). If any exist,
    name them and recommend waiting for them to merge before branching, since both will claim
    the same next version. Can't list PRs → say so in one line and continue.
-4. Create the branch `<slug>` from the default branch (or check it out if it exists → resume).
+4. Run `python3 <skill>/scripts/run_worktree.py open <slug> --branch <slug> --base <default branch>`
+   and record its absolute path as `state.worktree`. From here on, `Project root` and every git
+   command use `state.worktree`. Exit 1 (the main checkout is on the branch): stop, report its
+   stderr, never switch the user's checkout. The engine installs and copies nothing; a
+   missing-dependency failure becomes a block naming the cause.
 5. Fetch the ticket through the connector skill and write `ticket.md` (format in
    [state.md](state.md)). Run any pack Intake context skills and append their summaries.
    Files written during intake go into the first checkpoint commit. Record the run as active
-   (`python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>`, state.md § Active run pointer).
+   (`python3 <skill>/scripts/active_run.py write <worktree>/specs/<slug>`, state.md § Active run pointer).
 6. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
 7. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).

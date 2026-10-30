@@ -52,6 +52,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "slug": "042-csv-export",
   "branch": "042-csv-export",
   "base": "main",
+  "worktree": "/var/tmp/worktrees/042-csv-export",
   "size": "standard",
   "mode": "subagent",
   "delivery": "normal",
@@ -87,6 +88,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 
 | Field | Values |
 |---|---|
+| `worktree` | absolute path of the run's git worktree on `branch`, set at intake by `run_worktree.py open`; `Project root` and git commands use it. Not the per-task `tasks[].worktree` |
 | `ticket.pr` | PR URL once `link_pr` ran, else `null` |
 | `commands.*` | a string, a list of strings (one per stack or module), or `null` |
 | `commands.baseline_failures` | test names failing before any change (project-commands § Baseline); never count against a task |
@@ -121,10 +123,10 @@ Rules:
 - Write `state.json` **after every state change**, before starting the next action,
   so a crash loses at most one step.
 - **Checkpoint commit at every stop** (gate presented, blocked, or run finished): commit
-  `specs/<slug>/` and any ticket-file status change on the feature branch, e.g.
+  `specs/<slug>/` and any ticket-file status change on the feature branch (in the run's worktree), e.g.
   `Checkpoint 001-add-shout-flag: spec gate` + `Refs <ticket ref>`. A paused run always
   leaves a clean tree. (`.runs/` ignores itself via its own `.gitignore`.) Run
-  `active_run.py write <project root>/specs/<slug>` with each checkpoint commit.
+  `active_run.py write <worktree>/specs/<slug>` with each checkpoint commit.
 - `metrics.interventions` +1 each time the user has to step in outside a gate
   (answering a blocked stop, correcting the agent mid-stage).
 - `metrics.retries` +1 each time a task goes back to the implementer.
@@ -138,8 +140,8 @@ Rules:
 
 External tools find the current run through one file: `active-run` in the brainrc home
 (`$BRAINRC_HOME`, default `~/.config/brainrc/`),
-holding one absolute run-directory path and a newline.
-- Written with `python3 <skill>/scripts/active_run.py write <project root>/specs/<slug>` at intake, on resume,
+holding one absolute run-directory path and a newline: the `specs/<slug>` inside the run's worktree.
+- Written with `python3 <skill>/scripts/active_run.py write <worktree>/specs/<slug>` at intake, on resume,
   and with every checkpoint commit (each gate, block, and done).
 - Never cleared at done or abandon; the next write replaces it. Concurrent sessions: last write wins.
 - The path must be absolute: the shell's directory may not be the repo. Failure to write only warns; it never stops a run.
@@ -149,9 +151,13 @@ holding one absolute run-directory path and a newline.
 ## Resume
 
 On `/work <same ref>` or `/spec-resume`:
-1. Find `specs/*/state.json` whose `ticket.ref` matches (or the only one on the current branch).
-   Then run `active_run.py write <project root>/specs/<slug>`.
-2. Check out `state.branch`, then check `git status --porcelain`:
+1. Find the run through `state.worktree`: `specs/*/state.json` whose `ticket.ref` matches, read
+   from each known worktree (or the active run pointer), never the main checkout's copy.
+2. Run `python3 <skill>/scripts/run_worktree.py open <slug> --branch <branch>` (no `--base`): it
+   reuses the worktree or recreates it from `state.branch` when missing. A run with no `worktree`
+   gets one here; record the path as `state.worktree`. Exit 1 (the main checkout is on the
+   branch, or the branch is missing): stop, report stderr, never switch the user's checkout.
+   Then run `active_run.py write <worktree>/specs/<slug>` and `git -C <worktree> status --porcelain`:
    - Changes only under `specs/<slug>/` (or the ticket file's status) are the engine's own
      files from an interrupted stage: make a checkpoint commit and continue.
    - Any other change: show it and stop. It may be the user's work or a half-finished task.
