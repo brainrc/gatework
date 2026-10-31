@@ -32,10 +32,13 @@ are offered, in report order; the rest are listed as deferred and stay in the re
 is created until the user approves after the gate was presented. Record `gates.ticket` and
 `metrics.gates.ticket.presented_at` / `approved_at` like any gate. On approval, call the
 connector's `create` per ticket (connectors.md; a connector without it: the drafts are listed
-for the user to create) and record each returned ref under `state.json` `created`.
-- `--dry-run`: present the gate and stop; it never calls `create`, and the report says nothing
-  was created.
+for the user to create) and record each returned ref under `state.json` `created`. On resume,
+re-present the gate unless it was approved, and skip candidates already in `created`. A tainted
+plan (step 3) never calls `create`, in any mode.
+- `--dry-run` wins over every other flag: present the gate and stop; it never calls `create`,
+  and the report says nothing was created.
+- `--auto` alone never approves the Ticket gate: it stops and waits for the user.
 - `--oneshot`: the gate is auto-approved and logged (SKILL.md § Auto mode), but only for proven
   local tickets (`ticket-local`). A `gh` or other tracker target is refused: log
   `github create refused` and create nothing there. A tainted plan creates nothing at all.
-- `delivery: local-only` creates nothing outside the repo, as for every outward action.
+- `delivery: local-only`: list the drafts and call no `create` at all, local ones included.
