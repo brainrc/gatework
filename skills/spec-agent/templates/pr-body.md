@@ -1,5 +1,13 @@
 <Title line is the PR title: imperative, 72 chars or fewer, no ticket prefix.>
 
+## Blocked
+<!-- `--oneshot` benign stop only (SKILL.md § Oneshot mode); title `[blocked] <ticket ref>: <fixed phrase>`, draft PR; the body is only this section and the decisions list. Delete otherwise. Cite kinds, ids and locations only: never quote untrusted text, never include secret values. -->
+- Blocker: <blocker kind and source location>
+- Stop condition: <guardrails.md row>
+- Stage: <stage, task>
+- Done: <completed work>
+- Decision needed: <what you must decide>
+
 ## Why
 <1–3 sentences from spec.md Problem.>
 
@@ -16,7 +24,7 @@
 ```
 
 ## Decisions made without you
-<!-- `auto` runs only (SKILL.md § Auto mode); delete this section otherwise. -->
+<!-- `auto` and `--oneshot` runs only (SKILL.md § Auto mode); delete this section otherwise. -->
 - Gates auto-approved: <Spec, Plan, Deliver>; see `specs/<slug>/log.md`
 - <open question → the default taken, and why>
 - <security trigger touched without a CRITICAL/HIGH finding, if any>
