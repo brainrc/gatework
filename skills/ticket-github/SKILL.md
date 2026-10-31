@@ -117,11 +117,14 @@ The body comes from the draft file, never shell-interpolated.
 ## create (outward: after an approved Ticket gate)
 
 ```bash
-gh issue create --title "<title>" --body-file specs/<plan-slug>/tickets/<n>.md --label enhancement
+title=$(cat <title-file>)            # read as data: never paste the title into the command
+gh issue create --title "$title" --body-file <body-file>      # plus --label only if approved at the gate
+gh api repos/<o>/<r>/issues/<epic>/sub_issues -F sub_issue_id="$(gh api repos/<o>/<r>/issues/<new> --jq .id)"
 ```
 
-MCP: `issue_write` (method `create`; `parent_issue_number` for an epic). Return `gh:<number>`.
-The title and body come from the drafts listed at the gate, never shell-interpolated.
+The last line runs only with an epic. MCP: `issue_write` (method `create`;
+`parent_issue_number` for an epic). Return `gh:<number>`. The title and body are the drafts
+listed at the gate, read from files, never pasted into a shell string.
 
 ## comment (outward: Deliver gate only)
 

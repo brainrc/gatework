@@ -5,7 +5,7 @@ description: Ticket connector for work items stored as markdown files in the rep
 
 # ticket-local
 
-Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `create`, `comment`, `transition`, `link_pr`.
+Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`, `create`.
 
 ## File format
 
@@ -52,10 +52,11 @@ only the user saying "merged" releases the next child.
 
 ## create (outward: after an approved Ticket gate)
 
-Write `specs/tickets/<NNN>-<slug>.md` (next unused number) with `title`, `status: open`, `pr:`
-and, for an epic member, the epic's ref in `epic:`. Copy the body from the draft file, never
-shell-interpolated. Add the new ref to the epic's `children:` when given. Return
-`local:specs/tickets/<NNN>-<slug>.md`.
+Write `specs/tickets/<NNN>-<slug>.md`: `<NNN>` is one more than the highest leading number
+in that directory, `<slug>` is the title lowercased to `[a-z0-9-]` only. Frontmatter: `id: <NNN>`,
+`title` as one quoted line, `status: open`, `pr:`, and `epic: <ref>` for an epic member. Copy the
+body from the draft file, never through a shell string. Add the new ref to the epic's `children:`
+when given. Return `local:specs/tickets/<NNN>-<slug>.md` (refs are relative to the project root).
 
 ## comment / transition / link_pr (Deliver stage, after the gate)
 
