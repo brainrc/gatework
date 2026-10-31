@@ -8,7 +8,7 @@ Usage:
 
 A proof command is untrusted: a researcher wrote it after reading untrusted content. Only a
 narrow allowlist is re-run: grep/rg/cat/head/tail/wc/ls with fixed flags on named files, and
-git log/show with fixed flags. Every path must resolve (symlinks followed) inside the worktree
+`git log --oneline [-N]` (never `git show`: it prints patches). Every path must resolve (symlinks followed) inside the worktree
 and not be a secret file. Test runners are never re-run. `run` uses argv (no shell), a pinned
 environment, a process-group timeout and an output cap. Stdlib only, Python 3.11+.
 """
@@ -36,8 +36,10 @@ PROGRAMS = {
     "rg": ({"-n", "-i", "-c", "-F", "-w", "-v", "-o", "--no-heading"}, set(), True),
 }
 PATTERN_FIRST = {"grep", "rg"}
-GIT = {"log": {"--oneline", "--stat", "--name-only"}, "show": {"--stat", "--oneline", "--name-only", "--no-patch"}}
-REV = re.compile(r"^[A-Za-z0-9_.~^/-]+$")
+GIT_LOG_FLAGS = {"--oneline"}
+# Never readable as proof, on top of guard_secrets: keys, credentials, git internals.
+DENY_PARTS = {".git", ".ssh", ".gnupg", ".aws", ".kube", ".docker"}
+DENY_NAME = re.compile(r"(?i)^(id_[a-z0-9_]+(\.pub)?|.*\.(pem|key|p12|pfx|jks|tfstate|tfvars)|\.git-credentials|\.netrc|\.npmrc|\.pypirc)$")
 SHELL_CHARS = re.compile(r"[;&|`$<>\n\\]")
 URL = re.compile(r"(?i)\b[a-z][a-z0-9+.-]*://")
 TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
@@ -60,8 +62,9 @@ def _path(arg: str, root: Path, regular_file: bool, secrets) -> str | None:
     real = (root / arg).resolve()
     if not real.is_relative_to(root) or not real.exists():
         return f"`{arg}` is missing or resolves outside the worktree"
-    rel = str(real.relative_to(root))
-    if secrets.is_secret_file(arg) or secrets.is_secret_file(rel):
+    rel = real.relative_to(root)
+    if (secrets.is_secret_file(arg) or secrets.is_secret_file(str(rel)) or DENY_PARTS & set(Path(arg).parts)
+            or DENY_PARTS & set(rel.parts) or DENY_NAME.match(rel.name) or DENY_NAME.match(Path(arg).name)):
         return f"`{arg}` is a secret file"
     if regular_file and not real.is_file():
         return f"`{arg}` is not a regular file"
@@ -86,18 +89,11 @@ def check(command: str, root: Path) -> str | None:
         return str(e)
     prog, args = argv[0], argv[1:]
     if prog == "git":
-        if not args or args[0] not in GIT:
-            return "git only as `git log` or `git show`"
+        if not args or args[0] != "log":
+            return "git only as `git log --oneline [-N]`"
         for a in args[1:]:
-            if a.startswith("-"):
-                if a not in GIT[args[0]] and not re.fullmatch(r"-[1-9][0-9]?", a):
-                    return f"git {args[0]} flag `{a}` is not allowed"
-                continue
-            rev, _, path = a.partition(":")
-            if not REV.match(rev):
-                return f"`{a}` is not a plain revision"
-            if path and (path.startswith(("/", "~")) or ".." in Path(path).parts or secrets.is_secret_file(path)):
-                return f"`{a}` names a secret or outside path"
+            if a not in GIT_LOG_FLAGS and not re.fullmatch(r"-[1-9][0-9]?", a):
+                return f"git log argument `{a}` is not allowed"
         return None
     if prog not in PROGRAMS:
         return f"`{prog}` is not in the re-run allowlist (test runners are never re-run)"
@@ -110,7 +106,7 @@ def check(command: str, root: Path) -> str | None:
                 return f"{prog} flag `{a}` is not allowed"
             if a in valued:
                 i += 1
-                if i >= len(args) or not args[i].isdigit() or int(args[i]) > MAX_LINES:
+                if i >= len(args) or not (args[i].isascii() and args[i].isdigit()) or int(args[i]) > MAX_LINES:
                     return f"{prog} {a} needs a count up to {MAX_LINES}"
         else:
             rest.append(a)
@@ -128,6 +124,12 @@ def check(command: str, root: Path) -> str | None:
     return None
 
 
+def _limit_file_size() -> None:
+    """Cap what the child may write (its output file) at the output cap's order of magnitude."""
+    import resource
+    resource.setrlimit(resource.RLIMIT_FSIZE, (OUTPUT_CAP * 16, OUTPUT_CAP * 16))
+
+
 def run(command: str, root: Path, timeout: int = TIMEOUT) -> tuple[int, str] | None:
     """Re-run an allowed command; (exit code, capped output), or None on timeout."""
     reason = check(command, root)
@@ -135,13 +137,14 @@ def run(command: str, root: Path, timeout: int = TIMEOUT) -> tuple[int, str] | N
         raise ValueError(reason)
     argv = shlex.split(command)
     if argv[0] == "git":
-        argv = ["git", "-c", "core.pager=cat", "-c", "core.fsmonitor=false", "--no-pager",
-                argv[1], "--no-ext-diff", "--no-textconv", *argv[2:]]
+        argv = ["git", "-c", "core.pager=cat", "-c", "core.fsmonitor=false", "-c", "log.showSignature=false",
+                "-c", "gpg.program=false", "-c", f"core.attributesFile={os.devnull}", "--no-pager",
+                "log", "--no-ext-diff", "--no-textconv", *argv[2:]]
     env = {"PATH": "/usr/bin:/bin", "HOME": str(root), "LANG": "C.UTF-8", "GIT_CONFIG_GLOBAL": os.devnull,
            "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"}
     with tempfile.TemporaryFile() as out:
         proc = subprocess.Popen(argv, cwd=root, env=env, stdout=out, stderr=subprocess.STDOUT,
-                                stdin=subprocess.DEVNULL, start_new_session=True)
+                                stdin=subprocess.DEVNULL, start_new_session=True, preexec_fn=_limit_file_size)
         try:
             code = proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:

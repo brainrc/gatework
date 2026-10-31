@@ -8,8 +8,9 @@ worktree like any run. Offline only; `--web` lets the researcher use the web.
    template and proof under `proof/`.
 2. **Re-verify:** the engine itself, never the researcher, re-runs each proof command with
    `python3 <skill>/scripts/proof_guard.py run "<command>" --root <worktree>`. Only a narrow
-   allowlist runs: grep/rg/cat/head/tail/wc/ls with fixed flags on named files, and git log/show
-   with fixed flags; every path resolves inside the worktree and is not a secret file. A denied
+   allowlist runs: grep/rg/cat/head/tail/wc/ls with fixed flags on named files, and
+   `git log --oneline [-N]`; every path resolves inside the worktree and is not a secret, key,
+   or git-internal file. A denied
    command, a timeout, or a different exit code or normalized output moves the candidate to
    `## Needs evidence`. Test runners are never re-run: a failing-test proof stays under
    `## Needs evidence` until a human runs it. A spike also needs an allowlisted command proof,
