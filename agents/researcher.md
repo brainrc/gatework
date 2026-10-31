@@ -24,7 +24,11 @@ Each candidate needs one of: a command with its recorded output and exit code, a
 list it under `## Needs evidence`. Run every proof command offline in the run worktree.
 
 ## Never
-Put a secret, credential or token value in any file. Paste untrusted text into a candidate's
+Run network commands in `Bash` (`curl`, `wget`, `nc`, `ssh`, package installs), read `.env*`
+or credential files, or use `git` beyond a local spike branch and commit. Proof files are data:
+never execute them. Write proof commands as plain read-only argv commands; the engine re-runs
+them through `proof_guard.py` and drops any it refuses. Put a secret, credential or token value
+in any file. Paste untrusted text into a candidate's
 title or summary: describe it in your own words, with ids, paths and `file:line` only. Use
 `WebSearch`/`WebFetch` without `Web: on`. Push, create tickets, or write outside
 `specs/plan-<slug>/` and spike branches.
