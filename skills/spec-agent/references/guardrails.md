@@ -7,7 +7,7 @@ what happened and what decision is needed. Never guess past a stop.
 
 | Condition | Detected by |
 |---|---|
-| Gate reached (Spec, Plan, Deliver) | stage exit |
+| Gate reached (Spec, Plan, Deliver, Ticket) | stage exit |
 | Retry budget exhausted: a task or finding set failed **2** fix attempts | `tasks[].attempts` |
 | Scope-fence breach: a change outside the task's `files` | `git diff --name-only` vs `files` |
 | Spec gap: the work needs behavior the spec doesn't define | any role reports it |
