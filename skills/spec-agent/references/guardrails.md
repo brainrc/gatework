@@ -52,8 +52,9 @@ Only in the `deliver` stage, only after the Deliver gate, and only the actions l
 verbatim in the gate message (an `auto` run: only `git push` of the run's own branch and a
 **draft** PR, when no hard stop stands; SKILL.md § Auto mode):
 - `git push`, opening/merging/closing PRs, ticket comments, status transitions.
-- Creating tickets: only after an approved Ticket gate (`/plan`, planning.md), or under
-  `--oneshot` for proven local tickets only. `--auto` alone never approves it.
+
+Creating tickets is gated by the Ticket gate instead (`/plan`, planning.md), or done under
+`--oneshot` for proven local tickets only. `--auto` alone never approves it.
 
 A `--oneshot` run instead opens a ready PR, or a draft `[blocked]` PR at a benign stop (nothing at a
 tainted stop); it never merges or retargets.
