@@ -38,8 +38,11 @@ PROGRAMS = {
 PATTERN_FIRST = {"grep", "rg"}
 GIT_LOG_FLAGS = {"--oneline"}
 # Never readable as proof, on top of guard_secrets: keys, credentials, git internals.
-DENY_PARTS = {".git", ".ssh", ".gnupg", ".aws", ".kube", ".docker"}
-DENY_NAME = re.compile(r"(?i)^(id_[a-z0-9_]+(\.pub)?|.*\.(pem|key|p12|pfx|jks|tfstate|tfvars)|\.git-credentials|\.netrc|\.npmrc|\.pypirc)$")
+DENY_PARTS = {".git", ".ssh", ".gnupg", ".aws", ".kube", ".docker", ".config"}  # compared casefolded
+DENY_NAME = re.compile(r"(?i)^(\.env.*|id_[a-z0-9_]+(\.pub)?|.*\.(pem|key|p8|p12|pfx|jks|keystore|ppk|gpg|tfstate|tfvars)(\.backup)?"
+                       r"|\.git-credentials|\.netrc|\.npmrc|\.pypirc|\.htpasswd|\.dockercfg|kubeconfig|\.envrc|\.pgpass"
+                       r"|.*credentials.*|.*secrets?\..*|service-account.*\.json)$")
+ENV_OK = (".example", ".sample", ".template", ".dist")
 SHELL_CHARS = re.compile(r"[;&|`$<>\n\\]")
 URL = re.compile(r"(?i)\b[a-z][a-z0-9+.-]*://")
 TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
@@ -63,8 +66,10 @@ def _path(arg: str, root: Path, regular_file: bool, secrets) -> str | None:
     if not real.is_relative_to(root) or not real.exists():
         return f"`{arg}` is missing or resolves outside the worktree"
     rel = real.relative_to(root)
-    if (secrets.is_secret_file(arg) or secrets.is_secret_file(str(rel)) or DENY_PARTS & set(Path(arg).parts)
-            or DENY_PARTS & set(rel.parts) or DENY_NAME.match(rel.name) or DENY_NAME.match(Path(arg).name)):
+    parts = {p.casefold() for p in (*Path(arg).parts, *rel.parts)}
+    names = [n for n in (Path(arg).name, rel.name) if not n.casefold().endswith(ENV_OK)]
+    if (secrets.is_secret_file(arg) or secrets.is_secret_file(str(rel)) or DENY_PARTS & parts
+            or any(DENY_NAME.match(n) for n in names) or (real.is_file() and real.stat().st_nlink > 1)):
         return f"`{arg}` is a secret file"
     if regular_file and not real.is_file():
         return f"`{arg}` is not a regular file"
