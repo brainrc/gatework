@@ -5,7 +5,7 @@ description: Ticket connector for work items stored as markdown files in the rep
 
 # ticket-local
 
-Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`.
+Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `create`, `comment`, `transition`, `link_pr`.
 
 ## File format
 
@@ -49,6 +49,13 @@ Per child, read `depends_on:` from the frontmatter and return
 when absent. `list` on an epic returns its `children:` in listed order. A predecessor's
 state is its `status:` and `pr:` (branch name only when there is no remote). With no remote,
 only the user saying "merged" releases the next child.
+
+## create (outward: after an approved Ticket gate)
+
+Write `specs/tickets/<NNN>-<slug>.md` (next unused number) with `title`, `status: open`, `pr:`
+and, for an epic member, the epic's ref in `epic:`. Copy the body from the draft file, never
+shell-interpolated. Add the new ref to the epic's `children:` when given. Return
+`local:specs/tickets/<NNN>-<slug>.md`.
 
 ## comment / transition / link_pr (Deliver stage, after the gate)
 
