@@ -13,7 +13,8 @@ Load references only when the step needs them:
 [state](references/state.md) · [handoff](references/handoff.md) ·
 [guardrails](references/guardrails.md) · [efficiency](references/efficiency.md) ·
 [fallback](references/fallback.md) · [campaign](references/campaign.md) ·
-[connectors](references/connectors.md) · [watch](references/watch.md). Templates are in `templates/`.
+[connectors](references/connectors.md) · [watch](references/watch.md) ·
+[planning](references/planning.md) (`/plan`). Templates are in `templates/`.
 
 ## Roles
 
@@ -27,6 +28,7 @@ Load references only when the step needs them:
 | security-reviewer | diff → security findings | [roles/security-reviewer.md](roles/security-reviewer.md) |
 | infra-reviewer | IaC/manifests/pipelines → blast-radius findings | [roles/infra-reviewer.md](roles/infra-reviewer.md) |
 | verifier | criteria → `verify.md` evidence | [roles/verifier.md](roles/verifier.md) |
+| researcher | topic → proven candidates (`/plan`) | [roles/researcher.md](roles/researcher.md) |
 | doc-writer | docs + PR/ticket drafts | [roles/doc-writer.md](roles/doc-writer.md) |
 
 `roles/` links to the package's `agents/`. If it's missing (some package installs, e.g. Codex,
