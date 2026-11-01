@@ -7,7 +7,7 @@ what happened and what decision is needed. Never guess past a stop.
 
 | Condition | Detected by |
 |---|---|
-| Gate reached (Spec, Plan, Deliver) | stage exit |
+| Gate reached (Spec, Plan, Deliver, Ticket) | stage exit |
 | Retry budget exhausted: a task or finding set failed **2** fix attempts | `tasks[].attempts` |
 | Scope-fence breach: a change outside the task's `files` | `git diff --name-only` vs `files` |
 | Spec gap: the work needs behavior the spec doesn't define | any role reports it |
@@ -51,7 +51,10 @@ A plan or diff showing deletes or replacements the spec didn't ask for is a stop
 Only in the `deliver` stage, only after the Deliver gate, and only the actions listed
 verbatim in the gate message (an `auto` run: only `git push` of the run's own branch and a
 **draft** PR, when no hard stop stands; SKILL.md § Auto mode):
-- `git push`, opening/merging/closing PRs, ticket comments, status transitions, creating tickets.
+- `git push`, opening/merging/closing PRs, ticket comments, status transitions.
+
+Creating tickets is gated by the Ticket gate instead (`/plan`, planning.md), or done under
+`--oneshot` for proven local tickets only. `--auto` alone never approves it.
 
 A `--oneshot` run instead opens a ready PR, or a draft `[blocked]` PR at a benign stop (nothing at a
 tainted stop); it never merges or retargets.

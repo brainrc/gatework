@@ -104,7 +104,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `delivery` | `normal`, or `local-only`: no push/PR/ticket writes even if approved; drafts only |
 | `mode` | `inline` `subagent` `fallback` (see efficiency.md) |
 | `stage` | `intake` `spec` `plan` `implement` `verify` `document` `deliver` `watch` `done` |
-| `gates.*` | `pending` `approved` `skipped`; `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested`, `skipped` (PR merged/closed before a push); `gates.push_sha` = head sha shown at the gate, the only sha pushed; `gates.push_replies` = `[{key, draft_sha}]` sha256 of each reply draft shown |
+| `gates.*` | `pending` `approved` `skipped` (`gates.ticket`: planning mode only, references/planning.md); `gates.push` (after deliver): `pending` per push, `approved`, `changes-requested`, `skipped` (PR merged/closed before a push); `gates.push_sha` = head sha shown at the gate, the only sha pushed; `gates.push_replies` = `[{key, draft_sha}]` sha256 of each reply draft shown |
 | `watch` | absent before `watch`. `checked_at` last check (UTC), `head_sha` PR head last seen, `ci_failures[]` of `{check, sha, cause: own\|external, task}` (`task` = fix task id, `null` for external). See [watch.md](watch.md) |
 | `watch.review_rounds` | passes that acted on new review threads; max 3 |
 | `watch.threads` | `{total, fixed, replied, flagged}` counts; only grow; `fixed` at push, `replied` at post |

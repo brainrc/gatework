@@ -54,7 +54,9 @@ only the user saying "merged" releases the next child.
 
 Write `specs/tickets/<NNN>-<slug>.md`: `<NNN>` is one more than the highest leading number
 in that directory, `<slug>` is the title lowercased to `[a-z0-9-]` only. Frontmatter: `id: <NNN>`,
-`title` as one quoted line, `status: open`, `pr:`, and `epic: <ref>` for an epic member. Copy the
+`title` as one double-quoted line (control characters removed, `\` and `"` escaped), `status: open`,
+`pr:`, and `epic: <ref>` for an epic member, where the epic must be a `local:specs/tickets/` file.
+An empty slug becomes `ticket`. Copy the
 body from the draft file, never through a shell string. Add the new ref to the epic's `children:`
 when given. Return `local:specs/tickets/<NNN>-<slug>.md` (refs are relative to the project root).
 
