@@ -52,7 +52,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "slug": "042-csv-export",
   "branch": "042-csv-export",
   "base": "main",
-  "worktree": "/srv/code/.brainrc-worktrees/acme/042-csv-export",
+  "worktree": "~/code/.brainrc-worktrees/acme/042-csv-export",
   "size": "standard",
   "mode": "subagent",
   "delivery": "normal",
@@ -88,7 +88,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 
 | Field | Values |
 |---|---|
-| `worktree` | absolute path of the run's git worktree on `branch`, set at intake by `run_worktree.py open`; `Project root` and git commands use it. Not the per-task `tasks[].worktree` |
+| `worktree` | path of the run's git worktree on `branch`, set at intake by `run_worktree.py open`, with the home directory written as `~` (state.json is committed); `Project root` and git commands use it. Not the per-task `tasks[].worktree` |
 | `ticket.pr` | PR URL once `link_pr` ran, else `null` |
 | `commands.*` | a string, a list of strings (one per stack or module), or `null` |
 | `commands.baseline_failures` | test names failing before any change (project-commands § Baseline); never count against a task |
