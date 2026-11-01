@@ -5,7 +5,7 @@ description: Ticket connector for GitHub issues via the gh CLI or the GitHub MCP
 
 # ticket-github
 
-Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`, `pr_status`, `reply_thread`
+Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`, `pr_status`, `reply_thread`, `create`
 ([contract](../spec-agent/references/connectors.md)). Uses `gh` when it's authenticated
 (`gh auth status`), otherwise the GitHub MCP server's tools (table below). If neither is
 available, stop and ask the user to run `gh auth login`. Never handle tokens yourself.
@@ -20,6 +20,7 @@ available, stop and ask the user to run `gh auth login`. Never handle tokens you
 | link_pr | `git push` + `gh pr create` | `git push` + `create_pull_request` |
 | pr_status | `gh pr view --json` + `gh api graphql` (below) | `pull_request_read`: `get` (sha, state, updated_at), `get_check_runs` (checks; omits commit statuses), `get_review_comments` (threads with resolution; thread id if present) |
 | reply_thread | `gh api graphql` mutation (below) | none: hand the draft reply to the user to post |
+| create | `gh issue create` | `issue_write` (method `create`) |
 
 **Refs:** `gh:42` (repo from the current directory's remote) or
 `https://github.com/<owner>/<repo>/issues/42` (add `-R <owner>/<repo>` to every command).
@@ -112,6 +113,18 @@ gh api graphql -f thread=<id> -F body=@.runs/reply-<h8>.md -f query='mutation($t
 ```
 
 The body comes from the draft file, never shell-interpolated.
+
+## create (outward: after an approved Ticket gate)
+
+```bash
+title=$(cat <title-file>)            # read as data: never paste the title into the command
+gh issue create --title "$title" --body-file <body-file>      # plus --label only if approved at the gate
+gh api repos/<o>/<r>/issues/<epic>/sub_issues -F sub_issue_id="$(gh api repos/<o>/<r>/issues/<new> --jq .id)"
+```
+
+The last line runs only with an epic. MCP: `issue_write` (method `create`;
+`parent_issue_number` for an epic). Return `gh:<number>`. The title and body are the drafts
+listed at the gate, read from files, never pasted into a shell string.
 
 ## comment (outward: Deliver gate only)
 

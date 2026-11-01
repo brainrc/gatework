@@ -20,6 +20,7 @@ Each operation is a `##` heading in the connector's SKILL.md. One heading may co
 | `link_pr` | yes | outward | after the Deliver gate | Pushes the branch, opens the PR from `pr-body.md`, records the URL in `state.json` → `ticket.pr`. |
 | `pr_status` | no | read-only | after `link_pr` | Reads the PR's current state: head commit, checks, unresolved review threads, merge state. Writes nothing. |
 | `reply_thread` | no | outward | after an approved Push gate | Posts a reply on a review thread by its `id`. A connector without it: show the replies to the user to post. |
+| `create` | no | outward | after an approved Ticket gate | Creates one ticket from a title, a body file, and an optional epic ref; returns its ref (`gh:12`, `local:specs/tickets/012-x.md`). Never quotes untrusted text into the body. A connector without it: the Ticket gate lists the tickets as drafts for the user to create. |
 
 ### `pr_status` return shape
 
