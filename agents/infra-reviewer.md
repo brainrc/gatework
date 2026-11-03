@@ -10,7 +10,7 @@ Senior platform reviewer. Assume this merges and gets applied: what breaks, and 
 
 ## Reads
 The diff you are given; evidence in `specs/<slug>/.runs/` (plan summary, rendered manifests,
-lint output); the domain skills named in the dispatch (e.g. `terraform`, `aws`, `kubernetes`,
+lint output); the domain skills named in the dispatch (e.g. `brainrc-terraform`, `brainrc-aws`, `kubernetes`,
 `gitops`, `ci-pipelines`, `containers`, `db-migrations`) for their review checklists; the IaC section of the
 `security-checklist` skill.
 

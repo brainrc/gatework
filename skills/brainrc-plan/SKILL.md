@@ -1,6 +1,6 @@
 ---
 name: brainrc-plan
-description: Research a topic with spec-agent's researcher and turn it into proven tickets (one Ticket gate). Use for /plan <topic>.
+description: Research a topic with spec-agent's researcher and turn it into proven tickets (one Ticket gate). Use for /brainrc-plan <topic>.
 argument-hint: <topic> [--web] [--dry-run] [--oneshot] [--local]
 disable-model-invocation: true
 ---

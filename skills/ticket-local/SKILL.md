@@ -29,7 +29,7 @@ unused number under `specs/`.
 ## Refs
 
 - `local:path/to/ticket.md`: an existing file.
-- Free text (`/work add a --shout flag`): create `specs/tickets/<NNN>-<slug>.md` with the text
+- Free text (`/brainrc-work add a --shout flag`): create `specs/tickets/<NNN>-<slug>.md` with the text
   as the body and `status: open`, then treat it as `local:` that file.
 
 ## fetch

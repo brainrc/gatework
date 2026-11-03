@@ -4,7 +4,7 @@ A **campaign** is a set of near-identical tickets that differ only in parameters
 migration per service, the same upgrade per cluster, the same cleanup per repo. Running them
 one by one pays the research cost N times. Campaign mode pays it once.
 
-Start: `/work --campaign <epic ref | query | ref list> [--batch-size N] [--dry-run] [--shape playbook|ordered]`.
+Start: `/brainrc-work --campaign <epic ref | query | ref list> [--batch-size N] [--dry-run] [--shape playbook|ordered]`.
 
 Two shapes: `playbook` (this file, steps 1-4) for near-identical tickets, and `ordered` for
 different, dependent children built in dependency order (§ Ordered shape, last section).
@@ -38,7 +38,7 @@ Absent `shape` means `playbook`. The `ordered` schema is in § Ordered shape.
    - Shared template and no links: `playbook`. Any link, or members that differ: `ordered`.
    - `--shape` overrides the detection. `--shape ordered` on an epic with no links is allowed:
      the order is the epic's sub-issue order.
-   - `playbook` with a template mismatch: stop and list the deviants. They get normal `/work`
+   - `playbook` with a template mismatch: stop and list the deviants. They get normal `/brainrc-work`
      runs. `ordered` follows § Ordered shape and skips § 2 and § 4 below (§ 3 applies).
 3. Build the parameter table (`ref | <param> | ... | notes`) and save `campaign.json`.
 
@@ -180,13 +180,13 @@ ticket's ref. A child's benign stop opens its draft `[blocked]` PR; a tainted st
 pushes nothing and opens no PR. Either way later children pause and earlier ready PRs stay open.
 Never merged. A playbook campaign with `--oneshot` is refused, as with `--auto`; `local-only` opens nothing.
 
-**Merge detection.** Pull-based, never polled. On `/work --campaign <ref>` or /spec-resume, for
+**Merge detection.** Pull-based, never polled. On `/brainrc-work --campaign <ref>` or /spec-resume, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
 read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
 Release or retarget the next child only if the state is merged or the user says "merged" (for
 `stacked`, set the predecessor's `merged: true`). Otherwise report what is waiting and stop.
 
-**Resume.** `/work --campaign <ref>` with an existing `specs/campaign-*/campaign.json` for that
+**Resume.** `/brainrc-work --campaign <ref>` with an existing `specs/campaign-*/campaign.json` for that
 ref resumes it, without re-running intake. A member `in_progress` resumes first, as that child's
 normal run (`state.md` § Resume); `verified` members are skipped, and when every member is
 `verified` resume presents the stack Deliver gate. `waiting` and stacked members then follow the
