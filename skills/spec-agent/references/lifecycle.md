@@ -83,7 +83,7 @@ With `delivery: local-only`, the gate lists **no outward actions**: deliver fina
 (`PR: <PR_URL>` → `PR: none (local-only, branch <branch>)`), leaves the branch unpushed, and
 writes the retro.
 
-**6b · watch**: after the PR opens, `/spec-resume` or `/work <ref>` reads `pr_status` and handles
+**6b · watch**: after the PR opens, `/spec-resume` or `/brainrc-work <ref>` reads `pr_status` and handles
 a red check (C-tasks) and new review threads (R-tasks, replies). Every fix-commit push and every thread reply it posts needs an approved ⛔ **Push gate**. Procedure: [watch.md](watch.md). A merged PR gets a post-merge verify (`verify-merged.md`); a closed one ends as `abandoned`.
 
 **7 · done**: `retro.md` was already written at the end of deliver (before `watch`); after a merge it gains `## After delivery`, and a closed PR is `abandoned`. Print the PR link and the metrics summary. Commit the done

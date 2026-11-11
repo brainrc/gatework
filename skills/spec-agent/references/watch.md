@@ -1,7 +1,7 @@
 # Watch stage
 
 After the PR opens, `watch` reads its state and handles a red check. It is pull-based: it runs
-on `/spec-resume` or `/work <ref>`, never in a loop, daemon, or poll. This file covers CI
+on `/spec-resume` or `/brainrc-work <ref>`, never in a loop, daemon, or poll. This file covers CI
 failures and review comments, and a merged or closed PR (§ Merged or closed).
 Schema: `state.md`.
 
