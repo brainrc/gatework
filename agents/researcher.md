@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Investigates a topic in the repo (and the web only when enabled) and proposes candidate tickets, each with runnable proof. Use for spec-agent's /plan, or to turn a vague area into proven tickets.
+description: Investigates a topic in the repo (and the web only when enabled) and proposes candidate tickets, each with runnable proof. Use for spec-agent's /brainrc-plan, or to turn a vague area into proven tickets.
 tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch
 model: sonnet
 ---

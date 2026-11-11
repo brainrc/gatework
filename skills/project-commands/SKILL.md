@@ -26,7 +26,7 @@ exact commands are in each domain skill:
 
 | Signal | validate | plan |
 |---|---|---|
-| `*.tf` / `terragrunt.hcl` | `terraform`: fmt -check, validate, tflint, test | terraform/terragrunt plan |
+| `*.tf` / `terragrunt.hcl` | `brainrc-terraform`: fmt -check, validate, tflint, test | terraform/terragrunt plan |
 | `Chart.yaml` / `kustomization.yaml` / k8s YAML | `kubernetes`: helm lint, render + kubeconform | kubectl/helm diff |
 | `.github/workflows/` | `ci-pipelines`: actionlint, zizmor | — |
 | `Dockerfile` | `containers`: hadolint, local build | — |
