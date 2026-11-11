@@ -65,7 +65,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
                 "validate": ["terraform fmt -check -recursive", "terraform validate"], "plan": null,
                 "baseline_failures": [] },
   "tasks": [
-    { "id": "T1", "title": "Failing tests for CSV export", "agent": "test-writer",
+    { "id": "T1", "title": "Failing tests for CSV export", "agent": "brainrc-test-writer",
       "status": "done", "attempts": 1, "files": ["tests/test_export.py"], "criteria": ["AC1", "AC2"],
       "review": "batch", "red": "compile-only", "commit": "a1b2c3d" }
   ],

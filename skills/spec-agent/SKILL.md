@@ -20,16 +20,16 @@ Load references only when the step needs them:
 
 | Role | Job | File |
 |---|---|---|
-| analyst | ticket → `spec.md` | [roles/analyst.md](roles/analyst.md) |
-| architect | spec → `plan.md` with tasks | [roles/architect.md](roles/architect.md) |
-| implementer | one task → test + code, green | [roles/implementer.md](roles/implementer.md) |
-| test-writer | one task → failing tests only | [roles/test-writer.md](roles/test-writer.md) |
-| code-reviewer | diff vs spec → findings | [roles/code-reviewer.md](roles/code-reviewer.md) |
-| security-reviewer | diff → security findings | [roles/security-reviewer.md](roles/security-reviewer.md) |
-| infra-reviewer | IaC/manifests/pipelines → blast-radius findings | [roles/infra-reviewer.md](roles/infra-reviewer.md) |
-| verifier | criteria → `verify.md` evidence | [roles/verifier.md](roles/verifier.md) |
-| researcher | topic → proven candidates (`/brainrc-plan`) | [roles/researcher.md](roles/researcher.md) |
-| doc-writer | docs + PR/ticket drafts | [roles/doc-writer.md](roles/doc-writer.md) |
+| brainrc-analyst | ticket → `spec.md` | [roles/brainrc-analyst.md](roles/brainrc-analyst.md) |
+| brainrc-architect | spec → `plan.md` with tasks | [roles/brainrc-architect.md](roles/brainrc-architect.md) |
+| brainrc-implementer | one task → test + code, green | [roles/brainrc-implementer.md](roles/brainrc-implementer.md) |
+| brainrc-test-writer | one task → failing tests only | [roles/brainrc-test-writer.md](roles/brainrc-test-writer.md) |
+| brainrc-code-reviewer | diff vs spec → findings | [roles/brainrc-code-reviewer.md](roles/brainrc-code-reviewer.md) |
+| brainrc-security-reviewer | diff → security findings | [roles/brainrc-security-reviewer.md](roles/brainrc-security-reviewer.md) |
+| brainrc-infra-reviewer | IaC/manifests/pipelines → blast-radius findings | [roles/brainrc-infra-reviewer.md](roles/brainrc-infra-reviewer.md) |
+| brainrc-verifier | criteria → `verify.md` evidence | [roles/brainrc-verifier.md](roles/brainrc-verifier.md) |
+| brainrc-researcher | topic → proven candidates (`/brainrc-plan`) | [roles/brainrc-researcher.md](roles/brainrc-researcher.md) |
+| brainrc-doc-writer | docs + PR/ticket drafts | [roles/brainrc-doc-writer.md](roles/brainrc-doc-writer.md) |
 
 `roles/` links to the package's `agents/`. If it's missing (some package installs, e.g. Codex,
 drop symlinks), read the same file from `agents/` at the package root: `../../agents/<role>.md`.
@@ -51,12 +51,12 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 | Files | Skill | Extra reviewer |
 |---|---|---|
 | `*.go`, `go.mod` | [go-service](../go-service/SKILL.md) | — |
-| `*.tf`, `*.tfvars`, `terragrunt.hcl`, `atlantis.yaml` | [brainrc-terraform](../brainrc-terraform/SKILL.md) (+ [brainrc-aws](../brainrc-aws/SKILL.md) for AWS providers) | infra-reviewer |
-| k8s YAML, `Chart.yaml`, `values*.yaml`, `kustomization.yaml` | [kubernetes](../kubernetes/SKILL.md) | infra-reviewer |
-| Argo CD `Application*`, Flux `Kustomization`/`HelmRelease`, config repos | [gitops](../gitops/SKILL.md) + kubernetes | infra-reviewer |
-| `.github/workflows/*`, `action.yml`, `.gitlab-ci.yml` | [ci-pipelines](../ci-pipelines/SKILL.md) | infra-reviewer |
-| `Dockerfile*`, `compose*.yaml` | [containers](../containers/SKILL.md) | infra-reviewer |
-| migrations dirs, `*.sql`, ORM models | [db-migrations](../db-migrations/SKILL.md) | infra-reviewer |
+| `*.tf`, `*.tfvars`, `terragrunt.hcl`, `atlantis.yaml` | [brainrc-terraform](../brainrc-terraform/SKILL.md) (+ [brainrc-aws](../brainrc-aws/SKILL.md) for AWS providers) | brainrc-infra-reviewer |
+| k8s YAML, `Chart.yaml`, `values*.yaml`, `kustomization.yaml` | [kubernetes](../kubernetes/SKILL.md) | brainrc-infra-reviewer |
+| Argo CD `Application*`, Flux `Kustomization`/`HelmRelease`, config repos | [gitops](../gitops/SKILL.md) + kubernetes | brainrc-infra-reviewer |
+| `.github/workflows/*`, `action.yml`, `.gitlab-ci.yml` | [ci-pipelines](../ci-pipelines/SKILL.md) | brainrc-infra-reviewer |
+| `Dockerfile*`, `compose*.yaml` | [containers](../containers/SKILL.md) | brainrc-infra-reviewer |
+| migrations dirs, `*.sql`, ORM models | [db-migrations](../db-migrations/SKILL.md) | brainrc-infra-reviewer |
 | alert/recording rules, dashboards, collector config | [observability](../observability/SKILL.md) | — |
 | `*.py` tooling, `*.sh` | [scripting](../scripting/SKILL.md) | — |
 
@@ -104,8 +104,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
   Claude Code plugin install the roles are named `brainrc:<role>` (`ai-config:<role>` in an old
   install); try those, in that order, when `<role>` isn't found.
   Roles may have no skill tool, so put the skills a role file names on the `Role skills:` line
-  with absolute paths: doc-writer → pr-description, doc-types, unslop, runbook;
-  security-reviewer → security-checklist.
+  with absolute paths: brainrc-doc-writer → pr-description, doc-types, unslop, runbook;
+  brainrc-security-reviewer → security-checklist.
   Nothing else: no file contents, no conversation history.
 - **inline / fallback:** follow `fallback.md`.
 - After every dispatch, append the returned handoff block to `log.md`, then check it (`handoff.md`
@@ -130,8 +130,8 @@ each task in a wave of one, for each task in `plan.md` order whose status isn't 
      base version of the changed non-test files (e.g. `git stash push <src files>`, run,
      `git stash pop`). They must fail. If they pass, the tests don't prove the change: failed attempt.
 3. If the task has `review: each`: set its status to `review`, then dispatch the reviewers for
-   this task's diff: `code-reviewer` for code, `infra-reviewer` for infra domains,
-   `security-reviewer` if a trigger is touched, in parallel.
+   this task's diff: `brainrc-code-reviewer` for code, `brainrc-infra-reviewer` for infra domains,
+   `brainrc-security-reviewer` if a trigger is touched, in parallel.
 4. CRITICAL/HIGH findings or failed checks → +1 `attempts` and `metrics.retries`, re-dispatch
    the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
 5. Commit with a message in the commit-message skill's format, subject + `Refs <ticket ref>`.

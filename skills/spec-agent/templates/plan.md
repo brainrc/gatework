@@ -29,21 +29,21 @@ functions it reuses. Explain the one or two real design choices and why this opt
 
 ## Tasks
 Ordered; one commit each. `files` is the scope fence: only these files (new ones included)
-may change. Keep each task under ~200 changed lines. Default agent is `implementer`
-(writes its own failing test first). Use `test-writer` only when independent test
+may change. Keep each task under ~200 changed lines. Default agent is `brainrc-implementer`
+(writes its own failing test first). Use `brainrc-test-writer` only when independent test
 authorship matters (security logic, public contracts). Add `review: each` to tasks that
 touch security logic, a public contract, IAM, network exposure, migrations, or prod config, or
 that exceed ~150 changed lines; all others are reviewed once, in a batch. Add `after: T1` when a
 task needs another task's code; tasks with no `after:` and no shared files may run in parallel.
 
-- [ ] **T1** [agent: implementer] <vertical slice 1>
+- [ ] **T1** [agent: brainrc-implementer] <vertical slice 1>
   - files: `src/feature.py`, `tests/test_feature.py`
   - criteria: AC1, AC2
-- [ ] **T2** [agent: test-writer] Contract tests for <public API>
+- [ ] **T2** [agent: brainrc-test-writer] Contract tests for <public API>
   - files: `tests/test_api_contract.py`
   - criteria: AC3
   - review: each
-- [ ] **T3** [agent: implementer] Implement <public API> to pass T2
+- [ ] **T3** [agent: brainrc-implementer] Implement <public API> to pass T2
   - files: `src/api.py`
   - criteria: AC3
   - review: each

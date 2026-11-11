@@ -5,7 +5,7 @@ in `specs/plan-<slug>/` (`state.json`, `log.md`, `plan-report.md`, `proof/`), in
 worktree like any run. The topic may be a ticket ref (`local:...`, `gh:12`); `ticket.ref` is that
 ref, else `plan:<slug>`. Offline only; `--web` lets the researcher use the web.
 
-1. **Research:** dispatch `researcher` with `Web: on|off`. It writes `plan-report.md` from the
+1. **Research:** dispatch `brainrc-researcher` with `Web: on|off`. It writes `plan-report.md` from the
    template and proof under `proof/`.
 2. **Re-verify:** the engine itself, never the researcher, re-runs each proof command with
    `python3 <skill>/scripts/proof_guard.py run "<command>" --root <worktree>`. Only a narrow
