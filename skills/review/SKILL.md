@@ -1,14 +1,10 @@
 ---
 name: review
-description: Review uncommitted changes for bugs and security issues
+description: Deprecated, use brainrc-review (removed in 0.6.0)
 argument-hint: [extra focus]
 disable-model-invocation: true
 ---
 
-Review the uncommitted changes in this repository (`git diff` and `git diff --staged`).
-Rank findings most severe first, each with `file:line`, the problem, and a fix.
+Deprecated alias, removed in 0.6.0. Follow the `brainrc-review` skill with these arguments:
 
-Extra focus, if any: $ARGUMENTS
-
-If `$ARGUMENTS` appears literally above, this tool didn't fill it in: use what the user typed
-with this skill instead.
+$ARGUMENTS

@@ -152,7 +152,7 @@ holding one absolute run-directory path and a newline: the `specs/<slug>` inside
 
 ## Resume
 
-On `/work <same ref>` or `/spec-resume`:
+On `/brainrc-work <same ref>` or `/spec-resume`:
 1. Find the run through `state.worktree`: `specs/*/state.json` whose `ticket.ref` matches, read
    from each known worktree (or the active run pointer), never the main checkout's copy.
    If the worktree dir is deleted, its state is unreachable from the pointer: find the branch (branches
@@ -178,7 +178,7 @@ Campaign (existing `specs/campaign-*/campaign.json` for the ref; ordered shape):
 waiting for the stack Deliver gate) are skipped, and the next `todo` member starts; with none
 left, present the stack Deliver gate. Read `campaign.json` from the stack tip once delivered
 (`campaign.md` § State home). With `waiting`
-or stacked members: on `/work --campaign <ref>` or `/spec-resume`, read each one's predecessor PR
+or stacked members: on `/brainrc-work --campaign <ref>` or `/spec-resume`, read each one's predecessor PR
 state read-only through the connector. Only if it is merged or the user says "merged": merge
 `main` into the child's branch, re-run its tests, then open its PR (`waiting`) or retarget it to
 `main` (stacked). Never poll. Rules: `campaign.md § Ordered shape`.

@@ -1,6 +1,6 @@
 # Planning mode
 
-`/plan <topic> [--web] [--dry-run] [--oneshot]` turns a topic into proven tickets. State lives
+`/brainrc-plan <topic> [--web] [--dry-run] [--oneshot]` turns a topic into proven tickets. State lives
 in `specs/plan-<slug>/` (`state.json`, `log.md`, `plan-report.md`, `proof/`), in the run's
 worktree like any run. The topic may be a ticket ref (`local:...`, `gh:12`); `ticket.ref` is that
 ref, else `plan:<slug>`. Offline only; `--web` lets the researcher use the web.

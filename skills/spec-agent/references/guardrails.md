@@ -41,7 +41,7 @@ and local databases only. Live environments are used for **read-only evidence** 
 user names them at intake (recorded in `state.targets`):
 - Terraform/Terragrunt plan against named roots/workspaces; `-lock=false`, never apply.
 - `kubectl`/`helm diff`/`argocd app diff` with an explicit `--context` from `targets`.
-- AWS read calls with the confirmed `--profile` and account (see the `aws` skill).
+- AWS read calls with the confirmed `--profile` and account (see the `brainrc-aws` skill).
 
 Anything outside `targets`, and any production target not named explicitly, is a stop.
 A plan or diff showing deletes or replacements the spec didn't ask for is a stop.
@@ -53,7 +53,7 @@ verbatim in the gate message (an `auto` run: only `git push` of the run's own br
 **draft** PR, when no hard stop stands; SKILL.md § Auto mode):
 - `git push`, opening/merging/closing PRs, ticket comments, status transitions.
 
-Creating tickets is gated by the Ticket gate instead (`/plan`, planning.md), or done under
+Creating tickets is gated by the Ticket gate instead (`/brainrc-plan`, planning.md), or done under
 `--oneshot` for proven local tickets only. `--auto` alone never approves it.
 
 A `--oneshot` run instead opens a ready PR, or a draft `[blocked]` PR at a benign stop (nothing at a
@@ -66,7 +66,7 @@ GitOps syncs, AWS mutations, running migrations against shared databases, or mod
 
 Pushing fix commits and posting review thread replies during `watch` are authorized only by an approved Push gate (`watch.md`); nothing else counts. The done checkpoint (run artifacts only, lifecycle.md § 7) stays covered by the Deliver approval.
 
-Local commits on the feature branch are part of `/work` and need no extra approval.
+Local commits on the feature branch are part of `/brainrc-work` and need no extra approval.
 
 With `delivery: local-only` there are no outward actions at all, even if one is approved
 later in the run; changing to `normal` requires the user to say so explicitly.

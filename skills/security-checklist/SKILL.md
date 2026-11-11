@@ -35,7 +35,7 @@ Report only what applies to the diff.
 ## Infrastructure and delivery
 | Area | Look for |
 |---|---|
-| Cloud IAM | Wildcard actions/resources, broad `PassRole`/`AssumeRole`, OIDC trust without `sub` pinning (see `aws` skill) |
+| Cloud IAM | Wildcard actions/resources, broad `PassRole`/`AssumeRole`, OIDC trust without `sub` pinning (see `brainrc-aws` skill) |
 | Network | `0.0.0.0/0` ingress, public DBs/buckets, missing NetworkPolicy for sensitive workloads |
 | Kubernetes | privileged, hostPath/hostNetwork, root containers, `*` RBAC, default SA token automount |
 | State and secrets | Secrets in tfvars/values/manifests/plan files, unencrypted state backends, SOPS keys committed |
