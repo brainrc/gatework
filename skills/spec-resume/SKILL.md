@@ -5,7 +5,7 @@ argument-hint: [ticket ref or slug]
 disable-model-invocation: true
 ---
 
-Using the `spec-agent` skill, resume the run for $ARGUMENTS (default: the spec on the
+Using the `brainrc-gatework` skill, resume the run for $ARGUMENTS (default: the spec on the
 current branch) following the Resume rules in its state reference. Start by showing a
 one-line status, then continue.
 

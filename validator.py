@@ -18,9 +18,9 @@ LEGACY_KEYS = EXTENSION_KEYS     # top-level [extensions] keys, before the split
 LEGACY_NAMESPACES = ("spec-agent",)
 REMOVED_IN = "0.8.0"
 
-ROLES = Path("skills/spec-agent/roles")  # a symlink to ../../agents; a wheel holds copies
+ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents; a wheel holds copies
 ROLES_FIX = ("enable symlinks (docs/install.md, Platforms), then restore it with "
-             "`git checkout -- packs/gatework/skills/spec-agent/roles`")
+             "`git checkout -- packs/gatework/skills/brainrc-gatework/roles`")
 CONNECTOR = re.compile(r"^(brainrc-)?ticket-")
 REQUIRED_CONNECTOR_OPS = ("fetch", "comment", "transition", "link_pr")  # references/connectors.md
 H2 = re.compile(r"^## +(.+)$", re.M)

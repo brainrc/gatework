@@ -5,7 +5,7 @@ argument-hint: [optional notes]
 disable-model-invocation: true
 ---
 
-Using the `spec-agent` skill: approve the gate currently awaiting approval for the spec on
+Using the `brainrc-gatework` skill: approve the gate currently awaiting approval for the spec on
 this branch. Record it in `state.json`, then continue the run. Notes to apply first, if any:
 $ARGUMENTS
 

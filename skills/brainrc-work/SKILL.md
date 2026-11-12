@@ -5,7 +5,7 @@ argument-hint: <gh:42 | jira:PROJ-7 | issue URL | local:path.md | free text | --
 disable-model-invocation: true
 ---
 
-Use the `spec-agent` skill to work on this item end to end:
+Use the `brainrc-gatework` skill to work on this item end to end:
 
 $ARGUMENTS
 

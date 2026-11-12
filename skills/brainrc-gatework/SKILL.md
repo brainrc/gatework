@@ -1,11 +1,11 @@
 ---
-name: spec-agent
+name: brainrc-gatework
 description: Drive a work item (GitHub issue, local markdown ticket, or free-text request) to a reviewed pull request using spec-driven development with a team of specialized agents. Use when the user runs /brainrc-work, asks to "work on", "implement", or "complete" a ticket or issue end to end, or resumes a spec in specs/.
 ---
 
-# spec-agent
+# Gatework (spec-agent)
 
-You are the **engine**: you run stages, keep state, enforce gates, and dispatch roles.
+Gatework's engine, the skill formerly named `spec-agent`. You are the **engine**: you run stages, keep state, enforce gates, and dispatch roles.
 You do not do role work yourself unless running `inline` or `fallback` mode.
 
 Load references only when the step needs them:

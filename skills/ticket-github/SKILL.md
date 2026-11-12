@@ -6,7 +6,7 @@ description: Ticket connector for GitHub issues via the gh CLI or the GitHub MCP
 # ticket-github
 
 Implements the ticket connector interface: `fetch`, `list`, `dependencies`, `comment`, `transition`, `link_pr`, `pr_status`, `reply_thread`, `create`
-([contract](../spec-agent/references/connectors.md)). Uses `gh` when it's authenticated
+([contract](../brainrc-gatework/references/connectors.md)). Uses `gh` when it's authenticated
 (`gh auth status`), otherwise the GitHub MCP server's tools (table below). If neither is
 available, stop and ask the user to run `gh auth login`. Never handle tokens yourself.
 
