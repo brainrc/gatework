@@ -69,6 +69,11 @@ class ReleaseTest(unittest.TestCase):
         code, out = quiet(gw.cmd_release, self.root)
         self.assertEqual(code, 1, out)
 
+    def test_notes_need_a_whole_version(self):
+        code, out = quiet(gw.cmd_notes, "0.7", self.root)
+        self.assertEqual(code, 1, out)
+        self.assertIn("not MAJOR.MINOR.PATCH", out)
+
     def test_a_stale_manifest_fails_check(self):
         (self.root / "VERSION").write_text("9.9.9\n")
         errors = gw.check(self.root)

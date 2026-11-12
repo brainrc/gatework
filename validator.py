@@ -77,7 +77,7 @@ def roles_error(me) -> str | None:
         return None
     if not path.is_symlink() and not path.exists():
         return f"{me.rel(path)} is missing"
-    found = f"a link to {os.readlink(path)}" if path.is_symlink() else "a plain file"
+    found = f"a link to {os.readlink(path)}" if path.is_symlink() else "a directory" if path.is_dir() else "a plain file"
     return f"{me.rel(path)} must be a symlink to ../../agents but is {found} (cloned without symlink support?)"
 
 

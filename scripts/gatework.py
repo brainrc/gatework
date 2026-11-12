@@ -178,6 +178,9 @@ def release_notes(text: str, v: str) -> str | None:
 
 
 def cmd_notes(v: str, root: Path = ROOT) -> int:
+    if not VERSION_RE.match(v):
+        print(f"ERROR `{v}` is not MAJOR.MINOR.PATCH")
+        return 1
     notes = release_notes((root / "CHANGELOG.md").read_text(), v)
     if notes is None:
         print(f"ERROR CHANGELOG.md has no section for {v}")
@@ -196,11 +199,15 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--dry-run", action="store_true", help="print the release, write nothing")
     group.add_argument("--notes", metavar="VERSION", help="print that version's CHANGELOG section")
     args = parser.parse_args(argv)
-    if args.cmd == "plugin":
-        return cmd_plugin()
-    if args.cmd == "check":
-        return cmd_check()
-    return cmd_notes(args.notes) if args.notes else cmd_release(dry_run=args.dry_run)
+    try:
+        if args.cmd == "plugin":
+            return cmd_plugin()
+        if args.cmd == "check":
+            return cmd_check()
+        return cmd_notes(args.notes) if args.notes else cmd_release(dry_run=args.dry_run)
+    except (Error, OSError) as e:  # an ERROR line and exit 1, never a traceback
+        print(f"ERROR {e}")
+        return 1
 
 
 if __name__ == "__main__":
