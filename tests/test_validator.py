@@ -1,9 +1,16 @@
 """Gatework's validator plugin, run by brainrc core: the deprecated aliases, the roles link, the
 ticket connectors and each pack's [extensions.gatework]."""
+import importlib.util
 import unittest
+from pathlib import PurePosixPath, PureWindowsPath
+from unittest import mock
 
-from helpers import PACK_TOML, PackCase, brainrc, quiet, write_skill
+from helpers import PACK_TOML, ROOT, PackCase, brainrc, quiet, write_skill
 from brainrc import naming
+
+_spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "validator.py")
+VALIDATOR = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(VALIDATOR)
 
 LEGACY_TOML = PACK_TOML.replace("[extensions.gatework]", "[extensions]").replace("extensions.gatework.", "extensions.")
 
@@ -121,6 +128,17 @@ class RolesLinkTest(PackCase):
         self.roles.unlink()
         self.roles.symlink_to("../../skills")
         self.assert_validate_fails()
+
+    def test_a_windows_link_with_backslashes_passes(self):
+        with mock.patch.object(VALIDATOR, "PurePath", PureWindowsPath):
+            self.assertTrue(VALIDATOR.links_to_agents("..\\..\\agents"))
+            self.assertTrue(VALIDATOR.links_to_agents("../../agents"))
+            self.assertFalse(VALIDATOR.links_to_agents("..\\..\\skills"))
+
+    def test_backslashes_are_not_separators_off_windows(self):
+        with mock.patch.object(VALIDATOR, "PurePath", PurePosixPath):
+            self.assertFalse(VALIDATOR.links_to_agents("..\\..\\agents"))
+            self.assertTrue(VALIDATOR.links_to_agents("../../agents"))
 
     def test_doctor_reports_a_broken_link(self):
         self.roles.unlink()
