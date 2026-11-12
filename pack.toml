@@ -6,3 +6,4 @@ prefix = "brainrc-"
 id = "brainrc/gatework"
 requires_core = ">=0.6, <0.8"
 max_always_tokens = 3000
+validator = "validator.py"  # its own checks and the extensions.md render (docs/packs.md)
