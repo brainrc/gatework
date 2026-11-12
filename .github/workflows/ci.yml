@@ -42,16 +42,20 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      # Core 0.7.0 still carries its own copy at packs/gatework; check this checkout in its place.
-      # From core 0.7.1 that folder is gone and this step does nothing.
-      - name: Use this checkout as core's copy of Gatework
+      # Core 0.7.0 still carries its own copy at packs/gatework and would count this checkout as a
+      # second pack named gatework, so check a copy of this checkout in its place (a copy, not a
+      # link: Windows runners can't make one). From core 0.7.1 that folder is gone, and the pack
+      # is checked where it is.
+      - name: Validate the pack with core
         run: |
+          pack=gatework
           if [ -d brainrc/packs/gatework ]; then
             rm -rf brainrc/packs/gatework
-            ln -s "$GITHUB_WORKSPACE/gatework" brainrc/packs/gatework
+            cp -R gatework brainrc/packs/gatework
+            rm -rf brainrc/packs/gatework/.git
+            pack=brainrc/packs/gatework
           fi
-      - name: Validate the pack with core
-        run: python3 brainrc/scripts/brainrc.py validate --pack gatework
+          python3 brainrc/scripts/brainrc.py validate --pack "$pack"
       - name: Check the manifests, CHANGELOG.md and changelog.d/
         run: python3 scripts/gatework.py check
         working-directory: gatework
