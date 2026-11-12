@@ -5,6 +5,10 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.7.1 (2026-11-12)
+
+- The roles link check accepts `..\..\agents`, the form git on Windows stores, so a Windows clone with symlinks enabled validates.
+
 ## 0.7.0 (2026-11-12)
 
 - Gatework moves to its own repository, brainrc/gatework, from brainrc 0.7.0's `packs/gatework`,

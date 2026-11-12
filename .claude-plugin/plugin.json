@@ -1,6 +1,6 @@
 {
   "name": "gatework",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Spec-driven work from a ticket to a reviewed PR through approval gates: the spec-agent engine, its roles, ticket connectors and domain skills. A brainrc pack.",
   "author": {
     "name": "brainrc contributors"
