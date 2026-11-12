@@ -76,6 +76,19 @@ class SkillsTest(unittest.TestCase):
                 self.assertNotIn("disable-model-invocation", m)
         self.assertIn("## Account safety", body("brainrc-aws"))
 
+    def test_skills_taking_arguments_are_user_invoked(self):
+        """Codex skips commands that use $ARGUMENTS, so they ship as user-invoked skills."""
+        found = 0
+        for skill in sorted(SKILLS.glob("*/SKILL.md")):
+            if "$ARGUMENTS" not in skill.read_text():
+                continue
+            found += 1
+            with self.subTest(skill=skill.parent.name):
+                m = brainrc.frontmatter(skill)
+                self.assertEqual(m.get("disable-model-invocation"), "true")
+                self.assertTrue(m.get("argument-hint") or m.get("description", "").startswith("Deprecated"))
+        self.assertGreaterEqual(found, len(USER_INVOKED))
+
     def test_spec_agent_is_a_deprecated_alias_for_one_minor_release(self):
         alias = meta("spec-agent")
         self.assertEqual(meta("brainrc-gatework")["name"], "brainrc-gatework")
