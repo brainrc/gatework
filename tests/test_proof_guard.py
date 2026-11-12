@@ -1,5 +1,6 @@
 """proof_guard.py: planning-mode proof commands are a narrow read-only allowlist inside the worktree, and plan files hold no secrets."""
 import importlib.util
+import json
 import os
 import subprocess
 import tempfile
@@ -152,6 +153,39 @@ class ScanTest(unittest.TestCase):
         self.assertTrue(pg.scan(Path("/nonexistent/plan-x")))
         self.assertTrue(pg.scan(Path(tempfile.mkdtemp())))
 
+
+
+class SecretPatternsTest(unittest.TestCase):
+    """The guard finds core's guard_secrets.py without $BRAINRC_CORE, for any harness."""
+
+    def setUp(self):
+        tmp = Path(tempfile.mkdtemp()).resolve()
+        self.addCleanup(__import__("shutil").rmtree, tmp)
+        self.home = tmp / "brainrc-home"
+        self.home.mkdir()
+        env = {"HOME": str(tmp / "home"), "BRAINRC_HOME": str(self.home)}
+        old = dict(os.environ)
+        self.addCleanup(lambda: (os.environ.clear(), os.environ.update(old)))
+        for k in ("BRAINRC_CORE", "CLAUDE_CONFIG_DIR", "XDG_CONFIG_HOME"):
+            os.environ.pop(k, None)
+        os.environ.update(env)
+
+    def test_the_core_checkout_apply_recorded(self):
+        (self.home / "harnesses.json").write_text(json.dumps({"roots": [str(helpers.CORE), "/elsewhere"]}))
+        self.assertIn(helpers.CORE / "overrides/claude/hooks/guard_secrets.py",
+                      [p for p in pg._secret_patterns_paths() if p.is_file()])
+        self.assertTrue(hasattr(pg._guard_secrets(), "is_secret_file"))
+
+    def test_an_installed_brainrcs_hooks_copy(self):
+        copy = self.home / "hooks/core/claude/hooks"
+        copy.mkdir(parents=True)
+        (copy / "guard_secrets.py").write_text((helpers.CORE / "overrides/claude/hooks/guard_secrets.py").read_text())
+        self.assertEqual([p for p in pg._secret_patterns_paths() if p.is_file()], [copy / "guard_secrets.py"])
+
+    def test_nothing_found_names_the_fix(self):
+        with self.assertRaises(RuntimeError) as cm:
+            pg._guard_secrets()
+        self.assertIn("run `brainrc apply`", str(cm.exception))
 
 if __name__ == "__main__":
     unittest.main()

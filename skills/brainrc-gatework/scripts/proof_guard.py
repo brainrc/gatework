@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import os
 import re
 import shlex
@@ -49,12 +50,29 @@ TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
 
 
 def _secret_patterns_paths() -> list[Path]:
-    """Where brainrc core's guard_secrets.py may be: a core checkout named by $BRAINRC_CORE (tests,
-    development), then the hooks dir `brainrc apply` links for Claude Code."""
+    """Where brainrc core's guard_secrets.py may be, first found wins: a core checkout named by
+    $BRAINRC_CORE (tests, development); the hooks dir `brainrc apply` links for Claude Code; then,
+    through brainrc's settings home, the hooks copy of an installed brainrc and the core checkout
+    apply last recorded. The settings home is $BRAINRC_HOME, else the one this pack was fetched
+    into (<home>/packs/gatework), else $XDG_CONFIG_HOME/brainrc or ~/.config/brainrc."""
+    rel = Path("overrides/claude/hooks/guard_secrets.py")
     claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude").expanduser()
     core = os.environ.get("BRAINRC_CORE")
-    return [*([Path(core).expanduser() / "overrides/claude/hooks/guard_secrets.py"] if core else []),
-            claude / "hooks/brainrc/guard_secrets.py"]
+    found = [*([Path(core).expanduser() / rel] if core else []), claude / "hooks/brainrc/guard_secrets.py"]
+    here = Path(__file__).resolve()
+    xdg = os.environ.get("XDG_CONFIG_HOME", "")
+    homes = [Path(os.environ["BRAINRC_HOME"]).expanduser()] if os.environ.get("BRAINRC_HOME") else []
+    homes += [here.parents[5]] if len(here.parents) > 5 and here.parents[4].name == "packs" else []
+    homes += [Path(xdg) / "brainrc" if os.path.isabs(xdg) else Path.home() / ".config/brainrc"]
+    for home in dict.fromkeys(homes):
+        found.append(home / "hooks/core/claude/hooks/guard_secrets.py")
+        try:
+            roots = json.loads((home / "harnesses.json").read_text()).get("roots") or []
+        except (OSError, ValueError, AttributeError):
+            roots = []
+        if roots and isinstance(roots[0], str):
+            found.append(Path(roots[0]) / rel)  # core comes first among the recorded roots
+    return list(dict.fromkeys(found))
 
 
 def _guard_secrets():
