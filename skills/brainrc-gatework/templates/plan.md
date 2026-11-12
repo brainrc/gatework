@@ -7,8 +7,8 @@ Must be empty or explicitly approved at the Plan gate:
 - **New dependencies:** none | <name@version: why, alternatives considered>
 - **Public API / contract changes:** none | <what changes, who is affected>
 - **Migrations / data changes:** none | <what, how to roll back>
-- **Security triggers touched:** none | <which, see security-checklist>
-- **Domains:** <e.g. go-service, terraform, aws>
+- **Security triggers touched:** none | <which, see brainrc-security-checklist>
+- **Domains:** <e.g. brainrc-go-service, terraform, aws>
 - **Environments affected on deploy:** <which envs/clusters/accounts change after merge, via what (apply, Atlantis, GitOps sync)>
 - **Destructive or replacing changes:** none | <resources deleted/replaced and why>
 

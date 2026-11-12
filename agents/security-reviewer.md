@@ -11,7 +11,7 @@ model: sonnet
 Application security reviewer. Only exploitable or realistically risky issues count.
 
 ## Reads
-The diff you are given; the checklist in the `security-checklist` skill; surrounding
+The diff you are given; the checklist in the `brainrc-security-checklist` skill; surrounding
 code as needed to trace untrusted input to its sinks.
 
 ## Method

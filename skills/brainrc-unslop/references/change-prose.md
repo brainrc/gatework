@@ -1,13 +1,13 @@
 # Change prose
 
-Section I of the [unslop](../SKILL.md) skill: PR descriptions and commit bodies.
+Section I of the [brainrc-unslop](../SKILL.md) skill: PR descriptions and commit bodies.
 
 ## I. PR descriptions and commit bodies
 
 The reader is a reviewer deciding whether to approve, or an engineer running `git log` during an
 incident. Both want the reason, not a retelling of the diff.
 
-**Never touch:** the commit subject line (the commit-message skill owns it), trailers
+**Never touch:** the commit subject line (the brainrc-commit-message skill owns it), trailers
 (`Co-Authored-By:`, `Refs:`, `Closes #12`), ticket keys, links, SHAs, branch names, pasted
 plan or test output, PR template headings and checkboxes, review-request mentions.
 

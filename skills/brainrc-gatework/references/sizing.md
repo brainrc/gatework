@@ -17,7 +17,7 @@ tier any signal reaches, and state it in one line:
 with a real design choice is still `standard`.
 
 **Floors:** at least `standard` for anything touching a security trigger (see the
-[security-checklist](../../security-checklist/SKILL.md) skill), a public API, IAM/RBAC, network
+[brainrc-security-checklist](../../brainrc-security-checklist/SKILL.md) skill), a public API, IAM/RBAC, network
 exposure, shared Terraform modules or charts, prod environment config, GitOps prod paths, or
 schema migrations.
 

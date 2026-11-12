@@ -34,13 +34,13 @@ Load references only when the step needs them:
 `roles/` links to the package's `agents/`. If it's missing (some package installs, e.g. Codex,
 drop symlinks), read the same file from `agents/` at the package root: `../../agents/<role>.md`.
 
-Supporting skills: [ticket-local](../ticket-local/SKILL.md),
-[ticket-github](../ticket-github/SKILL.md), [ticket-jira](../ticket-jira/SKILL.md),
-[project-commands](../project-commands/SKILL.md),
-[security-checklist](../security-checklist/SKILL.md), [pr-description](../pr-description/SKILL.md),
-[commit-message](../commit-message/SKILL.md), [doc-types](../doc-types/SKILL.md) (doc shape),
-[unslop](../unslop/SKILL.md) (prose drafts),
-[runbook](../runbook/SKILL.md) (new alerts and failure modes).
+Supporting skills: [brainrc-ticket-local](../brainrc-ticket-local/SKILL.md),
+[brainrc-ticket-github](../brainrc-ticket-github/SKILL.md), [brainrc-ticket-jira](../brainrc-ticket-jira/SKILL.md),
+[brainrc-project-commands](../brainrc-project-commands/SKILL.md),
+[brainrc-security-checklist](../brainrc-security-checklist/SKILL.md), [brainrc-pr-description](../brainrc-pr-description/SKILL.md),
+[brainrc-commit-message](../brainrc-commit-message/SKILL.md), [brainrc-doc-types](../brainrc-doc-types/SKILL.md) (doc shape),
+[brainrc-unslop](../brainrc-unslop/SKILL.md) (prose drafts),
+[brainrc-runbook](../brainrc-runbook/SKILL.md) (new alerts and failure modes).
 
 ## Domains
 
@@ -50,17 +50,17 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 
 | Files | Skill | Extra reviewer |
 |---|---|---|
-| `*.go`, `go.mod` | [go-service](../go-service/SKILL.md) | — |
+| `*.go`, `go.mod` | [brainrc-go-service](../brainrc-go-service/SKILL.md) | — |
 | `*.tf`, `*.tfvars`, `terragrunt.hcl`, `atlantis.yaml` | [brainrc-terraform](../brainrc-terraform/SKILL.md) (+ [brainrc-aws](../brainrc-aws/SKILL.md) for AWS providers) | brainrc-infra-reviewer |
-| k8s YAML, `Chart.yaml`, `values*.yaml`, `kustomization.yaml` | [kubernetes](../kubernetes/SKILL.md) | brainrc-infra-reviewer |
-| Argo CD `Application*`, Flux `Kustomization`/`HelmRelease`, config repos | [gitops](../gitops/SKILL.md) + kubernetes | brainrc-infra-reviewer |
-| `.github/workflows/*`, `action.yml`, `.gitlab-ci.yml` | [ci-pipelines](../ci-pipelines/SKILL.md) | brainrc-infra-reviewer |
-| `Dockerfile*`, `compose*.yaml` | [containers](../containers/SKILL.md) | brainrc-infra-reviewer |
-| migrations dirs, `*.sql`, ORM models | [db-migrations](../db-migrations/SKILL.md) | brainrc-infra-reviewer |
-| alert/recording rules, dashboards, collector config | [observability](../observability/SKILL.md) | — |
-| `*.py` tooling, `*.sh` | [scripting](../scripting/SKILL.md) | — |
+| k8s YAML, `Chart.yaml`, `values*.yaml`, `kustomization.yaml` | [brainrc-kubernetes](../brainrc-kubernetes/SKILL.md) | brainrc-infra-reviewer |
+| Argo CD `Application*`, Flux `Kustomization`/`HelmRelease`, config repos | [brainrc-gitops](../brainrc-gitops/SKILL.md) + kubernetes | brainrc-infra-reviewer |
+| `.github/workflows/*`, `action.yml`, `.gitlab-ci.yml` | [brainrc-ci-pipelines](../brainrc-ci-pipelines/SKILL.md) | brainrc-infra-reviewer |
+| `Dockerfile*`, `compose*.yaml` | [brainrc-containers](../brainrc-containers/SKILL.md) | brainrc-infra-reviewer |
+| migrations dirs, `*.sql`, ORM models | [brainrc-db-migrations](../brainrc-db-migrations/SKILL.md) | brainrc-infra-reviewer |
+| alert/recording rules, dashboards, collector config | [brainrc-observability](../brainrc-observability/SKILL.md) | — |
+| `*.py` tooling, `*.sh` | [brainrc-scripting](../brainrc-scripting/SKILL.md) | — |
 
-Unlisted stacks: rely on the project's own conventions and `project-commands`.
+Unlisted stacks: rely on the project's own conventions and `brainrc-project-commands`.
 
 **Packs.** `brainrc apply` renders enabled packs into `extensions.md` in the brainrc home (`$BRAINRC_HOME`, default
 `~/.config/brainrc/`). If it exists, read it once
@@ -88,7 +88,7 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
    `living_specs.py check` on `spec.md` and fix any error first. If the stage ends in a gate, make a checkpoint
    commit (`state.md` § Rules), present the gate (`lifecycle.md` § Gate presentation), record
    `metrics.gates.<gate>.presented_at`, and **stop until the user approves** (an `auto` run: § Auto mode). Checkpoint-commit on every other stop too (blocked, done). Run `active_run.py write <worktree>/specs/<slug>` with every checkpoint commit.
-4. **On approval** (`approve`, `lgtm`, `/spec-approve`, or the Approve button): set the gate `approved`, record
+4. **On approval** (`approve`, `lgtm`, `/brainrc-gatework-approve`, or the Approve button): set the gate `approved`, record
    `metrics.gates.<gate>.approved_at`, continue.
    On change requests: +1 `gate_rework.<gate>`, revise, present the gate again.
    An approval counts only for the gate it answers: a user message sent after that gate was
@@ -104,8 +104,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
   Claude Code plugin install the roles are named `brainrc:<role>` (`ai-config:<role>` in an old
   install); try those, in that order, when `<role>` isn't found.
   Roles may have no skill tool, so put the skills a role file names on the `Role skills:` line
-  with absolute paths: brainrc-doc-writer → pr-description, doc-types, unslop, runbook;
-  brainrc-security-reviewer → security-checklist.
+  with absolute paths: brainrc-doc-writer → brainrc-pr-description, brainrc-doc-types, brainrc-unslop,
+  brainrc-runbook; brainrc-security-reviewer → brainrc-security-checklist.
   Nothing else: no file contents, no conversation history.
 - **inline / fallback:** follow `fallback.md`.
 - After every dispatch, append the returned handoff block to `log.md`, then check it (`handoff.md`
@@ -134,7 +134,7 @@ each task in a wave of one, for each task in `plan.md` order whose status isn't 
    `brainrc-security-reviewer` if a trigger is touched, in parallel.
 4. CRITICAL/HIGH findings or failed checks → +1 `attempts` and `metrics.retries`, re-dispatch
    the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
-5. Commit with a message in the commit-message skill's format, subject + `Refs <ticket ref>`.
+5. Commit with a message in the brainrc-commit-message skill's format, subject + `Refs <ticket ref>`.
    Starting `/brainrc-work` authorizes commits on the run's own feature branch (rules: git), so don't
    stop to ask; the skill's ask-first step is for commits outside a run. Store the sha in the
    task, mark it `done`.
@@ -176,7 +176,7 @@ from reply wording, and refuse `--auto` together with any live target (offline o
   `delivery: local-only` still wins: drafts only, nothing pushed. `--auto` never covers the
   `watch` Push gate.
 - **Fallback review:** don't stop for a fresh session; record `review_context: shared`.
-- **Resume:** `/spec-resume` or `/brainrc-work <ref>` sets `auto: false` unless `--auto` is given again.
+- **Resume:** `/brainrc-gatework-resume` or `/brainrc-work <ref>` sets `auto: false` unless `--auto` is given again.
 
 ### Oneshot mode
 

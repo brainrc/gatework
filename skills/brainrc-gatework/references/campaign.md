@@ -180,7 +180,7 @@ ticket's ref. A child's benign stop opens its draft `[blocked]` PR; a tainted st
 pushes nothing and opens no PR. Either way later children pause and earlier ready PRs stay open.
 Never merged. A playbook campaign with `--oneshot` is refused, as with `--auto`; `local-only` opens nothing.
 
-**Merge detection.** Pull-based, never polled. On `/brainrc-work --campaign <ref>` or /spec-resume, for
+**Merge detection.** Pull-based, never polled. On `/brainrc-work --campaign <ref>` or `/brainrc-gatework-resume`, for
 each `waiting` child (or stacked child not yet based on `main`) read its predecessor's PR state
 read-only through the connector (`gh pr view <n> --json state` or MCP `pull_request_read` `get`).
 Release or retarget the next child only if the state is merged or the user says "merged" (for

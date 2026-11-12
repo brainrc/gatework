@@ -24,8 +24,8 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
 1. A dirty main checkout is left alone: the run works in its own worktree (step 4) and never
    changes the main checkout's branch, index, or files.
 2. Parse the ticket reference: `gh:<n>`, a GitHub issue URL, `jira:<KEY-n>` or a Jira browse
-   URL (ticket-jira), `local:<path>`, or free text
-   (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see ticket-local).
+   URL (brainrc-ticket-jira), `local:<path>`, or free text
+   (free text becomes a local ticket at `specs/tickets/<NNN>-<slug>.md`, see brainrc-ticket-local).
    A ref that matches a pack connector's `refs` (`extensions.md`, SKILL.md § Packs) uses that connector.
 3. If the repo has a `VERSION` file and no `changelog.d/` (fragments don't conflict), list other open PRs that change `VERSION` or `CHANGELOG.md`
    (through the connector's system, e.g. `gh pr list` or its MCP equivalent). If any exist,
@@ -41,7 +41,7 @@ Stages run in this order. [sizing.md](sizing.md) decides which ones run.
    [state.md](state.md)). Run any pack Intake context skills and append their summaries.
    Files written during intake go into the first checkpoint commit. Record the run as active
    (`python3 <skill>/scripts/active_run.py write <worktree>/specs/<slug>`, state.md § Active run pointer).
-6. Discover project commands with the [project-commands](../../project-commands/SKILL.md) skill.
+6. Discover project commands with the [brainrc-project-commands](../../brainrc-project-commands/SKILL.md) skill.
 7. Detect domains (see the Domains table in SKILL.md). If evidence needs a live environment,
    ask which targets are allowed ([guardrails.md](guardrails.md) § Environments).
 8. Classify size ([sizing.md](sizing.md)) and say it in one line with the mode. The user may
@@ -83,7 +83,7 @@ With `delivery: local-only`, the gate lists **no outward actions**: deliver fina
 (`PR: <PR_URL>` → `PR: none (local-only, branch <branch>)`), leaves the branch unpushed, and
 writes the retro.
 
-**6b · watch**: after the PR opens, `/spec-resume` or `/brainrc-work <ref>` reads `pr_status` and handles
+**6b · watch**: after the PR opens, `/brainrc-gatework-resume` or `/brainrc-work <ref>` reads `pr_status` and handles
 a red check (C-tasks) and new review threads (R-tasks, replies). Every fix-commit push and every thread reply it posts needs an approved ⛔ **Push gate**. Procedure: [watch.md](watch.md). A merged PR gets a post-merge verify (`verify-merged.md`); a closed one ends as `abandoned`.
 
 **7 · done**: `retro.md` was already written at the end of deliver (before `watch`); after a merge it gains `## After delivery`, and a closed PR is `abandoned`. Print the PR link and the metrics summary. Commit the done

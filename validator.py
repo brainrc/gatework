@@ -1,6 +1,6 @@
 """Gatework's validator plugin. brainrc core loads it through pack.toml `validator` (docs/packs.md,
 Validator plugins) to check and render what only Gatework reads: each pack's [extensions.gatework],
-the ticket connectors, the roles link and the deprecated agent aliases."""
+the ticket connectors, the roles link and the deprecated skill and agent aliases."""
 from __future__ import annotations
 
 import json
@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 from brainrc import config
-from brainrc.naming import AGENT_ALIAS_REMOVED_IN, AGENT_ALIASES
+from brainrc.naming import AGENT_ALIAS_REMOVED_IN, AGENT_ALIASES, ALIAS_REMOVED_IN, SKILL_ALIASES
 from brainrc.sources import frontmatter, markdown_files, skills
 
 NAMESPACE = "gatework"
@@ -48,9 +48,21 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
     return errors
 
 
+def warn_extensions(ext: dict, where: str) -> list[str]:
+    """Skills named by their deprecated alias still work, and are rendered as their new name."""
+    return [f"{where}: `{n}` is deprecated; name `{SKILL_ALIASES[n]}` (the alias goes in {ALIAS_REMOVED_IN})"
+            for n in _skill_refs(ext) if n in SKILL_ALIASES]
+
+
+def _skill_refs(ext: dict) -> list[str]:
+    return ([s for d in ext.get("domains", []) for s in d.get("skills", [])]
+            + [i.get("skill") for i in ext.get("intake_context", [])]
+            + ([ext["ticket"].get("connector")] if isinstance(ext.get("ticket"), dict) else []))
+
+
 def check(me, srcs) -> list[str]:
     errors = [f"{roles}; {ROLES_FIX}"] if (roles := roles_error(me)) else []
-    return errors + check_connectors(me, srcs) + check_agents(me)
+    return errors + check_connectors(me, srcs) + check_skill_aliases(me) + check_agents(me)
 
 
 def doctor(me) -> list[tuple[str, str, str]]:
@@ -85,6 +97,7 @@ def check_connectors(me, srcs) -> list[str]:
     found = {s.name: (src, s) for src in srcs for s in skills(src)}
     names = {n for n, (src, _) in found.items() if src.root == me.root and CONNECTOR.match(n)}
     names |= {_table(src).get("ticket", {}).get("connector") for src in srcs}
+    names = {SKILL_ALIASES.get(n, n) for n in names if n}  # an alias is a stub; check its target
     errors = []
     for name in sorted(n for n in names if n in found):
         src, skill = found[name]
@@ -93,6 +106,35 @@ def check_connectors(me, srcs) -> list[str]:
         if missing:
             errors.append(f"{src.rel(skill)}/SKILL.md: connector missing `##` sections for "
                           f"{', '.join(missing)} (see the connector contract, references/connectors.md)")
+    return errors
+
+
+def check_skill_aliases(me) -> list[str]:
+    """Every skill is `brainrc-*` or a declared alias: a stub the model can't pick, pointing at its
+    target, with the target's arguments, until the aliases are removed."""
+    root = me.root / "skills"
+    errors = [f"{me.rel(s)}: Gatework skill names start with `brainrc-`" for s in skills(me)
+              if not s.name.startswith("brainrc-") and s.name not in SKILL_ALIASES]
+    for old, new in SKILL_ALIASES.items():
+        path, target = root / old / "SKILL.md", root / new / "SKILL.md"
+        rel = me.rel(path)
+        if not path.is_file():
+            errors.append(f"{rel}: deprecated alias for `{new}` is missing (keep it until {ALIAS_REMOVED_IN})")
+            continue
+        if not target.is_file():
+            errors.append(f"{rel}: alias target `{new}` is missing")
+            continue
+        meta, want, body = frontmatter(path), frontmatter(target), path.read_text().split("\n---\n", 1)[-1]
+        if meta.get("description") != f"Deprecated, use {new} (removed in {ALIAS_REMOVED_IN})":
+            errors.append(f"{rel}: alias `description` must be `Deprecated, use {new} (removed in {ALIAS_REMOVED_IN})`")
+        if meta.get("disable-model-invocation") != "true":
+            errors.append(f"{rel}: alias needs `disable-model-invocation: true`, so only its target is picked")
+        if f"`{new}`" not in body:
+            errors.append(f"{rel}: alias body must name `{new}`")
+        if meta.get("argument-hint") != want.get("argument-hint"):
+            errors.append(f"{rel}: alias `argument-hint` must match `{new}`")
+        if want.get("argument-hint") and "$ARGUMENTS" not in body:
+            errors.append(f"{rel}: alias body must pass on `$ARGUMENTS`")
     return errors
 
 
@@ -126,6 +168,19 @@ def check_agents(me) -> list[str]:
     return errors
 
 
+def _current(ext: dict) -> dict:
+    """The table with each deprecated skill alias replaced by the skill it points to."""
+    name = lambda n: SKILL_ALIASES.get(n, n)  # noqa: E731
+    ext = dict(ext)
+    if "domains" in ext:
+        ext["domains"] = [{**d, "skills": [name(s) for s in d.get("skills", [])]} for d in ext["domains"]]
+    if "intake_context" in ext:
+        ext["intake_context"] = [{**i, "skill": name(i.get("skill"))} for i in ext["intake_context"]]
+    if isinstance(ext.get("ticket"), dict):
+        ext["ticket"] = {**ext["ticket"], "connector": name(ext["ticket"].get("connector"))}
+    return ext
+
+
 def render_extensions(tables: list[tuple[str, dict]]) -> str:
     """The pack extension points spec-agent reads at intake, plan, and deliver."""
     out = ["<!-- GENERATED by brainrc from each pack's pack.toml. Edit the pack, not this file. -->",
@@ -134,7 +189,7 @@ def render_extensions(tables: list[tuple[str, dict]]) -> str:
         out.append("No packs enabled. Use only the built-in tables in SKILL.md.")
         return "\n".join(out) + "\n"
     out.append("Enabled packs: " + ", ".join(f"`{p}`" for p, _ in tables) + ".")
-    ext = dict(tables)
+    ext = {p: _current(e) for p, e in tables}
 
     rows = [(p, d) for p, e in ext.items() for d in e.get("domains", [])]
     if rows:

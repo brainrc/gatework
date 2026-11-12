@@ -1,7 +1,7 @@
 # Ticket connector contract
 
 A connector is a skill that lets spec-agent read and update one ticket system. Core ships
-`ticket-local`, `ticket-github`, and `ticket-jira`. A pack can name its own in
+`brainrc-ticket-local`, `brainrc-ticket-github`, and `brainrc-ticket-jira`. A pack can name its own in
 `[extensions.ticket]` (one per pack).
 
 ## Operations

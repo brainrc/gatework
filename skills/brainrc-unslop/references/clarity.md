@@ -1,6 +1,6 @@
 # Clarity, words, and soul (passes 2 to 4)
 
-Sections F to H of the [unslop](../SKILL.md) skill.
+Sections F to H of the [brainrc-unslop](../SKILL.md) skill.
 
 ## F. Clarity (from Simplified Technical English, ASD-STE100)
 

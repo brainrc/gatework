@@ -1,6 +1,6 @@
 # Structure tells (pass 1)
 
-Sections A to E of the [unslop](../SKILL.md) skill. Structure is the stronger signal and harder to spot.
+Sections A to E of the [brainrc-unslop](../SKILL.md) skill. Structure is the stronger signal and harder to spot.
 
 ## A. Staging instead of stating (act on one sighting)
 

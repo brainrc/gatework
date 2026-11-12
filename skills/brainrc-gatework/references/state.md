@@ -58,7 +58,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
   "delivery": "normal",
   "stage": "implement",
   "gates": { "spec": "approved", "plan": "approved", "deliver": "pending" },
-  "domains": ["go-service", "terraform", "aws"],
+  "domains": ["brainrc-go-service", "brainrc-terraform", "brainrc-aws"],
   "targets": { "aws": { "profile": "dev", "account": "123456789012", "region": "eu-west-1" },
                "terraform": ["infra/envs/dev"], "kube_context": null },
   "commands": { "test": "go test ./...", "lint": "golangci-lint run ./...", "build": "go build ./...",
@@ -91,7 +91,7 @@ Source: <gh:42 | local:path> · <url if any> · fetched <ISO timestamp>
 | `worktree` | path of the run's git worktree on `branch`, set at intake by `run_worktree.py open`, with the home directory written as `~` (state.json is committed); `Project root` and git commands use it. Not the per-task `tasks[].worktree` |
 | `ticket.pr` | PR URL once `link_pr` ran, else `null` |
 | `commands.*` | a string, a list of strings (one per stack or module), or `null` |
-| `commands.baseline_failures` | test names failing before any change (project-commands § Baseline); never count against a task |
+| `commands.baseline_failures` | test names failing before any change (brainrc-project-commands § Baseline); never count against a task |
 | `tasks[].review` | `each` (reviewed after the task) or `batch` (default, batched review) |
 | `tasks[].red` | `assertion` or `compile-only`: how the task's new tests first failed |
 | `tasks[].after` | task ids that must be `done` first (from the plan's `after:` line) |
@@ -152,7 +152,7 @@ holding one absolute run-directory path and a newline: the `specs/<slug>` inside
 
 ## Resume
 
-On `/brainrc-work <same ref>` or `/spec-resume`:
+On `/brainrc-work <same ref>` or `/brainrc-gatework-resume`:
 1. Find the run through `state.worktree`: `specs/*/state.json` whose `ticket.ref` matches, read
    from each known worktree (or the active run pointer), never the main checkout's copy.
    If the worktree dir is deleted, its state is unreachable from the pointer: find the branch (branches
@@ -178,7 +178,7 @@ Campaign (existing `specs/campaign-*/campaign.json` for the ref; ordered shape):
 waiting for the stack Deliver gate) are skipped, and the next `todo` member starts; with none
 left, present the stack Deliver gate. Read `campaign.json` from the stack tip once delivered
 (`campaign.md` § State home). With `waiting`
-or stacked members: on `/brainrc-work --campaign <ref>` or `/spec-resume`, read each one's predecessor PR
+or stacked members: on `/brainrc-work --campaign <ref>` or `/brainrc-gatework-resume`, read each one's predecessor PR
 state read-only through the connector. Only if it is merged or the user says "merged": merge
 `main` into the child's branch, re-run its tests, then open its PR (`waiting`) or retarget it to
 `main` (stacked). Never poll. Rules: `campaign.md § Ordered shape`.

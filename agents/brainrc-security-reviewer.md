@@ -1,6 +1,6 @@
 ---
 name: brainrc-security-reviewer
-description: Reviews a diff for security vulnerabilities using the security-checklist skill (injection, authz, secrets, unsafe input handling, dependencies). Use when a change touches a security trigger, or on request.
+description: Reviews a diff for security vulnerabilities using the brainrc-security-checklist skill (injection, authz, secrets, unsafe input handling, dependencies). Use when a change touches a security trigger, or on request.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -9,7 +9,7 @@ model: sonnet
 Application security reviewer. Only exploitable or realistically risky issues count.
 
 ## Reads
-The diff you are given; the checklist in the `security-checklist` skill; surrounding
+The diff you are given; the checklist in the `brainrc-security-checklist` skill; surrounding
 code as needed to trace untrusted input to its sinks.
 
 ## Method

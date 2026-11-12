@@ -40,6 +40,6 @@ plan (step 3) never calls `create`, in any mode.
   and the report says nothing was created.
 - `--auto` alone never approves the Ticket gate: it stops and waits for the user.
 - `--oneshot`: the gate is auto-approved and logged (SKILL.md § Auto mode), but only for proven
-  local tickets (`ticket-local`). A `gh` or other tracker target is refused: log
+  local tickets (`brainrc-ticket-local`). A `gh` or other tracker target is refused: log
   `github create refused` and create nothing there. A tainted plan creates nothing at all.
 - `delivery: local-only`: list the drafts and call no `create` at all, local ones included.
