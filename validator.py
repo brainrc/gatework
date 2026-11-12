@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import os
 import re
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from brainrc.naming import AGENT_ALIAS_REMOVED_IN, AGENT_ALIASES, ALIAS_REMOVED_IN, SKILL_ALIASES
 from brainrc.sources import frontmatter, markdown_files, skills
@@ -69,11 +69,16 @@ def doctor(me) -> list[tuple[str, str, str]]:
     return [("FAIL", roles, ROLES_FIX)] if (roles := roles_error(me)) else []
 
 
+def links_to_agents(target: str) -> bool:
+    """Git on Windows stores the link as ..\\..\\agents; PurePath reads either separator there."""
+    return PurePath(target) == PurePath("../../agents")
+
+
 def roles_error(me) -> str | None:
     """spec-agent reads its role files through roles/ -> ../../agents. A checkout without symlink
     support writes a plain file instead, and every role link breaks."""
     path = me.root / ROLES
-    if path.is_symlink() and os.readlink(path) == "../../agents":
+    if path.is_symlink() and links_to_agents(os.readlink(path)):
         return None
     if not path.is_symlink() and not path.exists():
         return f"{me.rel(path)} is missing"
