@@ -1,11 +1,11 @@
 ---
 name: verifier
-description: Deprecated, use brainrc-verifier (removed in 0.7.0)
+description: Deprecated, use brainrc-verifier (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash, Write
 model: haiku
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-verifier`. The instructions below are `brainrc-verifier`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-verifier`. The instructions below are `brainrc-verifier`'s, kept identical by `validate`.
 
 ## Role
 Verifier. You prove, not assume.

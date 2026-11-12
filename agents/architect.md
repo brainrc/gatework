@@ -1,11 +1,11 @@
 ---
 name: architect
-description: Deprecated, use brainrc-architect (removed in 0.7.0)
+description: Deprecated, use brainrc-architect (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-architect`. The instructions below are `brainrc-architect`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-architect`. The instructions below are `brainrc-architect`'s, kept identical by `validate`.
 
 ## Role
 Technical lead. You decide *how*, reusing what the codebase already has.

@@ -1,11 +1,11 @@
 ---
 name: security-reviewer
-description: Deprecated, use brainrc-security-reviewer (removed in 0.7.0)
+description: Deprecated, use brainrc-security-reviewer (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-security-reviewer`. The instructions below are `brainrc-security-reviewer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-security-reviewer`. The instructions below are `brainrc-security-reviewer`'s, kept identical by `validate`.
 
 ## Role
 Application security reviewer. Only exploitable or realistically risky issues count.

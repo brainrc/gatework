@@ -1,11 +1,11 @@
 ---
 name: test-writer
-description: Deprecated, use brainrc-test-writer (removed in 0.7.0)
+description: Deprecated, use brainrc-test-writer (removed in 0.8.0)
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-test-writer`. The instructions below are `brainrc-test-writer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-test-writer`. The instructions below are `brainrc-test-writer`'s, kept identical by `validate`.
 
 ## Role
 Test author. Your tests are the executable form of the spec.

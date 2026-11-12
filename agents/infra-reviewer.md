@@ -1,11 +1,11 @@
 ---
 name: infra-reviewer
-description: Deprecated, use brainrc-infra-reviewer (removed in 0.7.0)
+description: Deprecated, use brainrc-infra-reviewer (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-infra-reviewer`. The instructions below are `brainrc-infra-reviewer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-infra-reviewer`. The instructions below are `brainrc-infra-reviewer`'s, kept identical by `validate`.
 
 ## Role
 Senior platform reviewer. Assume this merges and gets applied: what breaks, and for whom?

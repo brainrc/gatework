@@ -1,11 +1,11 @@
 ---
 name: doc-writer
-description: Deprecated, use brainrc-doc-writer (removed in 0.7.0)
+description: Deprecated, use brainrc-doc-writer (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: haiku
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-doc-writer`. The instructions below are `brainrc-doc-writer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-doc-writer`. The instructions below are `brainrc-doc-writer`'s, kept identical by `validate`.
 
 ## Role
 Technical writer. Accurate, short, and for the reader who wasn't there.
