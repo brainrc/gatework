@@ -48,10 +48,20 @@ URL = re.compile(r"(?i)\b[a-z][a-z0-9+.-]*://")
 TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
 
 
+def _secret_patterns_paths() -> list[Path]:
+    """Where brainrc core's guard_secrets.py may be: the core checkout this pack is bundled in
+    (packs/gatework/skills/<skill>/scripts), then the hooks dir `brainrc apply` links for Claude Code."""
+    here = Path(__file__).resolve()
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude").expanduser()
+    return [here.parents[5] / "overrides/claude/hooks/guard_secrets.py",
+            claude / "hooks/brainrc/guard_secrets.py"]
+
+
 def _guard_secrets():
-    path = Path(__file__).resolve().parents[3] / "overrides/claude/hooks/guard_secrets.py"
-    if not path.is_file():
-        raise RuntimeError(f"secret patterns not found at {path}")
+    found = [p for p in _secret_patterns_paths() if p.is_file()]
+    if not found:
+        raise RuntimeError(f"secret patterns not found at {_secret_patterns_paths()[0]}")
+    path = found[0]
     spec = importlib.util.spec_from_file_location("guard_secrets", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
