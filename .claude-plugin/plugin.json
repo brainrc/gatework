@@ -1,0 +1,32 @@
+{
+  "name": "gatework",
+  "version": "0.7.0",
+  "description": "Spec-driven work from a ticket to a reviewed PR through approval gates: the spec-agent engine, its roles, ticket connectors and domain skills. A brainrc pack.",
+  "author": {
+    "name": "brainrc contributors"
+  },
+  "license": "MIT",
+  "skills": "./skills/",
+  "agents": [
+    "./agents/analyst.md",
+    "./agents/architect.md",
+    "./agents/brainrc-analyst.md",
+    "./agents/brainrc-architect.md",
+    "./agents/brainrc-code-reviewer.md",
+    "./agents/brainrc-doc-writer.md",
+    "./agents/brainrc-implementer.md",
+    "./agents/brainrc-infra-reviewer.md",
+    "./agents/brainrc-researcher.md",
+    "./agents/brainrc-security-reviewer.md",
+    "./agents/brainrc-test-writer.md",
+    "./agents/brainrc-verifier.md",
+    "./agents/code-reviewer.md",
+    "./agents/doc-writer.md",
+    "./agents/implementer.md",
+    "./agents/infra-reviewer.md",
+    "./agents/researcher.md",
+    "./agents/security-reviewer.md",
+    "./agents/test-writer.md",
+    "./agents/verifier.md"
+  ]
+}

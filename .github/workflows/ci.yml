@@ -1,0 +1,95 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  # PRs cancel superseded runs; each push to main gets its own group so no commit goes unscanned.
+  group: validate-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: validate (${{ matrix.os }}, ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    # Windows is reported but never fails the workflow, as in brainrc (its docs/install.md, Platforms).
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gatework
+          fetch-depth: 0
+      # Gatework is checked against brainrc core's latest main, cloned beside it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: brainrc/brainrc
+          ref: main
+          path: brainrc
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Core 0.7.0 still carries its own copy at packs/gatework and would count this checkout as a
+      # second pack named gatework, so check a copy of this checkout in its place (a copy, not a
+      # link: Windows runners can't make one). From core 0.7.1 that folder is gone, and the pack
+      # is checked where it is.
+      - name: Validate the pack with core
+        run: |
+          pack=gatework
+          if [ -d brainrc/packs/gatework ]; then
+            rm -rf brainrc/packs/gatework
+            cp -R gatework brainrc/packs/gatework
+            rm -rf brainrc/packs/gatework/.git
+            pack=brainrc/packs/gatework
+          fi
+          python3 brainrc/scripts/brainrc.py validate --pack "$pack"
+      - name: Check the manifests, CHANGELOG.md and changelog.d/
+        run: python3 scripts/gatework.py check
+        working-directory: gatework
+      - run: python3 -m unittest discover -s tests -v
+        working-directory: gatework
+        env:
+          BRAINRC_CORE: ${{ github.workspace }}/brainrc
+      # The gitleaks CLI, not gitleaks-action: the action needs a paid license for org-owned repos.
+      # It downloads a linux binary, so it runs once, in one ubuntu cell.
+      - name: Scan new commits for secrets (gitleaks)
+        if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
+        working-directory: gatework
+        env:
+          GITLEAKS_VERSION: 8.24.3
+          GITLEAKS_SHA256: 9991e0b2903da4c8f6122b5c3186448b927a5da4deef1fe45271c3793f4ee29c
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/gitleaks.tgz" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "$GITLEAKS_SHA256  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$RUNNER_TEMP" gitleaks
+          range="$BASE..$HEAD"
+          case "$BASE" in ""|0000000000000000000000000000000000000000) range="-1 $HEAD" ;; esac
+          "$RUNNER_TEMP/gitleaks" detect --redact -v --exit-code=2 --log-opts="--no-merges --first-parent $range"
+
+  # One check name, `validate`, to require. Windows cells carry continue-on-error, so they never gate it.
+  validate-gate:
+    name: validate
+    needs: [validate]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail unless every blocking cell passed
+        env:
+          RESULT: ${{ needs.validate.result }}
+        run: test "$RESULT" = success

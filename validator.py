@@ -1,6 +1,7 @@
-"""Gatework's validator plugin. brainrc core loads it through pack.toml `validator` (docs/packs.md,
-Validator plugins) to check and render what only Gatework reads: each pack's [extensions.gatework],
-the ticket connectors, the roles link and the deprecated skill and agent aliases."""
+"""Gatework's validator plugin. brainrc core loads it through pack.toml `validator` (brainrc's
+docs/packs.md, Validator plugins) to check and render what only Gatework reads: each pack's
+[extensions.gatework], the ticket connectors, the roles link and the deprecated skill and agent
+aliases."""
 from __future__ import annotations
 
 import json
@@ -8,7 +9,6 @@ import os
 import re
 from pathlib import Path
 
-from brainrc import config
 from brainrc.naming import AGENT_ALIAS_REMOVED_IN, AGENT_ALIASES, ALIAS_REMOVED_IN, SKILL_ALIASES
 from brainrc.sources import frontmatter, markdown_files, skills
 
@@ -18,9 +18,9 @@ LEGACY_KEYS = EXTENSION_KEYS     # top-level [extensions] keys, before the split
 LEGACY_NAMESPACES = ("spec-agent",)
 REMOVED_IN = "0.8.0"
 
-ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents; a wheel holds copies
-ROLES_FIX = ("enable symlinks (docs/install.md, Platforms), then restore it with "
-             "`git checkout -- packs/gatework/skills/brainrc-gatework/roles`")
+ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents
+ROLES_FIX = ("enable symlinks (brainrc's docs/install.md, Platforms), then restore it in the pack's "
+             "clone with `git checkout -- skills/brainrc-gatework/roles`")
 CONNECTOR = re.compile(r"^(brainrc-)?ticket-")
 REQUIRED_CONNECTOR_OPS = ("fetch", "comment", "transition", "link_pr")  # references/connectors.md
 H2 = re.compile(r"^## +(.+)$", re.M)
@@ -73,13 +73,11 @@ def roles_error(me) -> str | None:
     """spec-agent reads its role files through roles/ -> ../../agents. A checkout without symlink
     support writes a plain file instead, and every role link breaks."""
     path = me.root / ROLES
-    if config.installed():
-        return None  # a wheel stores the link's files as copies
     if path.is_symlink() and os.readlink(path) == "../../agents":
         return None
     if not path.is_symlink() and not path.exists():
         return f"{me.rel(path)} is missing"
-    found = f"a link to {os.readlink(path)}" if path.is_symlink() else "a plain file"
+    found = f"a link to {os.readlink(path)}" if path.is_symlink() else "a directory" if path.is_dir() else "a plain file"
     return f"{me.rel(path)} must be a symlink to ../../agents but is {found} (cloned without symlink support?)"
 
 
