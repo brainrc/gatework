@@ -1,0 +1,64 @@
+name: release
+
+# On every merge to main: fold changelog.d/ fragments into CHANGELOG.md, bump VERSION, regenerate
+# the plugin manifests, commit, and tag v<VERSION>. With no fragments, just tag VERSION if the tag
+# is missing (the first run tags v0.7.0). Then create the GitHub Release for v<VERSION> if there
+# isn't one yet. brainrc's packs.toml pins Gatework to one of these tags. The push uses
+# GITHUB_TOKEN, so it doesn't trigger another run. If main is protected, allow GitHub Actions to
+# bypass the rule for this workflow.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main # the tip, so a queued run sees the previous run's release commit
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Fold fragments
+        run: |
+          python3 scripts/gatework.py release
+          python3 scripts/gatework.py check
+      - name: Commit, tag, and push
+        run: |
+          version="$(cat VERSION)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A VERSION CHANGELOG.md changelog.d .claude-plugin .cursor-plugin plugin.json
+            git commit -m "Release v${version}"
+          fi
+          if git rev-parse -q --verify "refs/tags/v${version}" >/dev/null; then
+            echo "v${version} already tagged"
+            git push origin HEAD:main
+          else
+            git tag -a "v${version}" -m "v${version}"
+            git push --atomic origin HEAD:main "v${version}"
+          fi
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="$(cat VERSION)"
+          if gh release view "v${version}" >/dev/null 2>&1; then
+            echo "v${version} already released"
+          else
+            python3 scripts/gatework.py release --notes "$version" > "$RUNNER_TEMP/notes.md"
+            gh release create "v${version}" --verify-tag --title "v${version}" --notes-file "$RUNNER_TEMP/notes.md"
+          fi

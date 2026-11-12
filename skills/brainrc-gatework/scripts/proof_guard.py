@@ -49,18 +49,19 @@ TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
 
 
 def _secret_patterns_paths() -> list[Path]:
-    """Where brainrc core's guard_secrets.py may be: the core checkout this pack is bundled in
-    (packs/gatework/skills/<skill>/scripts), then the hooks dir `brainrc apply` links for Claude Code."""
-    here = Path(__file__).resolve()
+    """Where brainrc core's guard_secrets.py may be: a core checkout named by $BRAINRC_CORE (tests,
+    development), then the hooks dir `brainrc apply` links for Claude Code."""
     claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude").expanduser()
-    return [here.parents[5] / "overrides/claude/hooks/guard_secrets.py",
+    core = os.environ.get("BRAINRC_CORE")
+    return [*([Path(core).expanduser() / "overrides/claude/hooks/guard_secrets.py"] if core else []),
             claude / "hooks/brainrc/guard_secrets.py"]
 
 
 def _guard_secrets():
     found = [p for p in _secret_patterns_paths() if p.is_file()]
     if not found:
-        raise RuntimeError(f"secret patterns not found at {_secret_patterns_paths()[0]}")
+        raise RuntimeError("secret patterns not found at " + ", ".join(map(str, _secret_patterns_paths()))
+                           + "; run `brainrc apply`, or set BRAINRC_CORE to a brainrc checkout")
     path = found[0]
     spec = importlib.util.spec_from_file_location("guard_secrets", path)
     mod = importlib.util.module_from_spec(spec)

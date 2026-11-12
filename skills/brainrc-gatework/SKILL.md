@@ -101,8 +101,8 @@ checks join the Deliver gate. Without it, everything above applies unchanged.
 ## Dispatch
 
 - **subagent mode:** launch the role by name with the dispatch prompt from `handoff.md`. In a
-  Claude Code plugin install the roles are named `brainrc:<role>` (`ai-config:<role>` in an old
-  install); try those, in that order, when `<role>` isn't found.
+  Claude Code plugin install the roles are named `gatework:<role>` (`brainrc:<role>` or
+  `ai-config:<role>` in an older install); try those, in that order, when `<role>` isn't found.
   Roles may have no skill tool, so put the skills a role file names on the `Role skills:` line
   with absolute paths: brainrc-doc-writer → brainrc-pr-description, brainrc-doc-types, brainrc-unslop,
   brainrc-runbook; brainrc-security-reviewer → brainrc-security-checklist.

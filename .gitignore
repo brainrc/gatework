@@ -1,0 +1,10 @@
+# Per-machine, never shared
+*.local.toml
+*.local.md
+*.local.json
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+__pycache__/
