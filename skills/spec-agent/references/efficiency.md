@@ -15,11 +15,11 @@ Record it as `state.mode`.
 
 ## Fewer, cheaper agent runs
 
-- **Implementer writes its own failing test first** by default. `test-writer` only runs on tasks
+- **Implementer writes its own failing test first** by default. `brainrc-test-writer` only runs on tasks
   the plan assigns it (security logic, public contracts).
 - **Batched review.** One code-review pass over the whole branch diff after all tasks, not
   one per task. Exception: tasks marked `review: each`.
-- **Parallel read-only work.** Run `code-reviewer` and `security-reviewer` concurrently when
+- **Parallel read-only work.** Run `brainrc-code-reviewer` and `brainrc-security-reviewer` concurrently when
   both are needed. Run writers in parallel only in isolated worktrees ([waves](#parallel-waves)).
 - **Re-review only fixes.** After a fix task, reviewers see only the fix diff plus prior findings.
 - **Model tiering.** Agent files set `model:`. Judgment-heavy roles (architect) use the
@@ -33,7 +33,7 @@ half-written changes, so each parallel task gets its own git worktree.
 
 1. **Wave:** the `todo` tasks whose `after:` tasks are `done` and whose `files` don't overlap.
    At most 2 tasks for `standard`, 3 for `large`. A task that links to or imports a file another
-   task creates waits for that task (`after:`). A `test-writer` task, or a `review: each`
+   task creates waits for that task (`after:`). A `brainrc-test-writer` task, or a `review: each`
    task, runs alone. A wave of one runs in the run worktree (`state.worktree`).
 2. **Dispatch:** for each task, `git -C <state.worktree> worktree add "${TMPDIR:-/tmp}/spec-agent/<slug>/<task>" HEAD`
    (nested in the run worktree, outside the repo, so test runners never find it). Record `tasks[].wave`, `.worktree`, and

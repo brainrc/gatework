@@ -9,7 +9,7 @@ For each dispatch:
 1. Announce: `▶ Role: <agent> · <task>`.
 2. Read `roles/<agent>.md` (next to this skill's SKILL.md; if `roles/` is missing,
    `../../agents/<agent>.md` from there). Its **Must not** and **Tools**
-   lines bind you for the duration of the role, e.g. as `code-reviewer` you do not edit files.
+   lines bind you for the duration of the role, e.g. as `brainrc-code-reviewer` you do not edit files.
 3. Read only the artifacts the dispatch prompt names ([handoff.md](handoff.md)).
    Don't rely on details you remember from other roles; if it isn't in an artifact, it
    isn't part of the handoff.
@@ -24,7 +24,7 @@ task.
 
 In one session the reviewer has already seen the implementer's reasoning, so limit what it reads:
 
-- `code-reviewer`, `security-reviewer`, `infra-reviewer`, and `verifier` read only `spec.md`, the
+- `brainrc-code-reviewer`, `brainrc-security-reviewer`, `brainrc-infra-reviewer`, and `brainrc-verifier` read only `spec.md`, the
   diff (`git diff <base>...HEAD`, or the task diff), and what their role file's **Reads** names
   (for a task, its `plan.md` entry: files and criteria, not the approach).
   Never `log.md`, handoff blocks, or your notes from earlier roles.

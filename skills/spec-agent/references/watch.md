@@ -62,7 +62,7 @@ only in `state.json`.
    task: null}` to `watch.ci_failures`, print a one-line note. No task.
    Record every external check first. If no own failure remains, end the pass; otherwise go on.
 4. **Own:** a path matches (after all external ones are recorded). Append
-   `{check, sha, cause: "own", task: "C<n>"}` (next free number) and a `tasks[]` entry: implementer, `files` = the matched paths, `review: each`.
+   `{check, sha, cause: "own", task: "C<n>"}` (next free number) and a `tasks[]` entry: brainrc-implementer, `files` = the matched paths, `review: each`.
    Run it through SKILL.md's per-task loop; `attempts > 2` stops the run. Creation and each
    retry add 1 to `metrics.post_deliver_retries` (not `metrics.retries`).
 5. When the C-task passes review, set `gates.push: pending` at once (a stop before the gate then
@@ -88,7 +88,7 @@ in `watch.thread_log` is never handled or counted again. State holds keys only, 
    with `threads.total` +1 (and `flagged`). Write the `tasks[]` entry or reply draft first, in
    the same state write, so a crash never logs a thread without its task or draft:
    - `ask` (small, local: rename, added test, one-function fix): append a `tasks[]` entry
-     `R<n>` (next free number; implementer, `files` = the paths the ask touches, `review: each`;
+     `R<n>` (next free number; brainrc-implementer, `files` = the paths the ask touches, `review: each`;
      each must be in `git diff <base>...HEAD --name-only` or already named in the plan; any
      other path, or any CI/CD (`.github/`, pipelines) or secret-adjacent path, makes it `design`)
      and run it through SKILL.md's per-task loop; `attempts > 2` stops the run. Creation and
@@ -136,7 +136,7 @@ issue, pushes, or forces anything. Steps are idempotent: a crash re-runs safely.
    (`state.md` § resume); otherwise stop and ask. Set `watch.merged_at` from `pr_status.merged_at`.
 2. **Verify.** In a detached worktree. Before: `git -C <state.worktree> worktree remove --force specs/<slug>/.runs/post-merge
    2>/dev/null; git -C <state.worktree> worktree prune`, then `git -C <state.worktree> worktree add --detach specs/<slug>/.runs/post-merge <sha>`. Run
-   the verifier (`agents/verifier.md`) in `<state.worktree>/specs/<slug>/.runs/post-merge` with the project's test command. After, on every
+   the verifier (`agents/brainrc-verifier.md`) in `<state.worktree>/specs/<slug>/.runs/post-merge` with the project's test command. After, on every
    path including failure: `git -C <state.worktree> worktree remove --force specs/<slug>/.runs/post-merge`. Never touch the
    user's checkout.
 3. **Record.** Write `verify-merged.md` from `templates/verify.md`, headed `Post-merge verify of
