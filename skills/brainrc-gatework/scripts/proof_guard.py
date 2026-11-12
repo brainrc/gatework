@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""Planning mode (/plan): gate the proof commands the engine re-runs, and scan plan files for secrets.
+
+Usage:
+  proof_guard.py check <command> [--root <worktree>]   exit 0 allowed, 1 denied (reason on stderr)
+  proof_guard.py run <command> [--root <worktree>]     re-run an allowed command; prints exit code then output
+  proof_guard.py scan <specs/plan-<slug>>               exit 0 clean, 1 on any hit (names only, never values)
+
+A proof command is untrusted: a researcher wrote it after reading untrusted content. Only a
+narrow allowlist is re-run: grep/rg/cat/head/tail/wc/ls with fixed flags on named files, and
+`git log --oneline [-N]` (never `git show`: it prints patches). Every path must resolve (symlinks followed) inside the worktree
+and not be a secret file. Test runners are never re-run. `run` uses argv (no shell), a pinned
+environment, a process-group timeout and an output cap. Stdlib only, Python 3.11+.
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import os
+import re
+import shlex
+import signal
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+# program -> (allowed flags, flags that take a value, path args must be regular files)
+PROGRAMS = {
+    "cat": (set(), set(), True),
+    "head": ({"-n"}, {"-n"}, True),
+    "tail": ({"-n"}, {"-n"}, True),
+    "wc": ({"-l", "-c", "-w"}, set(), True),
+    "ls": ({"-l", "-a", "-1"}, set(), False),
+    "grep": ({"-n", "-i", "-c", "-F", "-E", "-w", "-v", "-o"}, set(), True),
+    "rg": ({"-n", "-i", "-c", "-F", "-w", "-v", "-o", "--no-heading"}, set(), True),
+}
+PATTERN_FIRST = {"grep", "rg"}
+GIT_LOG_FLAGS = {"--oneline"}
+# Never readable as proof, on top of guard_secrets: keys, credentials, git internals.
+DENY_PARTS = {".git", ".ssh", ".gnupg", ".aws", ".kube", ".docker", ".config"}  # compared casefolded
+DENY_NAME = re.compile(r"(?i)^(\.env.*|id_[a-z0-9_]+(\.pub)?|.*\.(pem|key|p8|p12|pfx|jks|keystore|ppk|gpg|tfstate|tfvars)(\.backup)?"
+                       r"|\.git-credentials|\.netrc|\.npmrc|\.pypirc|\.htpasswd|\.dockercfg|kubeconfig|\.envrc|\.pgpass"
+                       r"|.*credentials.*|.*secrets?\..*|service-account.*\.json)$")
+ENV_OK = (".example", ".sample", ".template", ".dist")
+SHELL_CHARS = re.compile(r"[;&|`$<>\n\\]")
+URL = re.compile(r"(?i)\b[a-z][a-z0-9+.-]*://")
+TIMEOUT, OUTPUT_CAP, SCAN_CAP, MAX_LINES = 60, 64_000, 1_000_000, 10_000
+
+
+def _secret_patterns_paths() -> list[Path]:
+    """Where brainrc core's guard_secrets.py may be: the core checkout this pack is bundled in
+    (packs/gatework/skills/<skill>/scripts), then the hooks dir `brainrc apply` links for Claude Code."""
+    here = Path(__file__).resolve()
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude").expanduser()
+    return [here.parents[5] / "overrides/claude/hooks/guard_secrets.py",
+            claude / "hooks/brainrc/guard_secrets.py"]
+
+
+def _guard_secrets():
+    found = [p for p in _secret_patterns_paths() if p.is_file()]
+    if not found:
+        raise RuntimeError(f"secret patterns not found at {_secret_patterns_paths()[0]}")
+    path = found[0]
+    spec = importlib.util.spec_from_file_location("guard_secrets", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _path(arg: str, root: Path, regular_file: bool, secrets) -> str | None:
+    """Why this path arg is refused, or None."""
+    if not arg or arg.startswith(("~", "/")) or ".." in Path(arg).parts:
+        return f"`{arg}` is outside the worktree"
+    real = (root / arg).resolve()
+    if not real.is_relative_to(root) or not real.exists():
+        return f"`{arg}` is missing or resolves outside the worktree"
+    rel = real.relative_to(root)
+    parts = {p.casefold() for p in (*Path(arg).parts, *rel.parts)}
+    names = [n for n in (Path(arg).name, rel.name) if not n.casefold().endswith(ENV_OK)]
+    if (secrets.is_secret_file(arg) or secrets.is_secret_file(str(rel)) or DENY_PARTS & parts
+            or any(DENY_NAME.match(n) for n in names) or (real.is_file() and real.stat().st_nlink > 1)):
+        return f"`{arg}` is a secret file"
+    if regular_file and not real.is_file():
+        return f"`{arg}` is not a regular file"
+    return None
+
+
+def check(command: str, root: Path) -> str | None:
+    """Why `command` may not be re-run as proof, or None when it may."""
+    try:
+        argv = shlex.split(command, posix=True)
+    except ValueError:
+        return "does not parse as an argv list"
+    if not argv:
+        return "empty command"
+    if SHELL_CHARS.search(re.sub(r"'[^']*'|\"[^\"]*\"", "", command)):
+        return "shell syntax (pipe, ;, &, $, redirect, backslash) is not allowed"
+    if any(URL.search(a) for a in argv):
+        return "URLs are not allowed"
+    try:
+        secrets = _guard_secrets()
+    except RuntimeError as e:
+        return str(e)
+    prog, args = argv[0], argv[1:]
+    if prog == "git":
+        if not args or args[0] != "log":
+            return "git only as `git log --oneline [-N]`"
+        for a in args[1:]:
+            if a not in GIT_LOG_FLAGS and not re.fullmatch(r"-[1-9][0-9]?", a):
+                return f"git log argument `{a}` is not allowed"
+        return None
+    if prog not in PROGRAMS:
+        return f"`{prog}` is not in the re-run allowlist (test runners are never re-run)"
+    flags, valued, regular = PROGRAMS[prog]
+    rest, i = [], 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("-"):
+            if a not in flags:
+                return f"{prog} flag `{a}` is not allowed"
+            if a in valued:
+                i += 1
+                if i >= len(args) or not (args[i].isascii() and args[i].isdigit()) or int(args[i]) > MAX_LINES:
+                    return f"{prog} {a} needs a count up to {MAX_LINES}"
+        else:
+            rest.append(a)
+        i += 1
+    if prog in PATTERN_FIRST:
+        if len(rest) < 2:
+            return f"{prog} needs a pattern and at least one named file"
+        rest = rest[1:]
+    for a in rest:
+        reason = _path(a, root, regular, secrets)
+        if reason:
+            return reason
+    if regular and not rest:
+        return f"{prog} needs a named file"
+    return None
+
+
+def _limit_file_size() -> None:
+    """Cap what the child may write (its output file) at the output cap's order of magnitude."""
+    import resource
+    resource.setrlimit(resource.RLIMIT_FSIZE, (OUTPUT_CAP * 16, OUTPUT_CAP * 16))
+
+
+def run(command: str, root: Path, timeout: int = TIMEOUT) -> tuple[int, str] | None:
+    """Re-run an allowed command; (exit code, capped output), or None on timeout."""
+    reason = check(command, root)
+    if reason:
+        raise ValueError(reason)
+    argv = shlex.split(command)
+    if argv[0] == "git":
+        argv = ["git", "-c", "core.pager=cat", "-c", "core.fsmonitor=false", "-c", "log.showSignature=false",
+                "-c", "gpg.program=false", "-c", f"core.attributesFile={os.devnull}", "--no-pager",
+                "log", "--no-ext-diff", "--no-textconv", *argv[2:]]
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(root), "LANG": "C.UTF-8", "GIT_CONFIG_GLOBAL": os.devnull,
+           "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"}
+    with tempfile.TemporaryFile() as out:
+        proc = subprocess.Popen(argv, cwd=root, env=env, stdout=out, stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL, start_new_session=True, preexec_fn=_limit_file_size)
+        try:
+            code = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            return None
+        out.seek(0)
+        return code, out.read(OUTPUT_CAP).decode(errors="replace")
+
+
+def matches(got: tuple[int, str] | None, recorded: tuple[int, str]) -> bool:
+    """Same exit code and the same output once whitespace is normalized; a timeout never matches."""
+    norm = lambda s: re.sub(r"\s+", " ", s).strip()
+    return got is not None and got[0] == recorded[0] and norm(got[1]) == norm(recorded[1])
+
+
+def scan(plan_dir: Path) -> list[str]:
+    """Hits in any plan file (proof output included): pattern names only, never values. Fails closed."""
+    if not plan_dir.is_dir():
+        return [f"{plan_dir}: missing"]
+    files = sorted(p for p in plan_dir.rglob("*") if p.is_file())
+    if not files:
+        return [f"{plan_dir}: no files"]
+    try:
+        patterns = _guard_secrets().SECRET_PATTERNS
+    except RuntimeError as e:
+        return [str(e)]
+    hits = []
+    for path in files:
+        if path.stat().st_size > SCAN_CAP:
+            hits.append(f"{path.relative_to(plan_dir)}: too large to scan")
+            continue
+        text = path.read_text(errors="replace")
+        hits += [f"{path.relative_to(plan_dir)}: {name}" for name, rx in patterns if rx.search(text)]
+    return hits
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    for name in ("check", "run"):
+        p = sub.add_parser(name)
+        p.add_argument("command")
+        p.add_argument("--root", default=".")
+    sub.add_parser("scan").add_argument("plan_dir")
+    a = ap.parse_args()
+    if a.cmd == "scan":
+        hits = scan(Path(a.plan_dir))
+        for h in hits:
+            print(h)
+        return 1 if hits else 0
+    root = Path(a.root).resolve()
+    reason = check(a.command, root)
+    if reason:
+        print(f"DENY {reason}", file=sys.stderr)
+        return 1
+    if a.cmd == "check":
+        return 0
+    got = run(a.command, root)
+    print("timeout" if got is None else f"{got[0]}\n{got[1]}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

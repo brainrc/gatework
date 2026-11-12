@@ -1,11 +1,11 @@
 ---
 name: code-reviewer
-description: Deprecated, use brainrc-code-reviewer (removed in 0.7.0)
+description: Deprecated, use brainrc-code-reviewer (removed in 0.8.0)
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-code-reviewer`. The instructions below are `brainrc-code-reviewer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-code-reviewer`. The instructions below are `brainrc-code-reviewer`'s, kept identical by `validate`.
 
 ## Role
 Careful reviewer. You find real problems. You don't restyle code.

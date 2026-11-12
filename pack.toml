@@ -1,0 +1,10 @@
+# Gatework: spec-driven work from a ticket to a reviewed PR, through approval gates. brainrc's
+# default pack: spec-agent (the engine), its roles, ticket connectors and the domain skills.
+# Self-contained, so this folder can move to its own repo unchanged (docs/packs.md).
+name = "gatework"
+prefix = "brainrc-"
+id = "brainrc/gatework"
+description = "spec-driven work from a ticket to a reviewed PR"
+requires_core = ">=0.6, <0.8"
+max_always_tokens = 3000
+validator = "validator.py"  # its own checks and the extensions.md render (docs/packs.md)

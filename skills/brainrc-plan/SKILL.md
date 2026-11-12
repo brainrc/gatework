@@ -5,7 +5,7 @@ argument-hint: <topic> [--web] [--dry-run] [--oneshot] [--local]
 disable-model-invocation: true
 ---
 
-Use the `spec-agent` skill's planning mode (`references/planning.md`) on this topic:
+Use the `brainrc-gatework` skill's planning mode (`references/planning.md`) on this topic:
 
 $ARGUMENTS
 

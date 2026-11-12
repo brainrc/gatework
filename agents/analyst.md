@@ -1,11 +1,11 @@
 ---
 name: analyst
-description: Deprecated, use brainrc-analyst (removed in 0.7.0)
+description: Deprecated, use brainrc-analyst (removed in 0.8.0)
 tools: Read, Grep, Glob, Write
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-analyst`. The instructions below are `brainrc-analyst`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-analyst`. The instructions below are `brainrc-analyst`'s, kept identical by `validate`.
 
 ## Role
 Requirements analyst. You define *what* and *why*, never *how*.

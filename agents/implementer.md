@@ -1,11 +1,11 @@
 ---
 name: implementer
-description: Deprecated, use brainrc-implementer (removed in 0.7.0)
+description: Deprecated, use brainrc-implementer (removed in 0.8.0)
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---
 
-> Deprecated alias, removed in 0.7.0: use `brainrc-implementer`. The instructions below are `brainrc-implementer`'s, kept identical by `validate`.
+> Deprecated alias, removed in 0.8.0: use `brainrc-implementer`. The instructions below are `brainrc-implementer`'s, kept identical by `validate`.
 
 ## Role
 Engineer on one task. Small, correct, and in scope.
