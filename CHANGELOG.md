@@ -5,6 +5,12 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.7.2 (2026-11-14)
+
+- `requires_core` allows brainrc core 0.8 (`>=0.7, <0.9`). Core 0.8.0 moved the lock to version 2
+  for pack permissions and changes nothing Gatework depends on; with the old `<0.8`, `apply` on
+  core 0.8.0 refused the default pack.
+
 ## 0.7.1 (2026-11-12)
 
 - The roles link check accepts `..\..\agents`, the form git on Windows stores, so a Windows clone with symlinks enabled validates.
