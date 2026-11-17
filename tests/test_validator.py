@@ -26,7 +26,7 @@ class AgentNamesTest(PackCase):
         code, out = self.validate()
         self.assertEqual(code, 1, out)
         self.assertIn("agents/verifier.md: core agent names start with `brainrc-`; it was renamed "
-                      "`brainrc-verifier` (the old name went in Gatework 0.8.0)", out)
+                      "`brainrc-verifier` in Gatework 0.8.0", out)
 
     def test_unprefixed_new_agent_fails_and_prefixed_passes(self):
         body = "---\nname: {0}\ndescription: A test agent.\n---\nBody.\n"
@@ -40,14 +40,15 @@ class AgentNamesTest(PackCase):
         code, out = self.validate()
         self.assertEqual(code, 0, out)
 
-    def test_a_pack_naming_an_old_reviewer_fails_and_names_the_new_one(self):
+    def test_a_pack_may_still_name_an_old_reviewer_with_a_warning(self):
         pack = self.acme()
         toml = pack / "pack.toml"
         toml.write_text(toml.read_text().replace('"brainrc-infra-reviewer"', '"infra-reviewer"'))
         code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("domains names unknown reviewer `infra-reviewer`; it was renamed "
-                      "`brainrc-infra-reviewer`", out)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("unknown reviewer", out)
+        self.assertIn("acme:pack.toml: `infra-reviewer` was renamed `brainrc-infra-reviewer` and Gatework "
+                      "0.8.0 no longer installs it; use the new name (the old one is read until Gatework 0.9.0)", out)
 
 
 class SkillNamesTest(PackCase):
@@ -56,7 +57,7 @@ class SkillNamesTest(PackCase):
         code, out = self.validate()
         self.assertEqual(code, 1, out)
         self.assertIn("skills/spec-agent: Gatework skill names start with `brainrc-`; it was renamed "
-                      "`brainrc-gatework` (the old name went in Gatework 0.8.0)", out)
+                      "`brainrc-gatework` in Gatework 0.8.0", out)
 
     def test_an_unprefixed_new_skill_fails(self):
         write_skill(self.pack, "helm")
@@ -181,15 +182,19 @@ class ExtensionsTest(PackCase):
         self.assertIn("[extensions.spec-agent] is deprecated", out)
         self.assertIn('"connector": "brainrc-ticket-github"', self.sync())
 
-    def test_a_removed_skill_name_fails_and_names_the_new_one(self):
+    def test_an_old_skill_name_warns_and_renders_as_its_new_name(self):
         self.acme(PACK_TOML.replace('"brainrc-ticket-github"', '"ticket-github"'))
         code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("acme:pack.toml: ticket.connector names unknown skill `ticket-github`; it was renamed "
-                      "`brainrc-ticket-github` (the old name went in Gatework 0.8.0)", out)
-        code, out = quiet(brainrc.cmd_sync, True)
-        self.assertEqual(code, 1, out)
-        self.assertIn("Nothing written", out)
+        self.assertEqual(code, 0, out)
+        self.assertIn("acme:pack.toml: `ticket-github` was renamed `brainrc-ticket-github` and Gatework 0.8.0 "
+                      "no longer installs it; use the new name (the old one is read until Gatework 0.9.0)", out)
+        ext = self.sync()
+        self.assertIn('"connector": "brainrc-ticket-github"', ext)
+        self.assertNotIn('"ticket-github"', ext)
+
+    def test_an_old_reviewer_renders_as_its_new_name(self):
+        self.acme(PACK_TOML.replace('"brainrc-infra-reviewer"', '"infra-reviewer"'))
+        self.assertIn("| `deploy/*.yaml` | acme-deploy | brainrc-infra-reviewer | acme |", self.sync())
 
     def test_errors_in_the_gatework_table_fail_validate_and_apply(self):
         self.acme(PACK_TOML.replace('skills = ["acme-deploy"]', 'skills = ["acme-nope"]'))

@@ -15,8 +15,6 @@ _spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "val
 VALIDATOR = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(VALIDATOR)
 
-OLD_AGENTS = ("analyst", "architect", "code-reviewer", "doc-writer", "implementer", "infra-reviewer",
-              "researcher", "security-reviewer", "test-writer", "verifier")
 REMOVED_SKILLS = ("work", "review", "plan", "aws", "terraform")  # aliases removed in 0.6.1
 USER_INVOKED = ("work", "review", "plan")  # slash commands: take $ARGUMENTS
 KNOWLEDGE = ("aws", "terraform")           # auto-triggered
@@ -90,7 +88,7 @@ class SkillsTest(unittest.TestCase):
             with self.subTest(skill=skill.parent.name):
                 m = brainrc.frontmatter(skill)
                 self.assertEqual(m.get("disable-model-invocation"), "true")
-                self.assertTrue(m.get("argument-hint") or m.get("description", "").startswith("Deprecated"))
+                self.assertTrue(m.get("argument-hint"))
         self.assertGreaterEqual(found, len(USER_INVOKED))
 
     def test_the_old_names_are_gone_and_each_new_one_ships(self):
@@ -107,11 +105,17 @@ class SkillsTest(unittest.TestCase):
                 self.assertNotIn("`spec-agent` skill", text)
 
     def test_no_skill_or_agent_points_at_a_removed_name(self):
-        """A model told to read `the spec-agent skill` would look for a skill that is gone."""
+        """A model told to read `the spec-agent skill` or run `/spec-status` would look for something
+        0.8.0 removed. The engine may say it was formerly named spec-agent, and the worktree folder
+        under $TMPDIR keeps that name."""
+        old = "|".join(re.escape(n) for n in [*VALIDATOR.RENAMED_SKILLS, *VALIDATOR.RENAMED_AGENTS])
+        allowed = ("# Gatework (spec-agent)", "the skill formerly named `spec-agent`", "/tmp}/spec-agent/")
         for f in sorted([*SKILLS.rglob("*.md"), *AGENTS.glob("*.md")]):
             text = f.read_text()
+            for a in allowed:
+                text = text.replace(a, "")
             with self.subTest(file=str(f.relative_to(ROOT))):
-                self.assertNotRegex(text, r"spec-agent (skill|SKILL\.md|state reference|`references/)")
+                self.assertNotRegex(text, rf"(?<![\w-])(spec-agent|/spec-(status|approve|resume)|`({old})`)(?![\w-])")
 
     def test_connectors_document_create(self):
         for name in ("brainrc-ticket-local", "brainrc-ticket-github"):
@@ -139,9 +143,11 @@ class UnslopSplitTest(unittest.TestCase):
         self.assertLessEqual(brainrc.estimate_tokens(meta("brainrc-unslop")["description"]), 60)
 
 
+OLD_AGENTS = tuple(VALIDATOR.RENAMED_AGENTS)
+
+
 class AgentsTest(unittest.TestCase):
     def test_every_agent_is_prefixed(self):
-        self.assertEqual(set(VALIDATOR.RENAMED_AGENTS), set(OLD_AGENTS))
         for f in AGENTS.glob("*.md"):
             with self.subTest(agent=f.stem):
                 self.assertTrue(f.stem.startswith("brainrc-"))

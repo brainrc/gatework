@@ -14,14 +14,14 @@ NAMESPACE = "gatework"
 EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_KEYS = EXTENSION_KEYS     # top-level [extensions] keys, before the split
 LEGACY_NAMESPACES = ("spec-agent",)
-# Core's warning for the legacy tables above says they are read until this release. They were due
-# to go with the old names in 0.8.0; they stay one more minor release, since core would otherwise
-# ignore such a table with only a warning.
-REMOVED_IN = "0.9.0"
-NAMES_REMOVED_IN = "0.8.0"
+# Core's warning for the legacy tables above says they are read "until" this. They were due to go
+# in 0.8.0 with the aliases; they stay a minor release longer, like the old names in a pack's
+# table below, since core would otherwise drop such a table with only a warning.
+REMOVED_IN = "Gatework 0.9.0"
 
 # The unprefixed names Gatework shipped as deprecated aliases until 0.8.0, and their new names.
-# Kept here only to say what to rename when a pack still names one.
+# 0.8.0 stopped installing them. A pack's [extensions.gatework] that still names one is read as the
+# new name, with a warning, until REMOVED_IN.
 RENAMED_SKILLS = {"spec-agent": "brainrc-gatework",
                   **{f"spec-{n}": f"brainrc-gatework-{n}" for n in ("approve", "resume", "status")},
                   **{n: f"brainrc-{n}" for n in (
@@ -43,23 +43,20 @@ H2 = re.compile(r"^## +(.+)$", re.M)
 
 def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: set[str]) -> list[str]:
     errors = [f"{where}: unknown extension `{k}`" for k in sorted(set(ext) - EXTENSION_KEYS)]
+    ext = _current(ext)  # an old name is checked as its new one; warn_extensions names it
     for d in ext.get("domains", []):
         if not d.get("files") or not d.get("skills"):
             errors.append(f"{where}: each extensions.domains entry needs `files` and `skills`")
-        errors += [f"{where}: domains names unknown skill `{s}`{_renamed(s, RENAMED_SKILLS)}"
-                   for s in d.get("skills", []) if s not in skill_names]
+        errors += [f"{where}: domains names unknown skill `{s}`" for s in d.get("skills", []) if s not in skill_names]
         if d.get("reviewer") and d["reviewer"] not in agent_names:
-            errors.append(f"{where}: domains names unknown reviewer `{d['reviewer']}`"
-                          f"{_renamed(d['reviewer'], RENAMED_AGENTS)}")
+            errors.append(f"{where}: domains names unknown reviewer `{d['reviewer']}`")
     for i in ext.get("intake_context", []):
         if i.get("skill") not in skill_names:
-            errors.append(f"{where}: intake_context names unknown skill `{i.get('skill')}`"
-                          f"{_renamed(i.get('skill'), RENAMED_SKILLS)}")
+            errors.append(f"{where}: intake_context names unknown skill `{i.get('skill')}`")
     ticket = ext.get("ticket")
     if ticket is not None:
         if ticket.get("connector") not in skill_names:
-            errors.append(f"{where}: ticket.connector names unknown skill `{ticket.get('connector')}`"
-                          f"{_renamed(ticket.get('connector'), RENAMED_SKILLS)}")
+            errors.append(f"{where}: ticket.connector names unknown skill `{ticket.get('connector')}`")
         if not ticket.get("refs"):
             errors.append(f"{where}: ticket needs `refs` (the ticket refs it handles, e.g. \"PROJ-*\")")
     if not all(isinstance(c, str) for c in ext.get("deliver_checks", [])):
@@ -67,9 +64,39 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
     return errors
 
 
-def _renamed(name, renamed: dict[str, str]) -> str:
-    """The hint for a name Gatework dropped in 0.8.0."""
-    return f"; it was renamed `{renamed[name]}` (the old name went in Gatework {NAMES_REMOVED_IN})" if name in renamed else ""
+def warn_extensions(ext: dict, where: str) -> list[str]:
+    """A pack naming a skill or reviewer by its old name: read as the new name, until REMOVED_IN."""
+    refs = [(n, RENAMED_SKILLS) for n in _skill_refs(ext)] + [(d.get("reviewer"), RENAMED_AGENTS)
+                                                             for d in ext.get("domains", [])]
+    return [f"{where}: `{n}` was renamed `{table[n]}` and Gatework 0.8.0 no longer installs it; "
+            f"use the new name (the old one is read until {REMOVED_IN})"
+            for n, table in refs if n in table]
+
+
+def _skill_refs(ext: dict) -> list:
+    return ([s for d in ext.get("domains", []) for s in d.get("skills", [])]
+            + [i.get("skill") for i in ext.get("intake_context", [])]
+            + ([ext["ticket"].get("connector")] if isinstance(ext.get("ticket"), dict) else []))
+
+
+def _current(ext: dict) -> dict:
+    """The table with each old skill and reviewer name replaced by its new one."""
+    skill = lambda n: RENAMED_SKILLS.get(n, n)  # noqa: E731
+    ext = dict(ext)
+    if "domains" in ext:
+        ext["domains"] = [{**d, "skills": [skill(s) for s in d.get("skills", [])],
+                           **({"reviewer": RENAMED_AGENTS.get(d["reviewer"], d["reviewer"])} if d.get("reviewer") else {})}
+                          for d in ext["domains"]]
+    if "intake_context" in ext:
+        ext["intake_context"] = [{**i, "skill": skill(i.get("skill"))} for i in ext["intake_context"]]
+    if isinstance(ext.get("ticket"), dict):
+        ext["ticket"] = {**ext["ticket"], "connector": skill(ext["ticket"].get("connector"))}
+    return ext
+
+
+def _renamed(name: str, renamed: dict[str, str]) -> str:
+    """The hint for one of Gatework's own items still under its old name."""
+    return f"; it was renamed `{renamed[name]}` in Gatework 0.8.0" if name in renamed else ""
 
 
 def check(me, srcs) -> list[str]:
@@ -112,7 +139,7 @@ def check_connectors(me, srcs) -> list[str]:
     found = {s.name: (src, s) for src in srcs for s in skills(src)}
     names = {n for n, (src, _) in found.items() if src.root == me.root and CONNECTOR.match(n)}
     names |= {_table(src).get("ticket", {}).get("connector") for src in srcs}
-    names.discard(None)
+    names = {RENAMED_SKILLS.get(n, n) for n in names if n}
     errors = []
     for name in sorted(n for n in names if n in found):
         src, skill = found[name]
@@ -144,7 +171,7 @@ def render_extensions(tables: list[tuple[str, dict]]) -> str:
         out.append("No packs enabled. Use only the built-in tables in SKILL.md.")
         return "\n".join(out) + "\n"
     out.append("Enabled packs: " + ", ".join(f"`{p}`" for p, _ in tables) + ".")
-    ext = dict(tables)
+    ext = {p: _current(e) for p, e in tables}
 
     rows = [(p, d) for p, e in ext.items() for d in e.get("domains", [])]
     if rows:
