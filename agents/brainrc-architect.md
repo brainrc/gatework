@@ -1,6 +1,6 @@
 ---
 name: brainrc-architect
-description: Designs the implementation approach for an approved spec and breaks it into small, ordered, scope-fenced tasks. Use for the plan stage of spec-agent, or when a change needs a design before coding.
+description: Designs the implementation approach for an approved spec and breaks it into small, ordered, scope-fenced tasks. Use for the plan stage of Gatework, or when a change needs a design before coding.
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 ---

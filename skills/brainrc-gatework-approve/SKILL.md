@@ -1,6 +1,6 @@
 ---
 name: brainrc-gatework-approve
-description: Approve the pending spec-agent gate and continue
+description: Approve the pending Gatework gate and continue
 argument-hint: [optional notes]
 disable-model-invocation: true
 ---

@@ -6,7 +6,7 @@ description: Security triggers and review checklist for code changes (injection,
 # brainrc-security-checklist
 
 ## Triggers
-A change needs security review (and is at least `standard` size in spec-agent) if it touches:
+A change needs security review (and is at least `standard` size in Gatework) if it touches:
 authentication or authorization · untrusted input (requests, uploads, messages, third-party
 data) reaching a sink: query, shell, path, template, deserializer, or auth decision · database queries ·
 shell/process execution · filesystem paths from input · network calls or URL fetching ·

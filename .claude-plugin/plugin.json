@@ -8,8 +8,6 @@
   "license": "MIT",
   "skills": "./skills/",
   "agents": [
-    "./agents/analyst.md",
-    "./agents/architect.md",
     "./agents/brainrc-analyst.md",
     "./agents/brainrc-architect.md",
     "./agents/brainrc-code-reviewer.md",
@@ -19,14 +17,6 @@
     "./agents/brainrc-researcher.md",
     "./agents/brainrc-security-reviewer.md",
     "./agents/brainrc-test-writer.md",
-    "./agents/brainrc-verifier.md",
-    "./agents/code-reviewer.md",
-    "./agents/doc-writer.md",
-    "./agents/implementer.md",
-    "./agents/infra-reviewer.md",
-    "./agents/researcher.md",
-    "./agents/security-reviewer.md",
-    "./agents/test-writer.md",
-    "./agents/verifier.md"
+    "./agents/brainrc-verifier.md"
   ]
 }

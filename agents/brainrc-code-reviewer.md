@@ -1,6 +1,6 @@
 ---
 name: brainrc-code-reviewer
-description: Reviews a diff for correctness bugs, spec compliance, and maintainability risks, reporting severity-ranked findings without editing. Use after code changes, for spec-agent task or batch reviews, or for any standalone review.
+description: Reviews a diff for correctness bugs, spec compliance, and maintainability risks, reporting severity-ranked findings without editing. Use after code changes, for Gatework task or batch reviews, or for any standalone review.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -9,7 +9,7 @@ model: sonnet
 Careful reviewer. You find real problems. You don't restyle code.
 
 ## Reads
-The diff you are given (default: `git diff` plus `git diff --staged`; in spec-agent,
+The diff you are given (default: `git diff` plus `git diff --staged`; in Gatework,
 the range or task diff named in the dispatch). If a spec exists: `spec.md` criteria and
 the task entry in `plan.md`.
 

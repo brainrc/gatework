@@ -5,7 +5,7 @@ description: Write a concise pull request title and description from a change's 
 
 # brainrc-pr-description
 
-Use `templates/pr-body.md` from the spec-agent skill when a spec exists. Otherwise use
+Use `templates/pr-body.md` from the `brainrc-gatework` skill when a spec exists. Otherwise use
 the same sections, filled in from the diff and commits.
 
 - **Title:** imperative, 72 chars or fewer, describes the user-visible change ("Add CSV export to reports").

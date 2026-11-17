@@ -1,6 +1,6 @@
 ---
 name: brainrc-ticket-local
-description: Ticket connector for work items stored as markdown files in the repo, for offline work, personal projects, and testing spec-agent. Use when spec-agent works on a local:<path> ref or a free-text request, or when asked to create or update a local ticket file.
+description: Ticket connector for work items stored as markdown files in the repo, for offline work, personal projects, and testing Gatework. Use when Gatework works on a local:<path> ref or a free-text request, or when asked to create or update a local ticket file.
 ---
 
 # brainrc-ticket-local
@@ -34,7 +34,7 @@ unused number under `specs/`.
 
 ## fetch
 
-Read the file and write `ticket.md` per the spec-agent state reference (body inside the
+Read the file and write `ticket.md` per the `brainrc-gatework` state reference (body inside the
 untrusted-content fence, same as any other source).
 
 ## list (campaign mode)

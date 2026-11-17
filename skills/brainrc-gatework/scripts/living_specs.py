@@ -7,7 +7,7 @@ Usage:
 
 `--living` defaults to the `living/` folder next to the run folder, `--run` to the run folder's
 name. Every block is checked before anything is written: an unknown MODIFIED or REMOVED target,
-a duplicate ADDED, or a malformed block fails the whole delta. Formats: the spec-agent skill's
+a duplicate ADDED, or a malformed block fails the whole delta. Formats: the `brainrc-gatework` skill's
 templates/spec.md and templates/living.md. Stdlib only, Python 3.9+.
 """
 from __future__ import annotations

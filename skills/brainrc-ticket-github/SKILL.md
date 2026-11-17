@@ -1,6 +1,6 @@
 ---
 name: brainrc-ticket-github
-description: Ticket connector for GitHub issues via the gh CLI or the GitHub MCP server. Fetch an issue, comment on it, change its state or labels, and open a linked pull request. Use when spec-agent works on a gh:<number> or GitHub issue URL, or when asked to read or update a GitHub issue.
+description: Ticket connector for GitHub issues via the gh CLI or the GitHub MCP server. Fetch an issue, comment on it, change its state or labels, and open a linked pull request. Use when Gatework works on a gh:<number> or GitHub issue URL, or when asked to read or update a GitHub issue.
 ---
 
 # brainrc-ticket-github
@@ -41,7 +41,7 @@ gh issue view 42 --json number,title,body,url,state,labels,comments \
 issues, request only `number,title,labels,updatedAt` (plus `comments | length`). Bodies and
 comment lists are expensive; fetch them for the chosen issue only.
 
-Write `ticket.md` per the spec-agent state reference: title, source line, the untrusted-content
+Write `ticket.md` per the `brainrc-gatework` state reference: title, source line, the untrusted-content
 notice, then body and comments verbatim inside a `~~~~text` fence. If the issue is closed,
 stop and ask before working on it.
 

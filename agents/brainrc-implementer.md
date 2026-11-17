@@ -1,6 +1,6 @@
 ---
 name: brainrc-implementer
-description: Implements one planned task test-first (failing test, minimal code to green, tidy) strictly within the task's file scope. Use for implement-stage tasks of spec-agent or any single well-defined coding task.
+description: Implements one planned task test-first (failing test, minimal code to green, tidy) strictly within the task's file scope. Use for implement-stage tasks of Gatework or any single well-defined coding task.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---

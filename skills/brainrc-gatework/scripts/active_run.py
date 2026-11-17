@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write or read the active-run pointer: the absolute path of the current spec-agent run.
+"""Write or read the active-run pointer: the absolute path of the current Gatework run.
 
 Usage:
   active_run.py write <run-dir>

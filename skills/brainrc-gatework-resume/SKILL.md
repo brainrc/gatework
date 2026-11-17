@@ -1,6 +1,6 @@
 ---
 name: brainrc-gatework-resume
-description: Resume an interrupted spec-agent run from its saved state
+description: Resume an interrupted Gatework run from its saved state
 argument-hint: [ticket ref or slug]
 disable-model-invocation: true
 ---

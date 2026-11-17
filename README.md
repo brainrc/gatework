@@ -3,8 +3,8 @@
 Spec-driven work that takes a ticket to a reviewed pull request through approval gates, for AI
 coding assistants. It is [brainrc](https://github.com/brainrc/brainrc)'s default pack: the engine
 skill (`brainrc-gatework`), its roles (`agents/`), the ticket connectors and the domain skills.
-Registry ID `brainrc/gatework`. `spec-agent` and the other unprefixed names are deprecated
-aliases until brainrc 0.8.0.
+Registry ID `brainrc/gatework`. Every skill and agent name starts with `brainrc-`; the old
+unprefixed names (`spec-agent`, `unslop`, `analyst` and the rest) went in Gatework 0.8.0.
 
 How it works: [brainrc's docs/spec-agent.md](https://github.com/brainrc/brainrc/blob/main/docs/spec-agent.md).
 

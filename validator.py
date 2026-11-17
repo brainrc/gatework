@@ -1,7 +1,6 @@
 """Gatework's validator plugin. brainrc core loads it through pack.toml `validator` (brainrc's
 docs/packs.md, Validator plugins) to check and render what only Gatework reads: each pack's
-[extensions.gatework], the ticket connectors, the roles link and the deprecated skill and agent
-aliases."""
+[extensions.gatework], the ticket connectors, the roles link and the skill and agent names."""
 from __future__ import annotations
 
 import json
@@ -9,14 +8,30 @@ import os
 import re
 from pathlib import Path, PurePath
 
-from brainrc.naming import AGENT_ALIAS_REMOVED_IN, AGENT_ALIASES, ALIAS_REMOVED_IN, SKILL_ALIASES
-from brainrc.sources import frontmatter, markdown_files, skills
+from brainrc.sources import markdown_files, skills
 
 NAMESPACE = "gatework"
 EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_KEYS = EXTENSION_KEYS     # top-level [extensions] keys, before the split
 LEGACY_NAMESPACES = ("spec-agent",)
-REMOVED_IN = "0.8.0"
+# Core's warning for the legacy tables above says they are read until this release. They were due
+# to go with the old names in 0.8.0; they stay one more minor release, since core would otherwise
+# ignore such a table with only a warning.
+REMOVED_IN = "0.9.0"
+NAMES_REMOVED_IN = "0.8.0"
+
+# The unprefixed names Gatework shipped as deprecated aliases until 0.8.0, and their new names.
+# Kept here only to say what to rename when a pack still names one.
+RENAMED_SKILLS = {"spec-agent": "brainrc-gatework",
+                  **{f"spec-{n}": f"brainrc-gatework-{n}" for n in ("approve", "resume", "status")},
+                  **{n: f"brainrc-{n}" for n in (
+                      "ci-pipelines", "commit-message", "containers", "db-migrations", "doc-types", "gitops",
+                      "go-service", "kubernetes", "observability", "pr-description", "project-commands",
+                      "runbook", "scripting", "security-checklist", "ticket-github", "ticket-jira",
+                      "ticket-local", "unslop")}}
+RENAMED_AGENTS = {n: f"brainrc-{n}" for n in (
+    "analyst", "architect", "code-reviewer", "doc-writer", "implementer", "infra-reviewer",
+    "researcher", "security-reviewer", "test-writer", "verifier")}
 
 ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents
 ROLES_FIX = ("enable symlinks (brainrc's docs/install.md, Platforms), then restore it in the pack's "
@@ -31,16 +46,20 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
     for d in ext.get("domains", []):
         if not d.get("files") or not d.get("skills"):
             errors.append(f"{where}: each extensions.domains entry needs `files` and `skills`")
-        errors += [f"{where}: domains names unknown skill `{s}`" for s in d.get("skills", []) if s not in skill_names]
+        errors += [f"{where}: domains names unknown skill `{s}`{_renamed(s, RENAMED_SKILLS)}"
+                   for s in d.get("skills", []) if s not in skill_names]
         if d.get("reviewer") and d["reviewer"] not in agent_names:
-            errors.append(f"{where}: domains names unknown reviewer `{d['reviewer']}`")
+            errors.append(f"{where}: domains names unknown reviewer `{d['reviewer']}`"
+                          f"{_renamed(d['reviewer'], RENAMED_AGENTS)}")
     for i in ext.get("intake_context", []):
         if i.get("skill") not in skill_names:
-            errors.append(f"{where}: intake_context names unknown skill `{i.get('skill')}`")
+            errors.append(f"{where}: intake_context names unknown skill `{i.get('skill')}`"
+                          f"{_renamed(i.get('skill'), RENAMED_SKILLS)}")
     ticket = ext.get("ticket")
     if ticket is not None:
         if ticket.get("connector") not in skill_names:
-            errors.append(f"{where}: ticket.connector names unknown skill `{ticket.get('connector')}`")
+            errors.append(f"{where}: ticket.connector names unknown skill `{ticket.get('connector')}`"
+                          f"{_renamed(ticket.get('connector'), RENAMED_SKILLS)}")
         if not ticket.get("refs"):
             errors.append(f"{where}: ticket needs `refs` (the ticket refs it handles, e.g. \"PROJ-*\")")
     if not all(isinstance(c, str) for c in ext.get("deliver_checks", [])):
@@ -48,21 +67,14 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
     return errors
 
 
-def warn_extensions(ext: dict, where: str) -> list[str]:
-    """Skills named by their deprecated alias still work, and are rendered as their new name."""
-    return [f"{where}: `{n}` is deprecated; name `{SKILL_ALIASES[n]}` (the alias goes in {ALIAS_REMOVED_IN})"
-            for n in _skill_refs(ext) if n in SKILL_ALIASES]
-
-
-def _skill_refs(ext: dict) -> list[str]:
-    return ([s for d in ext.get("domains", []) for s in d.get("skills", [])]
-            + [i.get("skill") for i in ext.get("intake_context", [])]
-            + ([ext["ticket"].get("connector")] if isinstance(ext.get("ticket"), dict) else []))
+def _renamed(name, renamed: dict[str, str]) -> str:
+    """The hint for a name Gatework dropped in 0.8.0."""
+    return f"; it was renamed `{renamed[name]}` (the old name went in Gatework {NAMES_REMOVED_IN})" if name in renamed else ""
 
 
 def check(me, srcs) -> list[str]:
     errors = [f"{roles}; {ROLES_FIX}"] if (roles := roles_error(me)) else []
-    return errors + check_connectors(me, srcs) + check_skill_aliases(me) + check_agents(me)
+    return errors + check_connectors(me, srcs) + check_skills(me) + check_agents(me)
 
 
 def doctor(me) -> list[tuple[str, str, str]]:
@@ -75,7 +87,7 @@ def links_to_agents(target: str) -> bool:
 
 
 def roles_error(me) -> str | None:
-    """spec-agent reads its role files through roles/ -> ../../agents. A checkout without symlink
+    """Gatework reads its role files through roles/ -> ../../agents. A checkout without symlink
     support writes a plain file instead, and every role link breaks."""
     path = me.root / ROLES
     if path.is_symlink() and links_to_agents(os.readlink(path)):
@@ -100,7 +112,7 @@ def check_connectors(me, srcs) -> list[str]:
     found = {s.name: (src, s) for src in srcs for s in skills(src)}
     names = {n for n, (src, _) in found.items() if src.root == me.root and CONNECTOR.match(n)}
     names |= {_table(src).get("ticket", {}).get("connector") for src in srcs}
-    names = {SKILL_ALIASES.get(n, n) for n in names if n}  # an alias is a stub; check its target
+    names.discard(None)
     errors = []
     for name in sorted(n for n in names if n in found):
         src, skill = found[name]
@@ -112,87 +124,27 @@ def check_connectors(me, srcs) -> list[str]:
     return errors
 
 
-def check_skill_aliases(me) -> list[str]:
-    """Every skill is `brainrc-*` or a declared alias: a stub the model can't pick, pointing at its
-    target, with the target's arguments, until the aliases are removed."""
-    root = me.root / "skills"
-    errors = [f"{me.rel(s)}: Gatework skill names start with `brainrc-`" for s in skills(me)
-              if not s.name.startswith("brainrc-") and s.name not in SKILL_ALIASES]
-    for old, new in SKILL_ALIASES.items():
-        path, target = root / old / "SKILL.md", root / new / "SKILL.md"
-        rel = me.rel(path)
-        if not path.is_file():
-            errors.append(f"{rel}: deprecated alias for `{new}` is missing (keep it until {ALIAS_REMOVED_IN})")
-            continue
-        if not target.is_file():
-            errors.append(f"{rel}: alias target `{new}` is missing")
-            continue
-        meta, want, body = frontmatter(path), frontmatter(target), path.read_text().split("\n---\n", 1)[-1]
-        if meta.get("description") != f"Deprecated, use {new} (removed in {ALIAS_REMOVED_IN})":
-            errors.append(f"{rel}: alias `description` must be `Deprecated, use {new} (removed in {ALIAS_REMOVED_IN})`")
-        if meta.get("disable-model-invocation") != "true":
-            errors.append(f"{rel}: alias needs `disable-model-invocation: true`, so only its target is picked")
-        if f"`{new}`" not in body:
-            errors.append(f"{rel}: alias body must name `{new}`")
-        if meta.get("argument-hint") != want.get("argument-hint"):
-            errors.append(f"{rel}: alias `argument-hint` must match `{new}`")
-        if want.get("argument-hint") and "$ARGUMENTS" not in body:
-            errors.append(f"{rel}: alias body must pass on `$ARGUMENTS`")
-    return errors
+def check_skills(me) -> list[str]:
+    """Every Gatework skill is `brainrc-*`: the unprefixed aliases went in 0.8.0."""
+    return [f"{me.rel(s)}: Gatework skill names start with `brainrc-`{_renamed(s.name, RENAMED_SKILLS)}"
+            for s in skills(me) if not s.name.startswith("brainrc-")]
 
 
 def check_agents(me) -> list[str]:
-    """Every agent is `brainrc-*` or a declared alias that runs exactly as its target until removal."""
-    errors = [f"{me.rel(f)}: core agent names start with `brainrc-`"
-              for f in markdown_files("agents", me)
-              if not f.stem.startswith("brainrc-") and f.stem not in AGENT_ALIASES]
-    for old, new in AGENT_ALIASES.items():
-        path, target = me.root / "agents" / f"{old}.md", me.root / "agents" / f"{new}.md"
-        rel = me.rel(path)
-        if not path.is_file():
-            errors.append(f"{rel}: deprecated alias for `{new}` is missing (keep it until {AGENT_ALIAS_REMOVED_IN})")
-            continue
-        if not target.is_file():
-            errors.append(f"{rel}: alias target `{new}` is missing")
-            continue
-        meta, want = frontmatter(path), frontmatter(target)
-        if not meta.get("description", "").lower().startswith("deprecated"):
-            errors.append(f"{rel}: alias `description` must start with `Deprecated`")
-        errors += [f"{rel}: alias `{key}` must match `{new}` so it runs with the same access"
-                   for key in ("tools", "model") if meta.get(key) != want.get(key)]
-        body = path.read_text().split("\n---\n", 1)[-1]
-        # A subagent can't tell where its own file is, so the alias carries its target's instructions.
-        if not body.endswith(target.read_text().split("\n---\n", 1)[-1]):
-            errors.append(f"{rel}: alias body must end with `{new}`'s instructions, unchanged")
-        if f"`{new}`" not in body:
-            errors.append(f"{rel}: alias body must name `{new}`")
-        if AGENT_ALIAS_REMOVED_IN not in body:
-            errors.append(f"{rel}: alias body must name the removal release {AGENT_ALIAS_REMOVED_IN}")
-    return errors
-
-
-def _current(ext: dict) -> dict:
-    """The table with each deprecated skill alias replaced by the skill it points to."""
-    name = lambda n: SKILL_ALIASES.get(n, n)  # noqa: E731
-    ext = dict(ext)
-    if "domains" in ext:
-        ext["domains"] = [{**d, "skills": [name(s) for s in d.get("skills", [])]} for d in ext["domains"]]
-    if "intake_context" in ext:
-        ext["intake_context"] = [{**i, "skill": name(i.get("skill"))} for i in ext["intake_context"]]
-    if isinstance(ext.get("ticket"), dict):
-        ext["ticket"] = {**ext["ticket"], "connector": name(ext["ticket"].get("connector"))}
-    return ext
+    """Every Gatework agent is `brainrc-*`: the unprefixed aliases went in 0.8.0."""
+    return [f"{me.rel(f)}: core agent names start with `brainrc-`{_renamed(f.stem, RENAMED_AGENTS)}"
+            for f in markdown_files("agents", me) if not f.stem.startswith("brainrc-")]
 
 
 def render_extensions(tables: list[tuple[str, dict]]) -> str:
-    """The pack extension points spec-agent reads at intake, plan, and deliver."""
+    """The pack extension points Gatework reads at intake, plan, and deliver."""
     out = ["<!-- GENERATED by brainrc from each pack's pack.toml. Edit the pack, not this file. -->",
            "", "# Pack extensions", ""]
     if not tables:
         out.append("No packs enabled. Use only the built-in tables in SKILL.md.")
         return "\n".join(out) + "\n"
     out.append("Enabled packs: " + ", ".join(f"`{p}`" for p, _ in tables) + ".")
-    ext = {p: _current(e) for p, e in tables}
+    ext = dict(tables)
 
     rows = [(p, d) for p, e in ext.items() for d in e.get("domains", [])]
     if rows:
