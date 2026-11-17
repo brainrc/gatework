@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 NAME = "gatework"
 AUTHOR = {"name": "brainrc contributors"}
-DESCRIPTION = ("Spec-driven work from a ticket to a reviewed PR through approval gates: the spec-agent "
+DESCRIPTION = ("Spec-driven work from a ticket to a reviewed PR through approval gates: the brainrc-gatework "
                "engine, its roles, ticket connectors and domain skills. A brainrc pack.")
 FRAGMENTS = "changelog.d"
 BUMPS = ("patch", "minor", "major")
