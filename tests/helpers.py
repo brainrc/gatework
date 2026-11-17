@@ -89,7 +89,7 @@ class PackCase(unittest.TestCase):
         self.core.mkdir()
         for name in CORE_FILES:
             src = CORE / name
-            if not src.exists():  # an older core without this file
+            if name == "docs/schemas" and not src.exists():  # core before 0.8.13
                 continue
             if src.is_dir():
                 shutil.copytree(src, self.core / name, symlinks=True,
