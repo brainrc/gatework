@@ -5,6 +5,18 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.8.0 (2026-11-18)
+
+- Removes the deprecated unprefixed aliases, due in 0.8.0: the skills `spec-agent`,
+  `spec-status`, `spec-approve`, `spec-resume`, `unslop`, `kubernetes`, the `ticket-*` connectors
+  and the other domain skills, and the agents `analyst`, `verifier` and the rest. Only the
+  `brainrc-*` names install. brainrc's next `apply` or `update` prunes the old links from each tool.
+- A pack whose `[extensions.gatework]` still names an old skill or reviewer keeps working: it is
+  read as the new name, with a warning that names it, until Gatework 0.9.0. So are the old
+  `[extensions]` keys and `[extensions.spec-agent]` table, which were also due to go in 0.8.0.
+- Skill and agent text says Gatework, or the `brainrc-gatework` skill, where it said spec-agent.
+- `validator.py` no longer imports the alias tables from `brainrc.naming`, so core can drop them.
+
 ## 0.7.3 (2026-11-18)
 
 - The README links brainrc's docs site: Gatework's page for how it works, and Extensions on the
