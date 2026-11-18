@@ -1,4 +1,4 @@
-"""Gatework's validator plugin, run by brainrc core: the deprecated aliases, the roles link, the
+"""Gatework's validator plugin, run by brainrc core: the skill and agent names, the roles link, the
 ticket connectors and each pack's [extensions.gatework]."""
 import importlib.util
 import unittest
@@ -6,7 +6,6 @@ from pathlib import PurePosixPath, PureWindowsPath
 from unittest import mock
 
 from helpers import PACK_TOML, ROOT, PackCase, brainrc, quiet, write_skill
-from brainrc import naming
 
 _spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "validator.py")
 VALIDATOR = importlib.util.module_from_spec(_spec)
@@ -21,42 +20,13 @@ class BaselineTest(PackCase):
         self.assertEqual(code, 0, out)
 
 
-class AgentAliasTest(PackCase):
-    def test_missing_alias_fails(self):
-        (self.pack / "agents/verifier.md").unlink()
+class AgentNamesTest(PackCase):
+    def test_an_old_agent_name_fails_and_names_the_new_one(self):
+        (self.pack / "agents/verifier.md").write_text((self.pack / "agents/brainrc-verifier.md").read_text())
         code, out = self.validate()
         self.assertEqual(code, 1, out)
-        self.assertIn("agents/verifier.md: deprecated alias for `brainrc-verifier` is missing", out)
-
-    def test_alias_with_other_tools_fails(self):
-        path = self.pack / "agents/code-reviewer.md"
-        path.write_text(path.read_text().replace("tools: Read, Grep, Glob, Bash", "tools: Read, Grep, Glob, Bash, Edit"))
-        code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("alias `tools` must match `brainrc-code-reviewer`", out)
-
-    def test_alias_without_its_removal_release_or_target_name_fails(self):
-        path = self.pack / "agents/analyst.md"
-        path.write_text(path.read_text().replace(naming.AGENT_ALIAS_REMOVED_IN, "later")
-                        .replace("`brainrc-analyst`", "the new agent"))
-        code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("alias body must name the removal release", out)
-        self.assertIn("alias body must name `brainrc-analyst`", out)
-
-    def test_alias_whose_instructions_drift_from_its_target_fails(self):
-        path = self.pack / "agents/brainrc-verifier.md"
-        path.write_text(path.read_text() + "\nOne more rule.\n")
-        code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("agents/verifier.md: alias body must end with `brainrc-verifier`'s instructions", out)
-
-    def test_alias_without_a_deprecated_description_fails(self):
-        path = self.pack / "agents/analyst.md"
-        path.write_text(path.read_text().replace("description: Deprecated, use", "description: Use"))
-        code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("alias `description` must start with `Deprecated`", out)
+        self.assertIn("agents/verifier.md: core agent names start with `brainrc-`; it was renamed "
+                      "`brainrc-verifier` in Gatework 0.8.0", out)
 
     def test_unprefixed_new_agent_fails_and_prefixed_passes(self):
         body = "---\nname: {0}\ndescription: A test agent.\n---\nBody.\n"
@@ -64,43 +34,37 @@ class AgentAliasTest(PackCase):
         code, out = self.validate()
         self.assertEqual(code, 1, out)
         self.assertIn("agents/planner.md: core agent names start with `brainrc-`", out)
+        self.assertNotIn("renamed", out)
         (self.pack / "agents/planner.md").unlink()
         (self.pack / "agents/brainrc-planner.md").write_text(body.format("brainrc-planner"))
         code, out = self.validate()
         self.assertEqual(code, 0, out)
 
-    def test_a_pack_may_still_name_an_old_reviewer(self):
+    def test_a_pack_may_still_name_an_old_reviewer_with_a_warning(self):
         pack = self.acme()
         toml = pack / "pack.toml"
         toml.write_text(toml.read_text().replace('"brainrc-infra-reviewer"', '"infra-reviewer"'))
         code, out = self.validate()
+        self.assertEqual(code, 0, out)
         self.assertNotIn("unknown reviewer", out)
+        self.assertIn("acme:pack.toml: `infra-reviewer` was renamed `brainrc-infra-reviewer` and Gatework "
+                      "0.8.0 no longer installs it; use the new name (the old one is read until Gatework 0.9.0)", out)
 
 
-class SkillAliasTest(PackCase):
-    def skill(self, name: str):
-        return self.pack / "skills" / name / "SKILL.md"
-
-    def test_an_alias_stays_a_stub_the_model_cant_pick(self):
-        stub = self.skill("kubernetes")
-        stub.write_text(stub.read_text().replace("disable-model-invocation: true\n", ""))
+class SkillNamesTest(PackCase):
+    def test_an_old_skill_name_fails_and_names_the_new_one(self):
+        write_skill(self.pack, "spec-agent")
         code, out = self.validate()
         self.assertEqual(code, 1, out)
-        self.assertIn("skills/kubernetes/SKILL.md: alias needs `disable-model-invocation: true`", out)
+        self.assertIn("skills/spec-agent: Gatework skill names start with `brainrc-`; it was renamed "
+                      "`brainrc-gatework` in Gatework 0.8.0", out)
 
-    def test_an_alias_is_kept_until_its_removal_release(self):
-        self.skill("runbook").unlink()
-        self.skill("runbook").parent.rmdir()
+    def test_an_unprefixed_new_skill_fails(self):
+        write_skill(self.pack, "helm")
         code, out = self.validate()
         self.assertEqual(code, 1, out)
-        self.assertIn("deprecated alias for `brainrc-runbook` is missing (keep it until 0.8.0)", out)
-
-    def test_a_command_alias_passes_its_arguments_on(self):
-        stub = self.skill("spec-approve")
-        stub.write_text(stub.read_text().replace("Arguments: $ARGUMENTS\n", ""))
-        code, out = self.validate()
-        self.assertEqual(code, 1, out)
-        self.assertIn("skills/spec-approve/SKILL.md: alias body must pass on `$ARGUMENTS`", out)
+        self.assertIn("skills/helm: Gatework skill names start with `brainrc-`", out)
+        self.assertNotIn("renamed", out)
 
 
 class RolesLinkTest(PackCase):
@@ -218,14 +182,19 @@ class ExtensionsTest(PackCase):
         self.assertIn("[extensions.spec-agent] is deprecated", out)
         self.assertIn('"connector": "brainrc-ticket-github"', self.sync())
 
-    def test_a_deprecated_skill_name_warns_and_renders_as_its_new_name(self):
+    def test_an_old_skill_name_warns_and_renders_as_its_new_name(self):
         self.acme(PACK_TOML.replace('"brainrc-ticket-github"', '"ticket-github"'))
         code, out = self.validate()
         self.assertEqual(code, 0, out)
-        self.assertIn("acme:pack.toml: `ticket-github` is deprecated; name `brainrc-ticket-github`", out)
+        self.assertIn("acme:pack.toml: `ticket-github` was renamed `brainrc-ticket-github` and Gatework 0.8.0 "
+                      "no longer installs it; use the new name (the old one is read until Gatework 0.9.0)", out)
         ext = self.sync()
         self.assertIn('"connector": "brainrc-ticket-github"', ext)
         self.assertNotIn('"ticket-github"', ext)
+
+    def test_an_old_reviewer_renders_as_its_new_name(self):
+        self.acme(PACK_TOML.replace('"brainrc-infra-reviewer"', '"infra-reviewer"'))
+        self.assertIn("| `deploy/*.yaml` | acme-deploy | brainrc-infra-reviewer | acme |", self.sync())
 
     def test_errors_in_the_gatework_table_fail_validate_and_apply(self):
         self.acme(PACK_TOML.replace('skills = ["acme-deploy"]', 'skills = ["acme-nope"]'))

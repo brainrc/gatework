@@ -8,7 +8,7 @@ description: GitOps delivery with Argo CD and Flux. How changes flow through con
 In GitOps the **merge is the deploy**. The controller reconciles `main` into the cluster, so a
 PR to a config repo is a production change even though no one runs `apply`.
 
-## Workflow implications for spec-agent
+## Workflow implications for Gatework
 - The Deliver gate for a config repo PR must state **which clusters/environments reconcile
   from the target branch and path**, and whether auto-sync/prune is enabled for them.
 - Promote through environments in separate commits or PRs (dev → staging → prod), never one

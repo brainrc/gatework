@@ -1,6 +1,6 @@
 ---
 name: brainrc-gatework-status
-description: Show spec-agent progress for the current branch or a given ticket
+description: Show Gatework progress for the current branch or a given ticket
 argument-hint: [ticket ref or slug]
 disable-model-invocation: true
 ---

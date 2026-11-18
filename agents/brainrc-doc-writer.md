@@ -1,6 +1,6 @@
 ---
 name: brainrc-doc-writer
-description: Updates user-facing docs affected by a change and drafts the PR description and ticket comment. Use for the document stage of spec-agent, or when a change needs its docs and PR text written.
+description: Updates user-facing docs affected by a change and drafts the PR description and ticket comment. Use for the document stage of Gatework, or when a change needs its docs and PR text written.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: haiku
 ---

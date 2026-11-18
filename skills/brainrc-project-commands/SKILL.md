@@ -1,6 +1,6 @@
 ---
 name: brainrc-project-commands
-description: Discover a project's test, lint, typecheck, build, and format commands from its manifests and docs, and record a verified baseline. Use at the start of spec-agent work, or whenever you need to know how to test or build an unfamiliar project.
+description: Discover a project's test, lint, typecheck, build, and format commands from its manifests and docs, and record a verified baseline. Use at the start of Gatework work, or whenever you need to know how to test or build an unfamiliar project.
 ---
 
 # brainrc-project-commands

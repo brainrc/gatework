@@ -1,5 +1,5 @@
-"""What Gatework ships: the namespaced skills and agents, their deprecated aliases, the plugin
-manifests and the trigger evals."""
+"""What Gatework ships: the namespaced skills and agents (the unprefixed aliases went in 0.8.0), the
+plugin manifests and the trigger evals."""
 import json
 import re
 import shutil
@@ -9,10 +9,12 @@ import unittest
 from pathlib import Path
 
 from helpers import ROOT, brainrc
-from brainrc import naming
+import importlib.util
 
-OLD_AGENTS = ("analyst", "architect", "code-reviewer", "doc-writer", "implementer", "infra-reviewer",
-              "researcher", "security-reviewer", "test-writer", "verifier")
+_spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "validator.py")
+VALIDATOR = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(VALIDATOR)
+
 REMOVED_SKILLS = ("work", "review", "plan", "aws", "terraform")  # aliases removed in 0.6.1
 USER_INVOKED = ("work", "review", "plan")  # slash commands: take $ARGUMENTS
 KNOWLEDGE = ("aws", "terraform")           # auto-triggered
@@ -86,24 +88,34 @@ class SkillsTest(unittest.TestCase):
             with self.subTest(skill=skill.parent.name):
                 m = brainrc.frontmatter(skill)
                 self.assertEqual(m.get("disable-model-invocation"), "true")
-                self.assertTrue(m.get("argument-hint") or m.get("description", "").startswith("Deprecated"))
+                self.assertTrue(m.get("argument-hint"))
         self.assertGreaterEqual(found, len(USER_INVOKED))
 
-    def test_spec_agent_is_a_deprecated_alias_for_one_minor_release(self):
-        alias = meta("spec-agent")
-        self.assertEqual(meta("brainrc-gatework")["name"], "brainrc-gatework")
-        self.assertEqual(alias["description"], "Deprecated, use brainrc-gatework (removed in 0.8.0)")
-        self.assertEqual(alias["disable-model-invocation"], "true")
-        self.assertIn("`brainrc-gatework` skill", (SKILLS / "spec-agent/SKILL.md").read_text())
-        for old, new in naming.SKILL_ALIASES.items():
-            with self.subTest(alias=old):
-                self.assertEqual(meta(old)["description"], f"Deprecated, use {new} (removed in 0.8.0)")
+    def test_the_old_names_are_gone_and_each_new_one_ships(self):
+        """Gatework 0.8.0 dropped the unprefixed aliases; validator.py names their replacements."""
+        self.assertEqual([d.name for d in SKILLS.iterdir() if d.is_dir() and not d.name.startswith("brainrc-")], [])
+        for old, new in VALIDATOR.RENAMED_SKILLS.items():
+            with self.subTest(skill=old):
+                self.assertFalse((SKILLS / old).exists())
                 self.assertEqual(meta(new)["name"], new)
         for name in ("brainrc-work", "brainrc-plan", "brainrc-gatework-approve", "brainrc-gatework-resume"):
             with self.subTest(skill=name):
                 text = (SKILLS / name / "SKILL.md").read_text()
                 self.assertIn("`brainrc-gatework` skill", text)
                 self.assertNotIn("`spec-agent` skill", text)
+
+    def test_no_skill_or_agent_points_at_a_removed_name(self):
+        """A model told to read `the spec-agent skill` or run `/spec-status` would look for something
+        0.8.0 removed. The engine may say it was formerly named spec-agent, and the worktree folder
+        under $TMPDIR keeps that name."""
+        old = "|".join(re.escape(n) for n in [*VALIDATOR.RENAMED_SKILLS, *VALIDATOR.RENAMED_AGENTS])
+        allowed = ("# Gatework (spec-agent)", "the skill formerly named `spec-agent`", "/tmp}/spec-agent/")
+        for f in sorted([*SKILLS.rglob("*.md"), *AGENTS.glob("*.md")]):
+            text = f.read_text()
+            for a in allowed:
+                text = text.replace(a, "")
+            with self.subTest(file=str(f.relative_to(ROOT))):
+                self.assertNotRegex(text, rf"(?<![\w-])(spec-agent|/spec-(status|approve|resume)|`({old})`)(?![\w-])")
 
     def test_connectors_document_create(self):
         for name in ("brainrc-ticket-local", "brainrc-ticket-github"):
@@ -131,26 +143,19 @@ class UnslopSplitTest(unittest.TestCase):
         self.assertLessEqual(brainrc.estimate_tokens(meta("brainrc-unslop")["description"]), 60)
 
 
+OLD_AGENTS = tuple(VALIDATOR.RENAMED_AGENTS)
+
+
 class AgentsTest(unittest.TestCase):
-    def test_every_agent_is_prefixed_or_a_declared_alias(self):
-        self.assertEqual(set(naming.AGENT_ALIASES), set(OLD_AGENTS))
+    def test_every_agent_is_prefixed(self):
         for f in AGENTS.glob("*.md"):
             with self.subTest(agent=f.stem):
-                self.assertTrue(f.stem.startswith("brainrc-") or f.stem in OLD_AGENTS)
+                self.assertTrue(f.stem.startswith("brainrc-"))
                 self.assertEqual(agent(f.stem).get("name"), f.stem)
-
-    def test_each_alias_runs_as_its_target(self):
         for n in OLD_AGENTS:
             with self.subTest(agent=n):
-                new, alias = agent(f"brainrc-{n}"), agent(n)
-                text = (AGENTS / f"{n}.md").read_text()
-                self.assertEqual((alias.get("tools"), alias.get("model")), (new.get("tools"), new.get("model")))
-                self.assertTrue(alias["description"].startswith("Deprecated"), alias["description"])
-                self.assertLessEqual(len(alias["description"]), 80, "always-loaded token budget")
-                self.assertIn(f"`brainrc-{n}`", text)
-                self.assertIn(naming.AGENT_ALIAS_REMOVED_IN, text)
-                target = (AGENTS / f"brainrc-{n}.md").read_text().split("\n---\n", 1)[1]
-                self.assertTrue(text.endswith(target), "a subagent can't find another file, so it carries the instructions")
+                self.assertFalse((AGENTS / f"{n}.md").exists())
+                self.assertEqual(agent(f"brainrc-{n}").get("name"), f"brainrc-{n}")
 
     def test_the_engine_dispatches_the_new_names(self):
         text = (SKILLS / "brainrc-gatework/SKILL.md").read_text()

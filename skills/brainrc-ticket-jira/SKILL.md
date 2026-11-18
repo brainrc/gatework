@@ -1,6 +1,6 @@
 ---
 name: brainrc-ticket-jira
-description: Ticket connector for Jira issues through an Atlassian MCP server. Fetch an issue (with its acceptance criteria), list issues by JQL, comment, assign, and transition by status name. Use when spec-agent works on a Jira key or browse URL, or when asked to read or update a Jira issue.
+description: Ticket connector for Jira issues through an Atlassian MCP server. Fetch an issue (with its acceptance criteria), list issues by JQL, comment, assign, and transition by status name. Use when Gatework works on a Jira key or browse URL, or when asked to read or update a Jira issue.
 ---
 
 # brainrc-ticket-jira
@@ -17,7 +17,7 @@ ask the user to connect one. Never handle API tokens yourself.
 
 ## Config
 
-Project specifics come from the ticket config in the rendered `extensions.md` (spec-agent SKILL.md
+Project specifics come from the ticket config in the rendered `extensions.md` (`brainrc-gatework` SKILL.md
 § Packs; a pack's `[extensions.ticket]`). Without one, ask for `host` and use the defaults.
 
 | Key | Default | Use |
@@ -52,7 +52,7 @@ Finalize the drafts instead.
 `summary,description,status,issuetype,priority,labels,assignee,reporter,issuelinks,parent,comment`
 plus `acceptance_criteria_field` and `extra_fields`.
 
-Write `ticket.md` per the spec-agent state reference: title, source line
+Write `ticket.md` per the `brainrc-gatework` state reference: title, source line
 (`Source: jira:PROJ-123 · <browse URL> · fetched <ISO>`), the untrusted-content notice, then
 inside the `~~~~text` fence: description, acceptance criteria (labelled with their field),
 linked issues as `KEY relation: summary (status)`, and comments with author and date.

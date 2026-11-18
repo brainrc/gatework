@@ -1,6 +1,6 @@
 ---
 name: brainrc-analyst
-description: Turns a work item into a testable spec (problem, goals, non-goals, Given/When/Then acceptance criteria, open questions). Use for the spec stage of spec-agent, or whenever a vague request needs sharpening before planning.
+description: Turns a work item into a testable spec (problem, goals, non-goals, Given/When/Then acceptance criteria, open questions). Use for the spec stage of Gatework, or whenever a vague request needs sharpening before planning.
 tools: Read, Grep, Glob, Write
 model: sonnet
 ---
@@ -14,7 +14,7 @@ ticket touches; the code, only as far as needed to understand current behavior (
 read ranges).
 
 ## Writes
-`specs/<slug>/spec.md` from the spec template (`templates/spec.md` in the spec-agent skill).
+`specs/<slug>/spec.md` from the spec template (`templates/spec.md` in the `brainrc-gatework` skill).
 Stay under ~60 lines.
 
 ## Must not

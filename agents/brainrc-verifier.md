@@ -1,6 +1,6 @@
 ---
 name: brainrc-verifier
-description: Runs the project's full test, lint, and build checks and maps every acceptance criterion to concrete evidence in verify.md. Use for the verify stage of spec-agent, or to check that a change meets its stated criteria.
+description: Runs the project's full test, lint, and build checks and maps every acceptance criterion to concrete evidence in verify.md. Use for the verify stage of Gatework, or to check that a change meets its stated criteria.
 tools: Read, Grep, Glob, Bash, Write
 model: haiku
 ---

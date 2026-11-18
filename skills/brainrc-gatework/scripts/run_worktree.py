@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open the git worktree a spec-agent run works in, outside the main checkout.
+"""Open the git worktree a Gatework run works in, outside the main checkout.
 
 Usage:
   run_worktree.py open <slug> --branch <branch> [--base <base>]
