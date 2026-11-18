@@ -21,7 +21,8 @@ os.environ["BRAINRC_CORE"] = str(CORE)  # proof_guard.py reads core's secret pat
 sys.path.insert(0, str(CORE))
 import brainrc  # noqa: E402
 
-CORE_FILES = ("rules", "overrides", "harnesses.toml", "VERSION", "CHANGELOG.md")
+# docs/schemas: validate checks pack.toml against core's schema (core 0.8.13 and later).
+CORE_FILES = ("rules", "overrides", "harnesses.toml", "VERSION", "CHANGELOG.md", "docs/schemas")
 HARNESS_HOMES = (".claude", ".codex", ".config/opencode", ".gemini/config", ".cursor")
 HARNESS_VARS = ("XDG_CONFIG_HOME", "CLAUDE_CONFIG_DIR", "CODEX_HOME")
 PACK_IGNORE = shutil.ignore_patterns(".git", "tests", "__pycache__", "*.local.*")
@@ -88,6 +89,8 @@ class PackCase(unittest.TestCase):
         self.core.mkdir()
         for name in CORE_FILES:
             src = CORE / name
+            if name == "docs/schemas" and not src.exists():  # core before 0.8.13
+                continue
             if src.is_dir():
                 shutil.copytree(src, self.core / name, symlinks=True,
                                 ignore=shutil.ignore_patterns("*.local.md", "__pycache__"))

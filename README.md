@@ -6,7 +6,7 @@ skill (`brainrc-gatework`), its roles (`agents/`), the ticket connectors and the
 Registry ID `brainrc/gatework`. `spec-agent` and the other unprefixed names are deprecated
 aliases until brainrc 0.8.0.
 
-How it works: [brainrc's docs/spec-agent.md](https://github.com/brainrc/brainrc/blob/main/docs/spec-agent.md).
+How it works: [Gatework in brainrc's docs](https://brainrc.github.io/brainrc/gatework/).
 
 ## Install
 
@@ -37,7 +37,7 @@ roles are named `gatework:<role>`.
 A pack adds domain skills, intake context, a ticket connector and Deliver checks under
 `[extensions.gatework]` in its `pack.toml`. Gatework's `validator.py` checks those tables and
 renders them into `extensions.md`; brainrc runs it because Gatework is a default pack. The format
-is in [brainrc's docs/packs.md](https://github.com/brainrc/brainrc/blob/main/docs/packs.md).
+is in [Extensions in brainrc's docs](https://brainrc.github.io/brainrc/packs/#extensions).
 
 ## Develop
 
