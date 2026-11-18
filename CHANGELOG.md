@@ -5,6 +5,13 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.7.3 (2026-11-18)
+
+- The README links brainrc's docs site: Gatework's page for how it works, and Extensions on the
+  packs page for `[extensions.gatework]`, in place of the old `docs/spec-agent.md` and
+  `docs/packs.md` files on GitHub.
+- The plugin description names the `brainrc-gatework` engine, not spec-agent.
+
 ## 0.7.2 (2026-11-14)
 
 - `requires_core` allows brainrc core 0.8 (`>=0.7, <0.9`). Core 0.8.0 moved the lock to version 2
