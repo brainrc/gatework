@@ -134,6 +134,7 @@ each task in a wave of one, for each task in `plan.md` order whose status isn't 
    this task's diff: `brainrc-code-reviewer` for code, `brainrc-infra-reviewer` for infra domains,
    `brainrc-security-reviewer` if a trigger is touched, and each pack reviewer whose domains match
    (`extensions.md` § Reviewers), in parallel. A pack reviewer adds to these; it never replaces one.
+   One your harness lacks as an agent runs from its file ([fallback.md](references/fallback.md) step 2).
 4. CRITICAL/HIGH findings (a pack reviewer's only with veto) or failed checks → +1 `attempts` and
    `metrics.retries`, re-dispatch the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
 5. Commit with a message in the brainrc-commit-message skill's format, subject + `Refs <ticket ref>`.
