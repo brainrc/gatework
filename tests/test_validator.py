@@ -1,6 +1,7 @@
 """Gatework's validator plugin, run by brainrc core: the skill and agent names, the roles link, the
 ticket connectors and each pack's [extensions.gatework]."""
 import importlib.util
+import tomllib
 import unittest
 from pathlib import PurePosixPath, PureWindowsPath
 from unittest import mock
@@ -210,6 +211,67 @@ class ExtensionsTest(PackCase):
         code, out = self.validate()
         self.assertEqual(code, 1, out)
         self.assertIn("acme:pack.toml: ticket needs `refs`", out)
+
+
+REVIEWER = """
+[[extensions.gatework.reviewers]]
+name = "acme-reviewer"
+domains = ["acme-deploy"]
+veto = true
+"""
+
+
+class ReviewersTest(PackCase):
+    """#143: a pack's agent reviews beside Gatework's, by domain, with or without veto."""
+
+    sync = ExtensionsTest.sync
+
+    def check(self, table: str) -> list[str]:
+        return VALIDATOR.check_extensions(tomllib.loads(table)["extensions"]["gatework"],
+                                          "acme:pack.toml", {"acme-deploy", "brainrc-terraform"},
+                                          {"acme-reviewer", "brainrc-code-reviewer"})
+
+    def test_a_reviewer_validates_and_renders(self):
+        self.acme(PACK_TOML + REVIEWER + '\n[[extensions.gatework.reviewers]]\nname = "acme-reviewer"\n')
+        code, out = self.validate()
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("WARN", out)
+        ext = self.sync()
+        self.assertIn("## Reviewers", ext)
+        self.assertIn("never in place of one", ext)
+        self.assertIn("| acme-reviewer | acme-deploy | yes | acme |", ext)
+        self.assertIn("| acme-reviewer | every run | no | acme |", ext)
+
+    def test_a_gatework_role_cannot_be_a_pack_reviewer(self):
+        errors = self.check('[extensions.gatework]\nreviewers = [{name = "brainrc-code-reviewer"}]\n')
+        self.assertEqual(errors, ["acme:pack.toml: reviewers[0]: `brainrc-code-reviewer` is one of Gatework's "
+                                  "roles, which run already; a pack reviewer adds its own agent and never "
+                                  "replaces one of Gatework's"])
+
+    def test_bad_entries_fail_with_what_is_wrong(self):
+        errors = self.check('[extensions.gatework]\nreviewers = [{name = "acme-nope", domains = ["acme-x"], '
+                            'veto = "yes", when = "always"}, {domains = "acme-deploy"}]\n')
+        self.assertEqual(errors, [
+            "acme:pack.toml: reviewers[0]: unknown key `when` (keys: name, domains, veto)",
+            "acme:pack.toml: reviewers[0]: names unknown agent `acme-nope`",
+            "acme:pack.toml: reviewers[0]: domains names unknown skill `acme-x`",
+            "acme:pack.toml: reviewers[0]: veto must be true or false",
+            "acme:pack.toml: reviewers[1]: needs `name`, the pack agent that reviews",
+            "acme:pack.toml: reviewers[1]: domains must be a list of domain skill names"])
+        self.assertEqual(self.check('[extensions.gatework]\nreviewers = "acme-reviewer"\n'),
+                         ["acme:pack.toml: reviewers must be a list of tables ([[extensions.gatework.reviewers]])"])
+
+    def test_an_old_domain_name_warns_and_is_read_as_the_new_one(self):
+        table = '[extensions.gatework]\nreviewers = [{name = "acme-reviewer", domains = ["kubernetes"]}]\n'
+        self.assertEqual(VALIDATOR.check_extensions(tomllib.loads(table)["extensions"]["gatework"],
+                                                    "w", {"brainrc-kubernetes"}, {"acme-reviewer"}), [])
+        ext = tomllib.loads(table)["extensions"]["gatework"]
+        self.assertIn("`kubernetes` was renamed `brainrc-kubernetes`", VALIDATOR.warn_extensions(ext, "w")[0])
+        self.assertIn("| acme-reviewer | brainrc-kubernetes | no | acme |",
+                      VALIDATOR.render_extensions([("acme", ext)]))
+
+    def test_gatework_agents_is_every_agent_it_ships(self):
+        self.assertEqual(VALIDATOR.GATEWORK_AGENTS, {f.stem for f in (ROOT / "agents").glob("*.md")})
 
 
 if __name__ == "__main__":

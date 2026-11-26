@@ -11,8 +11,9 @@ from pathlib import Path, PurePath
 from brainrc.sources import markdown_files, skills
 
 NAMESPACE = "gatework"
-EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
-LEGACY_KEYS = EXTENSION_KEYS     # top-level [extensions] keys, before the split
+EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks", "reviewers"})
+# top-level [extensions] keys, before the split: the keys from then, never a newer one
+LEGACY_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_NAMESPACES = ("spec-agent",)
 # Core's warning for the legacy tables above says they are read "until" this. They were due to go
 # in 0.8.0 with the aliases; they stay a minor release longer, like the old names in a pack's
@@ -32,6 +33,8 @@ RENAMED_SKILLS = {"spec-agent": "brainrc-gatework",
 RENAMED_AGENTS = {n: f"brainrc-{n}" for n in (
     "analyst", "architect", "code-reviewer", "doc-writer", "implementer", "infra-reviewer",
     "researcher", "security-reviewer", "test-writer", "verifier")}
+
+GATEWORK_AGENTS = frozenset(RENAMED_AGENTS.values())  # tests/test_validator.py: equal to agents/*.md
 
 ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents
 ROLES_FIX = ("enable symlinks (brainrc's docs/install.md, Platforms), then restore it in the pack's "
@@ -61,6 +64,35 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
             errors.append(f"{where}: ticket needs `refs` (the ticket refs it handles, e.g. \"PROJ-*\")")
     if not all(isinstance(c, str) for c in ext.get("deliver_checks", [])):
         errors.append(f"{where}: deliver_checks must be a list of strings")
+    errors += _reviewer_errors(ext.get("reviewers", []), where, skill_names, agent_names)
+    return errors
+
+
+def _reviewer_errors(reviewers, where: str, skill_names: set[str], agent_names: set[str]) -> list[str]:
+    """[[extensions.gatework.reviewers]]: a pack's agent that reviews beside Gatework's (#143)."""
+    if not isinstance(reviewers, list) or not all(isinstance(r, dict) for r in reviewers):
+        return [f"{where}: reviewers must be a list of tables ([[extensions.gatework.reviewers]])"]
+    errors = []
+    for i, r in enumerate(reviewers):
+        at = f"{where}: reviewers[{i}]"
+        errors += [f"{at}: unknown key `{k}` (keys: name, domains, veto)"
+                   for k in sorted(set(r) - {"name", "domains", "veto"})]
+        name = r.get("name")
+        if not isinstance(name, str) or not name:
+            errors.append(f"{at}: needs `name`, the pack agent that reviews")
+        elif name in GATEWORK_AGENTS or name in RENAMED_AGENTS:
+            errors.append(f"{at}: `{name}` is one of Gatework's roles, which run already; a pack "
+                          "reviewer adds its own agent and never replaces one of Gatework's")
+        elif name not in agent_names:
+            errors.append(f"{at}: names unknown agent `{name}`")
+        domains = r.get("domains", [])
+        if not isinstance(domains, list) or not all(isinstance(d, str) for d in domains):
+            errors.append(f"{at}: domains must be a list of domain skill names")
+        else:
+            errors += [f"{at}: domains names unknown skill `{d}`" for d in domains
+                       if RENAMED_SKILLS.get(d, d) not in skill_names]
+        if not isinstance(r.get("veto", False), bool):
+            errors.append(f"{at}: veto must be true or false")
     return errors
 
 
@@ -74,7 +106,10 @@ def warn_extensions(ext: dict, where: str) -> list[str]:
 
 
 def _skill_refs(ext: dict) -> list:
+    reviewers = ext.get("reviewers") if isinstance(ext.get("reviewers"), list) else []
     return ([s for d in ext.get("domains", []) for s in d.get("skills", [])]
+            + [s for r in reviewers if isinstance(r, dict) and isinstance(r.get("domains"), list)
+               for s in r["domains"]]
             + [i.get("skill") for i in ext.get("intake_context", [])]
             + ([ext["ticket"].get("connector")] if isinstance(ext.get("ticket"), dict) else []))
 
@@ -91,6 +126,10 @@ def _current(ext: dict) -> dict:
         ext["intake_context"] = [{**i, "skill": skill(i.get("skill"))} for i in ext["intake_context"]]
     if isinstance(ext.get("ticket"), dict):
         ext["ticket"] = {**ext["ticket"], "connector": skill(ext["ticket"].get("connector"))}
+    if isinstance(ext.get("reviewers"), list):
+        ext["reviewers"] = [{**r, "domains": [skill(d) for d in r.get("domains", [])]}
+                            if isinstance(r, dict) and isinstance(r.get("domains"), list) else r
+                            for r in ext["reviewers"]]
     return ext
 
 
@@ -196,6 +235,18 @@ def render_extensions(tables: list[tuple[str, dict]]) -> str:
                 "Use the named connector for refs that match `refs`, passing it this config.", ""]
         for pack, t in tickets:
             out += [f"### {pack}", "", "```json", json.dumps(t, indent=2, sort_keys=True), "```", ""]
+
+    reviewers = [(p, r) for p, e in ext.items() for r in e.get("reviewers", []) if isinstance(r, dict)]
+    if reviewers:
+        out += ["", "## Reviewers", "",
+                "Pack reviewers run beside Gatework's reviewers, never in place of one: in batched",
+                "review and for `review: each` tasks, when the run's domains include one of theirs (no",
+                "domains: every run). Veto `yes`: CRITICAL/HIGH findings get fix tasks, as Gatework's do.",
+                "Veto `no`: list its findings at the Deliver gate as advisory. Subagent mode launches it",
+                "by name; inline and fallback read its file from Pack roles below, with Review isolation.", "",
+                "| Reviewer | Runs when the run touches | Veto | Pack |", "|---|---|---|---|"]
+        out += [f"| {r.get('name')} | {', '.join(r.get('domains') or []) or 'every run'} | "
+                f"{'yes' if r.get('veto') else 'no'} | {p} |" for p, r in reviewers]
 
     checks = [(p, c) for p, e in ext.items() for c in e.get("deliver_checks", [])]
     if checks:

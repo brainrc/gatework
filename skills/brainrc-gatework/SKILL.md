@@ -65,8 +65,8 @@ Unlisted stacks: rely on the project's own conventions and `brainrc-project-comm
 **Packs.** `brainrc apply` renders enabled packs into `extensions.md` in the brainrc home (`$BRAINRC_HOME`, default
 `~/.config/brainrc/`). If it exists, read it once
 at intake. Its Domains rows extend the table above, its Intake context skills run
-after the ticket is fetched, its Ticket connectors handle the refs they list, and its Deliver
-checks join the Deliver gate. Without it, everything above applies unchanged.
+after the ticket is fetched, its Ticket connectors handle the refs they list, its Reviewers join
+review, and its Deliver checks join the Deliver gate. Without it, everything above applies unchanged.
 
 ## Run
 
@@ -131,16 +131,17 @@ each task in a wave of one, for each task in `plan.md` order whose status isn't 
      `git stash pop`). They must fail. If they pass, the tests don't prove the change: failed attempt.
 3. If the task has `review: each`: set its status to `review`, then dispatch the reviewers for
    this task's diff: `brainrc-code-reviewer` for code, `brainrc-infra-reviewer` for infra domains,
-   `brainrc-security-reviewer` if a trigger is touched, in parallel.
-4. CRITICAL/HIGH findings or failed checks → +1 `attempts` and `metrics.retries`, re-dispatch
-   the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
+   `brainrc-security-reviewer` if a trigger is touched, and each pack reviewer whose domains match
+   (`extensions.md` § Reviewers), in parallel. A pack reviewer adds to these; it never replaces one.
+4. CRITICAL/HIGH findings (a pack reviewer's only with veto) or failed checks → +1 `attempts` and
+   `metrics.retries`, re-dispatch the implementer with the findings. Attempts > 2 → stop (`guardrails.md`).
 5. Commit with a message in the brainrc-commit-message skill's format, subject + `Refs <ticket ref>`.
    Starting `/brainrc-work` authorizes commits on the run's own feature branch (rules: git), so don't
    stop to ask; the skill's ask-first step is for commits outside a run. Store the sha in the
    task, mark it `done`.
 
 Then **batched review** of `git diff <base>...HEAD`, excluding tasks already reviewed:
-the same reviewer routing as step 3, in parallel. CRITICAL/HIGH → add fix
+the same reviewer routing as step 3, in parallel. CRITICAL/HIGH (step 4) → add fix
 tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.reviews`
 (`first_pass` +1 when a review returns no CRITICAL/HIGH).
 
@@ -148,7 +149,7 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
 
 1. Present the Deliver gate with every outward action verbatim (branch, PR title/body
    path, ticket comment, status change), plus any pack Deliver checks, each marked done,
-   not applicable, or not run.
+   not applicable, or not run, and the findings of pack reviewers without veto, as advisory.
 2. After approval (or, in an `auto` run, when no hard stop stands: § Auto mode), and only then: push the branch, open the PR from `pr-body.md` using
    the ticket connector's `link_pr`, post `ticket-comment.md`, transition the ticket.
    Record `metrics.pr_opened_at` from `date -u` when the PR opens.
