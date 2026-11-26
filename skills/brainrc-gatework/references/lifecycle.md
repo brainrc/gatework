@@ -67,7 +67,9 @@ public API change must be called out at the top of `plan.md`.
 **4 · verify**: run the full test, lint, build, and validate commands (and plan/diff against
 approved targets). Map every acceptance criterion to
 evidence in `verify.md`, written from `templates/verify.md`: its `## Checks` and
-`## Acceptance criteria` sections, criteria columns `Criterion | Evidence | Result`. Any `fail` → back to `implement` with a new fix task (counts as a retry).
+`## Acceptance criteria` sections, criteria columns `Criterion | Evidence | Result`. Each of the packs'
+Unavailable gates (`extensions.md`) gets a `## Checks` row with Result `not run, unavailable`; name
+them in the verifier's dispatch. Any `fail` → back to `implement` with a new fix task (counts as a retry).
 
 **5 · document**: first apply the spec's delta to the living specs:
 `python3 <skill>/scripts/living_specs.py apply specs/<slug>/spec.md` (`check` first if unsure).

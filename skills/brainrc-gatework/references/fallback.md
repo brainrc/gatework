@@ -8,7 +8,11 @@ For each dispatch:
 
 1. Announce: `▶ Role: <agent> · <task>`.
 2. Read `roles/<agent>.md` (next to this skill's SKILL.md; if `roles/` is missing,
-   `../../agents/<agent>.md` from there). Its **Must not** and **Tools**
+   `../../agents/<agent>.md` from there). A pack's agent, such as a pack reviewer, isn't there:
+   read the file `extensions.md` § Pack roles names for it. In subagent mode too, a pack reviewer
+   your harness doesn't have as an agent runs this way, in the main context. With no file listed
+   (brainrc core before 0.8.30), it can't run: a reviewer with veto is a stop ([guardrails.md](guardrails.md));
+   one without is listed at the Deliver gate as not run. Its **Must not** and **Tools**
    lines bind you for the duration of the role, e.g. as `brainrc-code-reviewer` you do not edit files.
 3. Read only the artifacts the dispatch prompt names ([handoff.md](handoff.md)).
    Don't rely on details you remember from other roles; if it isn't in an artifact, it
@@ -24,7 +28,7 @@ task.
 
 In one session the reviewer has already seen the implementer's reasoning, so limit what it reads:
 
-- `brainrc-code-reviewer`, `brainrc-security-reviewer`, `brainrc-infra-reviewer`, and `brainrc-verifier` read only `spec.md`, the
+- `brainrc-code-reviewer`, `brainrc-security-reviewer`, `brainrc-infra-reviewer`, every pack reviewer, and `brainrc-verifier` read only `spec.md`, the
   diff (`git diff <base>...HEAD`, or the task diff), and what their role file's **Reads** names
   (for a task, its `plan.md` entry: files and criteria, not the approach).
   Never `log.md`, handoff blocks, or your notes from earlier roles.
