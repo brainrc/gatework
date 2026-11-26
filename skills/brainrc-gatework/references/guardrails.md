@@ -43,7 +43,7 @@ and local databases only. Live environments are used for **read-only evidence** 
 user names them at intake (recorded in `state.targets`):
 - Terraform/Terragrunt plan against named roots/workspaces; `-lock=false`, never apply.
 - `kubectl`/`helm diff`/`argocd app diff` with an explicit `--context` from `targets`.
-- AWS read calls with the confirmed `--profile` and account (see the `brainrc-aws` skill).
+- AWS read calls with the confirmed `--profile` and account (the terraform-aws pack's `brainrc-aws` covers profiles).
 
 Anything outside `targets`, and any production target not named explicitly, is a stop.
 A plan or diff showing deletes or replacements the spec didn't ask for is a stop.

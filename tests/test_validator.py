@@ -275,7 +275,7 @@ class ReviewersTest(PackCase):
                 VALIDATOR.warn_extensions(ext, "w")
 
     def test_a_domain_no_run_can_have_warns(self):
-        ext = {"reviewers": [{"name": "acme-reviewer", "domains": ["acme-context", "brainrc-terraform"]}]}
+        ext = {"reviewers": [{"name": "acme-reviewer", "domains": ["acme-context", "brainrc-scripting"]}]}
         warnings = VALIDATOR.warn_extensions(ext, "w")
         self.assertEqual(len(warnings), 1, warnings)
         self.assertIn("runs on `acme-context`, which isn't a domain skill", warnings[0])

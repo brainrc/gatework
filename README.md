@@ -2,7 +2,11 @@
 
 Spec-driven work that takes a ticket to a reviewed pull request through approval gates, for AI
 coding assistants. It is [brainrc](https://github.com/brainrc/brainrc)'s default pack: the engine
-skill (`brainrc-gatework`), its roles (`agents/`), the ticket connectors and the domain skills.
+skill (`brainrc-gatework`), its roles (`agents/`), the ticket connectors and the domain skills for
+CI pipelines, observability and scripting. Stack skills (Go and database migrations, Terraform and
+AWS, Kubernetes with GitOps and containers, Python, Node and TypeScript, Rust) are brainrc's
+official packs, folders of [brainrc/packs](https://github.com/brainrc/packs); Gatework loads
+their domain skills like its own.
 Registry ID `brainrc/gatework`. Every skill and agent name starts with `brainrc-`; the old
 unprefixed names (`spec-agent`, `unslop`, `analyst` and the rest) went in Gatework 0.8.0.
 
@@ -37,7 +41,8 @@ roles are named `gatework:<role>`.
 A pack adds domain skills, intake context, a ticket connector and Deliver checks under
 `[extensions.gatework]` in its `pack.toml`. Gatework's `validator.py` checks those tables and
 renders them into `extensions.md`; brainrc runs it because Gatework is a default pack. The format
-is in [Extensions in brainrc's docs](https://brainrc.github.io/brainrc/packs/#extensions).
+is in [Extensions in brainrc's docs](https://brainrc.github.io/brainrc/packs/#extensions). A domain
+skill for a stack everyone uses goes in an official pack in brainrc/packs, not in Gatework.
 
 ## Develop
 

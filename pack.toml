@@ -1,5 +1,6 @@
 # Gatework: spec-driven work from a ticket to a reviewed PR, through approval gates. brainrc's
-# default pack: brainrc-gatework (the engine), its roles, ticket connectors and the domain skills.
+# default pack: brainrc-gatework (the engine), its roles, ticket connectors and the CI, observability
+# and scripting domain skills. Stack skills live in brainrc's official packs (brainrc/packs).
 # brainrc fetches it from github.com/brainrc/gatework at the tag its packs.toml pins.
 name = "gatework"
 prefix = "brainrc-"

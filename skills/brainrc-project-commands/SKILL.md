@@ -26,10 +26,10 @@ exact commands are in each domain skill:
 
 | Signal | validate | plan |
 |---|---|---|
-| `*.tf` / `terragrunt.hcl` | `brainrc-terraform`: fmt -check, validate, tflint, test | terraform/terragrunt plan |
-| `Chart.yaml` / `kustomization.yaml` / k8s YAML | `brainrc-kubernetes`: helm lint, render + kubeconform | kubectl/helm diff |
+| `*.tf` / `terragrunt.hcl` | `terraform fmt -check`, `validate`, tflint, test (`brainrc-terraform` from the terraform-aws pack) | terraform/terragrunt plan |
+| `Chart.yaml` / `kustomization.yaml` / k8s YAML | helm lint, render + kubeconform (`brainrc-kubernetes` from the kubernetes pack) | kubectl/helm diff |
 | `.github/workflows/` | `brainrc-ci-pipelines`: actionlint, zizmor | — |
-| `Dockerfile` | `brainrc-containers`: hadolint, local build | — |
+| `Dockerfile` | hadolint, local build (`brainrc-containers` from the kubernetes pack) | — |
 | Prometheus rules / collector config | `brainrc-observability`: promtool, otelcol validate | — |
 | `*.sh` | `brainrc-scripting`: shellcheck | — |
 | `.pre-commit-config.yaml` | `pre-commit run --files <changed files>` (covers many of the above) | — |
