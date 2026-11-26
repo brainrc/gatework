@@ -274,5 +274,44 @@ class ReviewersTest(PackCase):
         self.assertEqual(VALIDATOR.GATEWORK_AGENTS, {f.stem for f in (ROOT / "agents").glob("*.md")})
 
 
+class RunModeTest(PackCase):
+    """#144: a pack, or this machine, sets the execution mode without a rule over Gatework's."""
+
+    sync = ExtensionsTest.sync
+
+    def test_a_pack_sets_its_mode_and_it_renders(self):
+        self.acme(PACK_TOML.replace("[extensions.gatework]\n",
+                                    '[extensions.gatework]\nmode = "inline"\nforbid_writing_subagents = true\n'))
+        code, out = self.validate()
+        self.assertEqual(code, 0, out)
+        ext = self.sync()
+        self.assertIn("## Run mode", ext)
+        self.assertIn("| acme | inline | forbidden |", ext)
+
+    def test_no_section_without_a_setting(self):
+        self.acme()
+        self.assertNotIn("## Run mode", self.sync())
+
+    def test_bad_values_fail(self):
+        ext = {"mode": "parallel", "forbid_writing_subagents": "yes"}
+        self.assertEqual(VALIDATOR.check_extensions(ext, "w", set(), set()),
+                         ["w: mode must be one of auto, inline, subagent",
+                          "w: forbid_writing_subagents must be true or false"])
+
+    def test_this_machine_sets_it_through_core(self):
+        """Core 0.8.30 reads brainrc.local.toml's [extensions.gatework] and checks it here."""
+        if not hasattr(brainrc.plugins, "machine_findings"):
+            self.skipTest("core before 0.8.30")
+        self.acme()
+        (self.core / "brainrc.local.toml").write_text('[extensions.gatework]\nmode = "subagent"\n')
+        ext = self.sync()
+        self.assertIn("## This machine", ext)
+        self.assertIn('"mode": "subagent"', ext)
+        (self.core / "brainrc.local.toml").write_text('[extensions.gatework]\nmode = "fast"\n')
+        code, out = quiet(brainrc.cmd_sync, True)
+        self.assertEqual(code, 1, out)
+        self.assertIn("mode must be one of auto, inline, subagent", out)
+
+
 if __name__ == "__main__":
     unittest.main()

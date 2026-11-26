@@ -11,7 +11,9 @@ from pathlib import Path, PurePath
 from brainrc.sources import markdown_files, skills
 
 NAMESPACE = "gatework"
-EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks", "reviewers"})
+EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks", "reviewers", "mode",
+                            "forbid_writing_subagents"})
+MODES = ("auto", "inline", "subagent")  # references/efficiency.md, Execution mode
 # top-level [extensions] keys, before the split: the keys from then, never a newer one
 LEGACY_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_NAMESPACES = ("spec-agent",)
@@ -65,6 +67,10 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
     if not all(isinstance(c, str) for c in ext.get("deliver_checks", [])):
         errors.append(f"{where}: deliver_checks must be a list of strings")
     errors += _reviewer_errors(ext.get("reviewers", []), where, skill_names, agent_names)
+    if "mode" in ext and ext["mode"] not in MODES:
+        errors.append(f"{where}: mode must be one of {', '.join(MODES)}")
+    if not isinstance(ext.get("forbid_writing_subagents", False), bool):
+        errors.append(f"{where}: forbid_writing_subagents must be true or false")
     return errors
 
 
@@ -247,6 +253,14 @@ def render_extensions(tables: list[tuple[str, dict]]) -> str:
                 "| Reviewer | Runs when the run touches | Veto | Pack |", "|---|---|---|---|"]
         out += [f"| {r.get('name')} | {', '.join(r.get('domains') or []) or 'every run'} | "
                 f"{'yes' if r.get('veto') else 'no'} | {p} |" for p, r in reviewers]
+
+    modes = [(p, e) for p, e in ext.items() if "mode" in e or "forbid_writing_subagents" in e]
+    if modes:
+        out += ["", "## Run mode", "",
+                "Packs' execution mode settings (references/efficiency.md, Overrides). This machine's,",
+                "below, wins over them.", "", "| Pack | Mode | Writing subagents |", "|---|---|---|"]
+        out += [f"| {p} | {e.get('mode', '—')} | "
+                f"{'forbidden' if e.get('forbid_writing_subagents') else '—'} |" for p, e in modes]
 
     checks = [(p, c) for p, e in ext.items() for c in e.get("deliver_checks", [])]
     if checks:

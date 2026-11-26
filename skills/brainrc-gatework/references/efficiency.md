@@ -13,6 +13,13 @@ to the engine and every role.
 
 Record it as `state.mode`.
 
+**Overrides** (in `extensions.md`): `mode` from § This machine (brainrc.local.toml) wins; else
+from § Run mode (packs), where packs that disagree mean `auto`. `auto` is the table above;
+`inline` runs every size inline; `subagent` runs every size as subagents, or fallback without a
+subagent tool. `forbid_writing_subagents` set by any of them: a role whose `tools` include Edit or
+Write runs in the main context ([fallback.md](fallback.md) steps), never as a subagent, so no
+parallel waves; read-only roles still run as subagents. Name the source in the intake line.
+
 ## Fewer, cheaper agent runs
 
 - **Implementer writes its own failing test first** by default. `brainrc-test-writer` only runs on tasks
