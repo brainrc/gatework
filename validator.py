@@ -21,9 +21,7 @@ PASS_WORDS = frozenset({"pass", "passes", "passed", "passing", "ok", "green", "s
 # The only keys Gatework reads from this machine's table (brainrc.local.toml, through core 0.8.30+).
 MACHINE_KEYS = frozenset({"mode", "forbid_writing_subagents"})
 # The skills in SKILL.md's Domains table: the domains a run can have besides a pack's own domains rows.
-DOMAIN_SKILLS = frozenset({"brainrc-go-service", "brainrc-terraform", "brainrc-aws", "brainrc-kubernetes",
-                           "brainrc-gitops", "brainrc-ci-pipelines", "brainrc-containers",
-                           "brainrc-db-migrations", "brainrc-observability", "brainrc-scripting"})
+DOMAIN_SKILLS = frozenset({"brainrc-ci-pipelines", "brainrc-observability", "brainrc-scripting"})
 # top-level [extensions] keys, before the split: the keys from then, never a newer one
 LEGACY_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_NAMESPACES = ("spec-agent",)

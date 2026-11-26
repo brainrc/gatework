@@ -9,3 +9,5 @@ bump: minor
   in the Domains table.
 - The README, AGENTS.md, `pack.toml`, the engine's Domains table and the eval cases say where stack
   skills live now.
+- The validator's built-in domain skills shrink to the Domains table's three, so a reviewer on a
+  moved skill warns unless its pack is enabled and adds the skill as a domain.
