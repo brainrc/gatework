@@ -12,6 +12,9 @@ This repo is public. It is Gatework, brainrc's default pack; brainrc core is
 - Domain skills (`skills/brainrc-<stack>/`) follow: Validate (offline commands) / Conventions /
   Review checklist / Never without approval. Register each in the Domains table of
   `skills/brainrc-gatework/SKILL.md`, with a positive and a negative case in `evals/triggers.toml`.
+  A skill for one language or platform (Go, Terraform, Kubernetes, ...) belongs in an official
+  pack in [brainrc/packs](https://github.com/brainrc/packs) instead, which reaches Gatework through
+  `[[extensions.gatework.domains]]`.
 - `skills/brainrc-gatework/roles` is a symlink to `../../agents`; keep every link inside the repo.
 - Keep `validator.py` and `scripts/` stdlib-only (Python 3.11+). `validator.py` may import the
   `brainrc` package that loads it; nothing else here imports brainrc outside `tests/`.

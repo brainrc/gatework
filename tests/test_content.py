@@ -15,9 +15,10 @@ _spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "val
 VALIDATOR = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(VALIDATOR)
 
-REMOVED_SKILLS = ("work", "review", "plan", "aws", "terraform")  # aliases removed in 0.6.1
+REMOVED_SKILLS = ("work", "review", "plan")  # aliases removed in 0.6.1
 USER_INVOKED = ("work", "review", "plan")  # slash commands: take $ARGUMENTS
-KNOWLEDGE = ("aws", "terraform")           # auto-triggered
+MOVED_TO_PACKS = ("go-service", "db-migrations", "terraform", "aws", "kubernetes", "gitops", "containers")
+KNOWLEDGE = ("observability", "scripting")  # auto-triggered domain skills
 ARGUMENT_HINTS = {
     "work": "<gh:42 | jira:PROJ-7 | issue URL | local:path.md | free text | --campaign <epic|query>> "
             "[--local] [--batch-size N] [--dry-run] [--shape playbook|ordered] [--auto]",
@@ -25,8 +26,8 @@ ARGUMENT_HINTS = {
     "plan": "<topic> [--web] [--dry-run] [--oneshot] [--local]",
 }
 TRIGGER_STARTS = {
-    "aws": "AWS account safety, CLI usage, and review checklists",
-    "terraform": "Terraform/OpenTofu and Terragrunt conventions",
+    "observability": "Monitoring and alerting as code",
+    "scripting": "Python and Bash operational tooling",
 }
 SKILLS, AGENTS = ROOT / "skills", ROOT / "agents"
 
@@ -76,7 +77,13 @@ class SkillsTest(unittest.TestCase):
                 m = meta(f"brainrc-{n}")
                 self.assertTrue(m.get("description", "").startswith(TRIGGER_STARTS[n]), m.get("description"))
                 self.assertNotIn("disable-model-invocation", m)
-        self.assertIn("## Account safety", body("brainrc-aws"))
+
+    def test_the_stack_skills_moved_to_brainrc_packs_are_gone(self):
+        """#318: brainrc/go, brainrc/terraform-aws and brainrc/kubernetes ship these now."""
+        for n in MOVED_TO_PACKS:
+            with self.subTest(skill=n):
+                self.assertFalse((SKILLS / f"brainrc-{n}").exists())
+                self.assertFalse((SKILLS / n).exists())
 
     def test_skills_taking_arguments_are_user_invoked(self):
         """Codex skips commands that use $ARGUMENTS, so they ship as user-invoked skills."""
@@ -97,7 +104,8 @@ class SkillsTest(unittest.TestCase):
         for old, new in VALIDATOR.RENAMED_SKILLS.items():
             with self.subTest(skill=old):
                 self.assertFalse((SKILLS / old).exists())
-                self.assertEqual(meta(new)["name"], new)
+                if new.removeprefix("brainrc-") not in MOVED_TO_PACKS:  # those ship in brainrc/packs
+                    self.assertEqual(meta(new)["name"], new)
         for name in ("brainrc-work", "brainrc-plan", "brainrc-gatework-approve", "brainrc-gatework-resume"):
             with self.subTest(skill=name):
                 text = (SKILLS / name / "SKILL.md").read_text()
@@ -217,7 +225,7 @@ class TriggerCasesTest(unittest.TestCase):
     def test_every_domain_skill_has_a_positive_and_a_negative_trigger(self):
         cases = tomllib.loads((ROOT / "evals/triggers.toml").read_text())["case"]
         skills = domain_skills()
-        self.assertGreaterEqual(len(skills), 10)
+        self.assertGreaterEqual(len(skills), 3)
         for skill in sorted(skills):
             with self.subTest(skill=skill):
                 self.assertTrue(any(skill in c.get("expect", []) for c in cases), "no positive case")

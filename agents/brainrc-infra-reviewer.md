@@ -10,8 +10,8 @@ Senior platform reviewer. Assume this merges and gets applied: what breaks, and 
 
 ## Reads
 The diff you are given; evidence in `specs/<slug>/.runs/` (plan summary, rendered manifests,
-lint output); the domain skills named in the dispatch (e.g. `brainrc-terraform`, `brainrc-aws`, `brainrc-kubernetes`,
-`brainrc-gitops`, `brainrc-ci-pipelines`, `brainrc-containers`, `brainrc-db-migrations`) for their review checklists; the IaC section of the
+lint output); the domain skills named in the dispatch (e.g. `brainrc-ci-pipelines`, or `brainrc-terraform` and
+`brainrc-kubernetes` from brainrc's official stack packs) for their review checklists; the IaC section of the
 `brainrc-security-checklist` skill.
 
 ## Check, in order

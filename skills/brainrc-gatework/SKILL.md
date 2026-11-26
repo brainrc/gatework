@@ -50,17 +50,14 @@ the `Domain skills:` line of every dispatch. Roles load only the named skills.
 
 | Files | Skill | Extra reviewer |
 |---|---|---|
-| `*.go`, `go.mod` | [brainrc-go-service](../brainrc-go-service/SKILL.md) | — |
-| `*.tf`, `*.tfvars`, `terragrunt.hcl`, `atlantis.yaml` | [brainrc-terraform](../brainrc-terraform/SKILL.md) (+ [brainrc-aws](../brainrc-aws/SKILL.md) for AWS providers) | brainrc-infra-reviewer |
-| k8s YAML, `Chart.yaml`, `values*.yaml`, `kustomization.yaml` | [brainrc-kubernetes](../brainrc-kubernetes/SKILL.md) | brainrc-infra-reviewer |
-| Argo CD `Application*`, Flux `Kustomization`/`HelmRelease`, config repos | [brainrc-gitops](../brainrc-gitops/SKILL.md) + kubernetes | brainrc-infra-reviewer |
 | `.github/workflows/*`, `action.yml`, `.gitlab-ci.yml` | [brainrc-ci-pipelines](../brainrc-ci-pipelines/SKILL.md) | brainrc-infra-reviewer |
-| `Dockerfile*`, `compose*.yaml` | [brainrc-containers](../brainrc-containers/SKILL.md) | brainrc-infra-reviewer |
-| migrations dirs, `*.sql`, ORM models | [brainrc-db-migrations](../brainrc-db-migrations/SKILL.md) | brainrc-infra-reviewer |
 | alert/recording rules, dashboards, collector config | [brainrc-observability](../brainrc-observability/SKILL.md) | — |
 | `*.py` tooling, `*.sh` | [brainrc-scripting](../brainrc-scripting/SKILL.md) | — |
 
-Unlisted stacks: rely on the project's own conventions and `brainrc-project-commands`.
+Stack packs add rows through `extensions.md` (below): brainrc's official packs cover Go and
+database migrations, Terraform and AWS, Kubernetes with GitOps and containers, Python, Node and
+TypeScript, and Rust ([brainrc/packs](https://github.com/brainrc/packs)). Unlisted stacks: rely on
+the project's own conventions and `brainrc-project-commands`.
 
 **Packs.** `brainrc apply` renders enabled packs into `extensions.md` in the brainrc home (`$BRAINRC_HOME`, default
 `~/.config/brainrc/`). If it exists, read it once
