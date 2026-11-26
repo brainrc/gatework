@@ -12,8 +12,9 @@ from brainrc.sources import markdown_files, skills
 
 NAMESPACE = "gatework"
 EXTENSION_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks", "reviewers", "mode",
-                            "forbid_writing_subagents"})
+                            "forbid_writing_subagents", "unavailable_gates"})
 MODES = ("auto", "inline", "subagent")  # references/efficiency.md, Execution mode
+GATE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")  # an unavailable gate's name: one shell word
 # top-level [extensions] keys, before the split: the keys from then, never a newer one
 LEGACY_KEYS = frozenset({"domains", "intake_context", "ticket", "deliver_checks"})
 LEGACY_NAMESPACES = ("spec-agent",)
@@ -71,6 +72,10 @@ def check_extensions(ext: dict, where: str, skill_names: set[str], agent_names: 
         errors.append(f"{where}: mode must be one of {', '.join(MODES)}")
     if not isinstance(ext.get("forbid_writing_subagents", False), bool):
         errors.append(f"{where}: forbid_writing_subagents must be true or false")
+    gates = ext.get("unavailable_gates", [])
+    if not isinstance(gates, list) or not all(isinstance(g, str) and GATE.match(g) for g in gates):
+        errors.append(f"{where}: unavailable_gates must be a list of check names such as \"iac-scan\" "
+                      "(letters, digits, - and _)")
     return errors
 
 
@@ -268,4 +273,13 @@ def render_extensions(tables: list[tuple[str, dict]]) -> str:
                 "List these in the Deliver gate, each marked done, not applicable, or not run.",
                 "Never mark a check done that did not run.", ""]
         out += [f"- ({p}) {c}" for p, c in checks]
+
+    gates = [(p, g) for p, e in ext.items() for g in e.get("unavailable_gates", [])]
+    if gates:
+        out += ["", "## Unavailable gates", "",
+                "Planned checks that don't run yet. Never report one as passed or done: give each a",
+                "Checks row in `verify.md`, and a line at the Deliver gate, reading `not run, unavailable`.",
+                "Before the Deliver gate, run `python3 <skill>/scripts/unavailable_gates.py check",
+                f"specs/<slug> {' '.join(dict.fromkeys(g for _, g in gates))}` and fix each line it names.", ""]
+        out += [f"- ({p}) {g}" for p, g in gates]
     return "\n".join(out).rstrip() + "\n"

@@ -12,3 +12,7 @@ bump: patch
   `[extensions.gatework]`, without a rule that overrides Gatework. This machine's mode wins; packs
   that disagree mean `auto`. With `forbid_writing_subagents`, roles that edit or write files run in
   the main context and there are no parallel waves (brainrc/brainrc#144).
+- A pack's `unavailable_gates = ["iac-scan"]` names planned checks that don't run yet. Each is
+  listed in `verify.md` and at the Deliver gate as `not run, unavailable`, never as passed, and the
+  new `scripts/unavailable_gates.py check` trips on any line of `verify.md`, `pr-body.md` or
+  `ticket-comment.md` that names one and claims a pass (brainrc/brainrc#145).

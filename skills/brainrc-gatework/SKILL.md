@@ -66,7 +66,8 @@ Unlisted stacks: rely on the project's own conventions and `brainrc-project-comm
 `~/.config/brainrc/`). If it exists, read it once
 at intake. Its Domains rows extend the table above, its Intake context skills run
 after the ticket is fetched, its Ticket connectors handle the refs they list, its Reviewers join
-review, and its Deliver checks join the Deliver gate. Without it, everything above applies unchanged.
+review, its Deliver checks and Unavailable gates join the Deliver gate, and its Run mode sets the
+mode (`efficiency.md`). Without it, everything above applies unchanged.
 
 ## Run
 
@@ -150,6 +151,8 @@ tasks `F1..`, run them as above, re-review only the fix diff. Track `metrics.rev
 1. Present the Deliver gate with every outward action verbatim (branch, PR title/body
    path, ticket comment, status change), plus any pack Deliver checks, each marked done,
    not applicable, or not run, and the findings of pack reviewers without veto, as advisory.
+   Pack Unavailable gates are listed as `not run, unavailable`, after
+   `scripts/unavailable_gates.py check` passes (`extensions.md` § Unavailable gates).
 2. After approval (or, in an `auto` run, when no hard stop stands: § Auto mode), and only then: push the branch, open the PR from `pr-body.md` using
    the ticket connector's `link_pr`, post `ticket-comment.md`, transition the ticket.
    Record `metrics.pr_opened_at` from `date -u` when the PR opens.
