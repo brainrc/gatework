@@ -5,6 +5,19 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.9.0 (2026-11-26)
+
+- Removes the stack skills that moved to brainrc's official packs (brainrc/brainrc#318):
+  `brainrc-go-service` and `brainrc-db-migrations` (now `brainrc/go`), `brainrc-terraform` and
+  `brainrc-aws` (`brainrc/terraform-aws`), and `brainrc-kubernetes`, `brainrc-gitops` and
+  `brainrc-containers` (`brainrc/kubernetes`), all folders of brainrc/packs under the same names.
+  Enable those packs to keep the skills; their `[[extensions.gatework.domains]]` rows put them back
+  in the Domains table.
+- The README, AGENTS.md, `pack.toml`, the engine's Domains table and the eval cases say where stack
+  skills live now.
+- The validator's built-in domain skills shrink to the Domains table's three, so a reviewer on a
+  moved skill warns unless its pack is enabled and adds the skill as a domain.
+
 ## 0.8.1 (2026-11-26)
 
 - A pack can add reviewers: `[[extensions.gatework.reviewers]]` names one of its agents, the
