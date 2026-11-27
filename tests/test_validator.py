@@ -4,7 +4,9 @@ import importlib.util
 import os
 import re
 import shutil
+import stat
 import subprocess
+import sys
 import tomllib
 import types
 import unittest
@@ -14,6 +16,14 @@ from unittest import mock
 from helpers import PACK_TOML, ROOT, PackCase, brainrc, quiet, write_skill
 
 COPIES_STAND_INS = importlib.util.find_spec("brainrc.gitlinks") is not None  # brainrc with #120
+
+
+def remove_git(path) -> None:
+    """Git marks its object files read-only, and Windows won't delete a read-only file."""
+    def writable(func, p, _exc):
+        os.chmod(p, stat.S_IWRITE)
+        func(p)
+    shutil.rmtree(path, **{"onexc" if sys.version_info >= (3, 12) else "onerror": writable})
 
 
 def brainrc_source(root):
@@ -107,6 +117,7 @@ class RolesLinkTest(PackCase):
         def git(*args):
             subprocess.run(["git", "-C", str(self.pack), *args], check=True, capture_output=True)
         git("init", "-q")
+        self.addCleanup(remove_git, self.pack / ".git")  # before PackCase's rmtree, which can't on Windows
         git("add", "-A")  # the link is a symlink here, so git records it as one (mode 120000)
         self.roles.unlink()
         self.roles.write_text("../../agents")
