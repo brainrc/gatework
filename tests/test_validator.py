@@ -1,13 +1,24 @@
 """Gatework's validator plugin, run by brainrc core: the skill and agent names, the roles link, the
 ticket connectors and each pack's [extensions.gatework]."""
 import importlib.util
+import os
 import re
+import shutil
+import subprocess
 import tomllib
+import types
 import unittest
 from pathlib import PurePosixPath, PureWindowsPath
 from unittest import mock
 
 from helpers import PACK_TOML, ROOT, PackCase, brainrc, quiet, write_skill
+
+COPIES_STAND_INS = importlib.util.find_spec("brainrc.gitlinks") is not None  # brainrc with #120
+
+
+def brainrc_source(root):
+    """What the validator needs of brainrc's Source for a pack at root."""
+    return types.SimpleNamespace(root=root, rel=lambda p: p.relative_to(root).as_posix())
 
 _spec = importlib.util.spec_from_file_location("gatework_validator", ROOT / "validator.py")
 VALIDATOR = importlib.util.module_from_spec(_spec)
@@ -89,6 +100,43 @@ class RolesLinkTest(PackCase):
         self.roles.unlink()
         self.roles.write_text("../../agents")  # what git writes when core.symlinks is false
         self.assert_validate_fails()
+
+    def stand_in(self) -> None:
+        """roles as a checkout without symlinks leaves it: git's index records the link, and a plain
+        file holding its target stands in for it (brainrc reads the index to tell the two apart)."""
+        def git(*args):
+            subprocess.run(["git", "-C", str(self.pack), *args], check=True, capture_output=True)
+        git("init", "-q")
+        git("add", "-A")  # the link is a symlink here, so git records it as one (mode 120000)
+        self.roles.unlink()
+        self.roles.write_text("../../agents")
+
+    @unittest.skipUnless(COPIES_STAND_INS and shutil.which("git"), "needs git and a brainrc that copies stand-ins")
+    def test_git_stand_in_passes_where_brainrc_copies_it(self):
+        self.stand_in()
+        with mock.patch.dict(os.environ, {"BRAINRC_LINK_MODE": "copy"}):
+            code, out = self.validate()
+        self.assertEqual(code, 0, out)
+
+    @unittest.skipUnless(shutil.which("git"), "needs git")
+    def test_git_stand_in_fails_in_link_mode(self):
+        self.stand_in()
+        with mock.patch.dict(os.environ, {"BRAINRC_LINK_MODE": "symlink"}):
+            code, out = self.validate()
+        self.assertEqual(code, 1, out)
+        self.assertIn("skills/brainrc-gatework/roles is git's plain-file stand-in", out)
+        self.assertIn('link_mode = "copy"', out)
+
+    def test_a_stand_in_is_accepted_only_with_a_brainrc_that_copies_it(self):
+        self.roles.unlink()
+        self.roles.write_text("../../agents")
+        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=True):
+            self.assertIsNone(VALIDATOR.roles_error(brainrc_source(self.pack)))
+        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=False):
+            self.assertIn("stand-in", VALIDATOR.roles_error(brainrc_source(self.pack)))
+        self.roles.write_text("../../skills")  # a stand-in for the wrong link is never accepted
+        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=True):
+            self.assertIn("a plain file", VALIDATOR.roles_error(brainrc_source(self.pack)))
 
     def test_link_to_the_wrong_place_fails(self):
         self.roles.unlink()

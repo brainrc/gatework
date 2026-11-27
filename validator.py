@@ -48,7 +48,8 @@ GATEWORK_AGENTS = frozenset(RENAMED_AGENTS.values())  # tests/test_validator.py:
 
 ROLES = Path("skills/brainrc-gatework/roles")  # a symlink to ../../agents
 ROLES_FIX = ("enable symlinks (brainrc's docs/install.md, Platforms), then restore it in the pack's "
-             "clone with `git checkout -- skills/brainrc-gatework/roles`")
+             "clone with `git checkout -- skills/brainrc-gatework/roles`; or, with a brainrc that copies "
+             "git's stand-ins for links, set link_mode = \"copy\"")
 CONNECTOR = re.compile(r"^(brainrc-)?ticket-")
 REQUIRED_CONNECTOR_OPS = ("fetch", "comment", "transition", "link_pr")  # references/connectors.md
 H2 = re.compile(r"^## +(.+)$", re.M)
@@ -189,14 +190,41 @@ def links_to_agents(target: str) -> bool:
     return PurePath(target) == PurePath("../../agents")
 
 
+def stand_in(path) -> str | None:
+    """The target git wrote into a plain file in a link's place (core.symlinks off), else None."""
+    try:
+        if path.is_symlink() or not path.is_file() or path.stat().st_size > 4096:
+            return None
+        return path.read_bytes().decode("utf-8").strip()
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
+def brainrc_copies_stand_ins() -> bool:
+    """True when the brainrc loading Gatework copies what a stand-in points to, as it does in copy
+    mode from the release that ships brainrc/gitlinks.py (#120). An older brainrc lacks it."""
+    try:
+        from brainrc import copies, gitlinks  # noqa: F401
+    except ImportError:
+        return False
+    return copies.copying()
+
+
 def roles_error(me) -> str | None:
     """Gatework reads its role files through roles/ -> ../../agents. A checkout without symlink
-    support writes a plain file instead, and every role link breaks."""
+    support writes a plain file holding that target instead; brainrc's copy mode copies agents/ in
+    its place, and link mode would leave every role link broken."""
     path = me.root / ROLES
     if path.is_symlink() and links_to_agents(os.readlink(path)):
         return None
     if not path.is_symlink() and not path.exists():
         return f"{me.rel(path)} is missing"
+    target = stand_in(path)
+    if target is not None and links_to_agents(target):
+        if brainrc_copies_stand_ins():
+            return None
+        return (f"{me.rel(path)} is git's plain-file stand-in for its link to ../../agents (cloned without "
+                "symlink support), which only brainrc's copy mode installs")
     found = f"a link to {os.readlink(path)}" if path.is_symlink() else "a directory" if path.is_dir() else "a plain file"
     return f"{me.rel(path)} must be a symlink to ../../agents but is {found} (cloned without symlink support?)"
 
