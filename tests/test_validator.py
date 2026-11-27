@@ -127,15 +127,25 @@ class RolesLinkTest(PackCase):
         self.assertIn("skills/brainrc-gatework/roles is git's plain-file stand-in", out)
         self.assertIn('link_mode = "copy"', out)
 
+    @unittest.skipUnless(COPIES_STAND_INS, "needs a brainrc that copies stand-ins")
+    def test_a_plain_file_git_does_not_record_as_a_link_fails_in_copy_mode(self):
+        self.roles.unlink()
+        self.roles.write_text("../../agents")  # no git index: an extracted archive, not a checkout
+        with mock.patch.dict(os.environ, {"BRAINRC_LINK_MODE": "copy"}):
+            self.assertIn("stand-in", VALIDATOR.roles_error(brainrc_source(self.pack)))
+
     def test_a_stand_in_is_accepted_only_with_a_brainrc_that_copies_it(self):
         self.roles.unlink()
         self.roles.write_text("../../agents")
-        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=True):
+        with mock.patch.object(VALIDATOR, "brainrc_copies", return_value=True):
             self.assertIsNone(VALIDATOR.roles_error(brainrc_source(self.pack)))
-        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=False):
+        with mock.patch.object(VALIDATOR, "brainrc_copies", return_value=False):
             self.assertIn("stand-in", VALIDATOR.roles_error(brainrc_source(self.pack)))
+        self.roles.write_text("..\\..\\agents")  # as git on Windows may write it
+        with mock.patch.object(VALIDATOR, "brainrc_copies", return_value=True):
+            self.assertIsNone(VALIDATOR.roles_error(brainrc_source(self.pack)))
         self.roles.write_text("../../skills")  # a stand-in for the wrong link is never accepted
-        with mock.patch.object(VALIDATOR, "brainrc_copies_stand_ins", return_value=True):
+        with mock.patch.object(VALIDATOR, "brainrc_copies", return_value=True):
             self.assertIn("a plain file", VALIDATOR.roles_error(brainrc_source(self.pack)))
 
     def test_link_to_the_wrong_place_fails(self):

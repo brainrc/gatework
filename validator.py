@@ -195,19 +195,21 @@ def stand_in(path) -> str | None:
     try:
         if path.is_symlink() or not path.is_file() or path.stat().st_size > 4096:
             return None
-        return path.read_bytes().decode("utf-8").strip()
+        return path.read_bytes().decode("utf-8").strip().replace("\\", "/")
     except (OSError, UnicodeDecodeError):
         return None
 
 
-def brainrc_copies_stand_ins() -> bool:
-    """True when the brainrc loading Gatework copies what a stand-in points to, as it does in copy
-    mode from the release that ships brainrc/gitlinks.py (#120). An older brainrc lacks it."""
+def brainrc_copies(path) -> bool:
+    """True when the brainrc loading Gatework copies what the stand-in at path points to: copy mode,
+    a brainrc with brainrc/gitlinks.py (#120), and git's index records path as a link. An older
+    brainrc, or a bad link_mode (brainrc reports that itself), counts as not."""
     try:
-        from brainrc import copies, gitlinks  # noqa: F401
-    except ImportError:
+        from brainrc import copies, gitlinks
+        real = Path(os.path.realpath(path.parent)) / path.name  # gitlinks keys real paths
+        return copies.copying() and real in gitlinks.stand_ins(path.parent)
+    except Exception:  # noqa: BLE001 - any failure means the copy isn't certain
         return False
-    return copies.copying()
 
 
 def roles_error(me) -> str | None:
@@ -221,7 +223,7 @@ def roles_error(me) -> str | None:
         return f"{me.rel(path)} is missing"
     target = stand_in(path)
     if target is not None and links_to_agents(target):
-        if brainrc_copies_stand_ins():
+        if brainrc_copies(path):
             return None
         return (f"{me.rel(path)} is git's plain-file stand-in for its link to ../../agents (cloned without "
                 "symlink support), which only brainrc's copy mode installs")
