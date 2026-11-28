@@ -5,6 +5,13 @@ Gatework follows semver. While it is `0.x`, a change that breaks how packs exten
 docs bump PATCH. Each version pins the brainrc core versions it works with in `pack.toml`
 (`requires_core`).
 
+## 0.9.1 (2026-11-28)
+
+- The roles check accepts git's stand-in for `roles/` (a plain file holding `../../agents`, what a
+  checkout without symlinks leaves) when brainrc copies what it points to: copy mode, from the brainrc
+  release with `brainrc/gitlinks.py` (#120). Link mode, or an older brainrc, still fails and names the
+  stand-in.
+
 ## 0.9.0 (2026-11-26)
 
 - Removes the stack skills that moved to brainrc's official packs (brainrc/brainrc#318):
